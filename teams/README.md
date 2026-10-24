@@ -82,5 +82,5 @@ teams/game ──▶ teams/shared ◀── teams/frontend ──HTTP /api/dojo�
      └───────────────── backend imports game rules ───────────────────┘
 ```
 
-More: [ARCHITECTURE.md](ARCHITECTURE.md) · [OPENMAIC.md](OPENMAIC.md) · [game](game/README.md) ·
+More: [OWNERSHIP.md](OWNERSHIP.md) (names, roles, handoffs) · [ARCHITECTURE.md](ARCHITECTURE.md) · [OPENMAIC.md](OPENMAIC.md) · [game](game/README.md) ·
 [frontend](frontend/README.md) · [backend](backend/README.md) · [shared](shared/README.md)

@@ -14,7 +14,8 @@ floor is a topic), AI characters (Sensei, Rival, Classmate, Boss), assessments, 
 | **Backend Team** | `teams/backend/` (+ one-line wiring in `app/api/dojo/`) |
 | All teams | `teams/shared/` (contracts) |
 
-Feature → team → folder map and conflict rules: **[teams/README.md](teams/README.md)**.
+Who does what (names, roles, handoffs): **[teams/OWNERSHIP.md](teams/OWNERSHIP.md)**.
+Feature → team → folder map and conflict rules: [teams/README.md](teams/README.md).
 Tech stack: [teams/ARCHITECTURE.md](teams/ARCHITECTURE.md).
 
 ## Run it
