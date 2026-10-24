@@ -11,56 +11,97 @@ import {
 } from '@/lib/classroom/insights';
 import type { QuizAnswerResult } from '@/lib/classroom/complete-summary';
 
-const answer = (sceneTitle: string, correct: boolean, id = `${sceneTitle}-${correct}`) =>
+const answer = (
+  sceneTitle: string,
+  correct: boolean,
+  id = `${sceneTitle}-${correct}`,
+  weight = 1,
+) =>
   ({
     questionId: id,
     sceneId: sceneTitle,
     sceneTitle,
     question: id,
     correct,
+    weight,
   }) satisfies QuizAnswerResult;
 
+/** `n` answers in one scene, the first `rightCount` of them correct. */
+const answers = (sceneTitle: string, n: number, rightCount: number, weight = 1) =>
+  Array.from({ length: n }, (_, i) =>
+    answer(sceneTitle, i < rightCount, `${sceneTitle}-${i}`, weight),
+  );
+
 describe('normalizeCategories', () => {
-  it('drops malformed entries, clamps scores and deduplicates labels', () => {
+  const pool = answers('Scene', 12, 6);
+
+  it('drops malformed entries, deduplicates labels and scores from the grouping', () => {
     expect(
       normalizeCategories(
         [
-          { label: 'Light', score: 120 },
-          { label: 'light', score: 10 },
-          { label: '  ', score: 50 },
-          { label: 'Water', score: -5 },
-          { label: 'Enzymes', score: '73' },
-          { label: 'Gas', score: 'n/a' },
+          { label: 'Light', questions: [1, 2] },
+          { label: 'light', questions: [3] },
+          { label: '  ', questions: [4] },
+          { label: 'Water', questions: [8, 9] },
+          { label: 'Enzymes', questions: [6, 7] },
+          { label: 'NoQuestions', questions: [] },
           null,
         ],
-        20,
+        pool,
       ),
     ).toEqual([
+      // The first 6 of the 12 pooled answers are correct: 1-2 right, 7-8
+      // wrong, and 6-7 straddle the boundary.
       { label: 'Light', score: 100 },
       { label: 'Water', score: 0 },
-      { label: 'Enzymes', score: 73 },
+      { label: 'Enzymes', score: 50 },
     ]);
   });
 
+  it('counts a question for one category only, however many claim it', () => {
+    const categories = normalizeCategories(
+      [
+        { label: 'First', questions: [1, 2, 3] },
+        { label: 'Second', questions: [3, 4, 5] },
+      ],
+      pool,
+    );
+    // Question 3 belongs to First, so Second is scored on 4 and 5 alone.
+    expect(categories.map((c) => c.label)).toEqual(['First', 'Second']);
+    expect(categories[0]?.score).toBe(100);
+  });
+
+  it('weights a half-point practice answer as half an answer', () => {
+    // One correct course question, one wrong practice question at half weight:
+    // 1 of 1.5 points earned.
+    const mixed = [answer('S', true, 'course'), answer('S', false, 'practice', 0.5)];
+    expect(normalizeCategories([{ label: 'Topic', questions: [1, 2] }], mixed)[0]?.score).toBe(67);
+  });
+
+  it('ignores question numbers outside the list it was given', () => {
+    expect(normalizeCategories([{ label: 'Topic', questions: [0, 99, 1] }], pool)[0]).toEqual({
+      label: 'Topic',
+      score: 100,
+    });
+  });
+
   it('never returns more axes than a radar can carry, keeping the spread', () => {
-    const many = Array.from({ length: 12 }, (_, i) => ({ label: `T${i}`, score: i * 8 }));
-    const axes = normalizeCategories(many, 40);
+    const many = Array.from({ length: 12 }, (_, i) => ({ label: `T${i}`, questions: [i + 1] }));
+    const axes = normalizeCategories(many, answers('Scene', 40, 20));
     expect(axes).toHaveLength(MAX_RADAR_AXES);
-    // Both the weakest and the strongest topic survive the trim.
-    expect(axes.map((a) => a.label)).toContain('T0');
-    expect(axes.map((a) => a.label)).toContain('T11');
-    // And the caller's order is preserved.
     expect(axes.map((a) => a.label)).toEqual([...axes.map((a) => a.label)].sort(byIndex));
   });
 
   it('caps the axes so every one keeps enough questions behind it', () => {
-    const six = Array.from({ length: 6 }, (_, i) => ({ label: `T${i}`, score: i * 10 }));
-    // 8 questions / 2 per axis = 4 axes, even though the model offered 6.
-    expect(normalizeCategories(six, 8)).toHaveLength(4);
-    // 20 questions leave room for all six.
-    expect(normalizeCategories(six, 20)).toHaveLength(6);
+    const six = Array.from({ length: 6 }, (_, i) => ({ label: `T${i}`, questions: [i + 1] }));
+    expect(normalizeCategories(six, answers('Scene', 8, 4))).toHaveLength(4);
+    expect(normalizeCategories(six, answers('Scene', 20, 10))).toHaveLength(6);
   });
 });
+
+function byIndex(a: string, b: string) {
+  return Number(a.slice(1)) - Number(b.slice(1));
+}
 
 describe('maxAxesFor / supportsRadar', () => {
   it('needs MIN_QUESTIONS_PER_AXIS questions per axis', () => {
@@ -78,11 +119,22 @@ describe('maxAxesFor / supportsRadar', () => {
   });
 });
 
-function byIndex(a: string, b: string) {
-  return Number(a.slice(1)) - Number(b.slice(1));
-}
-
 describe('fallbackCategories', () => {
+  it('weights a half-point practice answer as half an answer', () => {
+    expect(
+      fallbackCategories([
+        answer('Light', true, 'a'),
+        answer('Light', false, 'b', 0.5),
+        answer('Water', true, 'c'),
+        answer('Water', true, 'd'),
+      ]),
+    ).toEqual([
+      // 1 of 1.5 points on Light, everything right on Water.
+      { label: 'Light', score: 67 },
+      { label: 'Water', score: 100 },
+    ]);
+  });
+
   it('scores each quiz scene title by its own accuracy', () => {
     expect(
       fallbackCategories([

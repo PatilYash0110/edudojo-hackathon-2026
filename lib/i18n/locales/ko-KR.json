@@ -771,7 +771,13 @@
       "doingWell": "양호",
       "satisfactory": "보통",
       "needsPractice": "연습 필요"
-    }
+    },
+    "practiceScene": "연습",
+    "practiceAction": "이 주제 연습하기",
+    "practiceBusy": "연습 문제 생성 중…",
+    "practiceDone": "연습 완료",
+    "practiceAdded": "연습 문제가 코스에 추가되었습니다.",
+    "practiceFailed": "연습 문제를 생성하지 못했습니다. 다시 시도해 주세요."
   },
   "whiteboard": {
     "title": "인터랙티브 화이트보드",

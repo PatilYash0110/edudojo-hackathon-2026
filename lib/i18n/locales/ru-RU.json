@@ -771,7 +771,13 @@
       "doingWell": "Хорошо",
       "satisfactory": "Удовлетворительно",
       "needsPractice": "Нужна практика"
-    }
+    },
+    "practiceScene": "Практика",
+    "practiceAction": "Потренировать эту тему",
+    "practiceBusy": "Создаём практику…",
+    "practiceDone": "Отработано",
+    "practiceAdded": "Практические вопросы добавлены в курс.",
+    "practiceFailed": "Не удалось создать практические вопросы. Попробуйте ещё раз."
   },
   "whiteboard": {
     "title": "Интерактивная доска",

@@ -771,7 +771,13 @@
       "doingWell": "Tốt",
       "satisfactory": "Đạt",
       "needsPractice": "Cần luyện thêm"
-    }
+    },
+    "practiceScene": "Luyện tập",
+    "practiceAction": "Luyện tập chủ đề này",
+    "practiceBusy": "Đang tạo bài luyện tập…",
+    "practiceDone": "Đã luyện tập",
+    "practiceAdded": "Đã thêm câu hỏi luyện tập vào khóa học của bạn.",
+    "practiceFailed": "Không thể tạo câu hỏi luyện tập. Vui lòng thử lại."
   },
   "whiteboard": {
     "title": "Bảng tương tác",

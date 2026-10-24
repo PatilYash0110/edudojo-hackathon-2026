@@ -2475,7 +2475,13 @@
       "doingWell": "良好",
       "satisfactory": "及格",
       "needsPractice": "需要練習"
-    }
+    },
+    "practiceScene": "練習",
+    "practiceAction": "練習此主題",
+    "practiceBusy": "正在產生練習…",
+    "practiceDone": "已練習",
+    "practiceAdded": "練習題已加入你的課程。",
+    "practiceFailed": "無法產生練習題，請重試。"
   },
   "proMode": {
     "attach": "添加材料",

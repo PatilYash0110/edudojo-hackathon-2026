@@ -771,7 +771,13 @@
       "doingWell": "良好",
       "satisfactory": "まずまず",
       "needsPractice": "練習が必要"
-    }
+    },
+    "practiceScene": "練習",
+    "practiceAction": "このトピックを練習する",
+    "practiceBusy": "練習問題を作成中…",
+    "practiceDone": "練習済み",
+    "practiceAdded": "練習問題をコースに追加しました。",
+    "practiceFailed": "練習問題を作成できませんでした。もう一度お試しください。"
   },
   "whiteboard": {
     "title": "インタラクティブホワイトボード",

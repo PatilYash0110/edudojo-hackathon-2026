@@ -2,8 +2,10 @@
  * Classroom insights API
  *
  * POST: Receives the graded quiz questions of a finished course and asks the
- * LLM to group them into 3–8 topic categories with an accuracy score each.
- * The completion page draws those as radar axes.
+ * LLM to group them into 3–8 topic categories. The model groups; the scores
+ * are computed from its grouping, because weighted accuracy is arithmetic a
+ * language model has no reason to get right, and it cannot know that a
+ * practice question counts for half.
  *
  * The axis ceiling follows the question count (see `maxAxesFor`): a category
  * carrying a single question can only score 0% or 100%, so short quizzes get
@@ -85,7 +87,7 @@ ${results.map((r) => `${r.correct ? 'correct' : 'wrong'} | ${r.question}`).join(
 
     const json = completion.text.match(/\{[\s\S]*\}/);
     const parsed = json ? (JSON.parse(json[0]) as { categories?: unknown }) : {};
-    const categories = normalizeCategories(parsed.categories, results.length);
+    const categories = normalizeCategories(parsed.categories, results);
     return apiSuccess({
       categories: hasEnoughAxes(categories) ? categories : fallbackCategories(results),
     });

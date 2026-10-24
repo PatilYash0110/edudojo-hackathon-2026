@@ -771,7 +771,13 @@
       "doingWell": "Bien",
       "satisfactory": "Satisfaisant",
       "needsPractice": "À travailler"
-    }
+    },
+    "practiceScene": "Entraînement",
+    "practiceAction": "S'entraîner sur ce thème",
+    "practiceBusy": "Génération de l'entraînement…",
+    "practiceDone": "Travaillé",
+    "practiceAdded": "Des questions d'entraînement ont été ajoutées à votre cours.",
+    "practiceFailed": "Impossible de générer les questions d'entraînement. Veuillez réessayer."
   },
   "whiteboard": {
     "title": "Tableau blanc interactif",

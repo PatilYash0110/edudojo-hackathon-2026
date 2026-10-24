@@ -771,7 +771,13 @@
       "doingWell": "Gut",
       "satisfactory": "Befriedigend",
       "needsPractice": "Üben"
-    }
+    },
+    "practiceScene": "Übung",
+    "practiceAction": "Dieses Thema üben",
+    "practiceBusy": "Übung wird erstellt…",
+    "practiceDone": "Geübt",
+    "practiceAdded": "Übungsfragen wurden deinem Kurs hinzugefügt.",
+    "practiceFailed": "Übungsfragen konnten nicht erstellt werden. Bitte versuche es erneut."
   },
   "whiteboard": {
     "title": "Interaktives Whiteboard",

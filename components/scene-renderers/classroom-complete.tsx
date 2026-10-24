@@ -21,6 +21,15 @@ import {
   type InsightCategory,
 } from '@/lib/classroom/insights';
 import { CompleteRadar } from '@/components/scene-renderers/complete-radar';
+import {
+  PRACTICE_THRESHOLD,
+  fetchPracticeQuestions,
+  mergePracticeQuestions,
+  practisedTopics,
+} from '@/lib/classroom/practice';
+import { makeScene, type QuizContent, type QuizQuestion } from '@/lib/types/stage';
+import { Loader2, Dumbbell, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import { loadQuizAttemptState } from '@/lib/quiz/runtime';
 import { createLogger } from '@/lib/logger';
 
@@ -422,6 +431,69 @@ export function ClassroomCompletePage({
   }, [quizResults, title, locale, insightsOverride]);
 
   const showRadar = hasEnoughAxes(insights);
+
+  // Targeted practice. Only offered on topics the model actually named: when
+  // no model answered, the "topics" are quiz-scene titles, and a drill
+  // generated from a scene title would be vague where it needs to be precise.
+  const topicsAreFromModel = llmInsights.length > 0 && !insightsOverride;
+  const addScene = useStageStore((state) => state.addScene);
+  const updateScene = useStageStore((state) => state.updateScene);
+  const stageId = useStageStore((state) => state.stage?.id);
+  const practiceSceneTitle = t('classroomComplete.practiceScene');
+  // The scene that already holds practice questions is the durable record of
+  // what has been drilled, so the answer is read off it rather than stored a
+  // second time where the two copies could disagree.
+  const practiceScene = scenes.find(
+    (scene) =>
+      scene.type === 'quiz' &&
+      practisedTopics(((scene.content as QuizContent).questions ?? []) as QuizQuestion[]).size > 0,
+  );
+  const practised = practisedTopics(
+    ((practiceScene?.content as QuizContent | undefined)?.questions ?? []) as QuizQuestion[],
+  );
+  // One generation at a time: these are model calls on a single slot, and
+  // three in flight is three chances of a rate-limit refusal landing on
+  // someone who only wanted to practise.
+  const [practisingTopic, setPractisingTopic] = useState<string | null>(null);
+
+  const practise = async (topic: string) => {
+    if (practisingTopic || !stageId) return;
+    setPractisingTopic(topic);
+    try {
+      const generated = await fetchPracticeQuestions({
+        courseTitle: title,
+        language: locale,
+        topic,
+        results: quizResults,
+      });
+      const existing = ((practiceScene?.content as QuizContent | undefined)?.questions ??
+        []) as QuizQuestion[];
+      const questions = mergePracticeQuestions(existing, topic, generated);
+      if (practiceScene) {
+        updateScene(practiceScene.id, { content: { type: 'quiz', questions } });
+      } else {
+        addScene(
+          makeScene(
+            {
+              id: `scene-practice-${Date.now().toString(36)}`,
+              stageId,
+              title: practiceSceneTitle,
+              order: scenes.length,
+            },
+            { type: 'quiz', questions },
+          ),
+        );
+      }
+      toast(t('classroomComplete.practiceAdded'));
+    } catch (error) {
+      // The course is left untouched; the specific reason is for the log, not
+      // for someone who just finished a lesson.
+      log.warn('Practice generation failed:', error);
+      toast(t('classroomComplete.practiceFailed'));
+    } finally {
+      setPractisingTopic(null);
+    }
+  };
 
   const dateLabel = useMemo(() => {
     try {
@@ -850,11 +922,48 @@ export function ClassroomCompletePage({
                                       )}
                                       {category.label}
                                     </span>
-                                    <span className="shrink-0 whitespace-nowrap text-muted-foreground">
-                                      <span className="font-serif font-bold text-foreground">
-                                        {category.score}%
-                                      </span>{' '}
-                                      {t(`classroomComplete.rating.${ratingKey(category.score)}`)}
+                                    <span className="flex shrink-0 items-baseline gap-2 whitespace-nowrap text-muted-foreground">
+                                      <span>
+                                        <span className="font-serif font-bold text-foreground">
+                                          {category.score}%
+                                        </span>{' '}
+                                        {t(`classroomComplete.rating.${ratingKey(category.score)}`)}
+                                      </span>
+                                      {/* Practice is offered only on the weak
+                                          topics, and only when the model named
+                                          them: a drill built from a quiz-scene
+                                          title would be vague where it has to
+                                          be precise. */}
+                                      {topicsAreFromModel &&
+                                        category.score < PRACTICE_THRESHOLD &&
+                                        (practised.has(category.label) ? (
+                                          <span
+                                            className="flex items-center gap-0.5 text-[10px] text-muted-foreground"
+                                            title={t('classroomComplete.practiceDone')}
+                                          >
+                                            <Check className="h-3 w-3" aria-hidden />
+                                            {t('classroomComplete.practiceDone')}
+                                          </span>
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            onClick={() => void practise(category.label)}
+                                            disabled={practisingTopic !== null}
+                                            aria-label={t('classroomComplete.practiceAction')}
+                                            title={
+                                              practisingTopic === category.label
+                                                ? t('classroomComplete.practiceBusy')
+                                                : t('classroomComplete.practiceAction')
+                                            }
+                                            className="rounded-sm p-0.5 text-[var(--shu)] transition-opacity hover:opacity-70 disabled:opacity-40"
+                                          >
+                                            {practisingTopic === category.label ? (
+                                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                            ) : (
+                                              <Dumbbell className="h-3.5 w-3.5" />
+                                            )}
+                                          </button>
+                                        ))}
                                     </span>
                                   </div>
                                   {!showRadar && (

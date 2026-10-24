@@ -771,7 +771,13 @@
       "doingWell": "Muito bem",
       "satisfactory": "Satisfatório",
       "needsPractice": "Praticar mais"
-    }
+    },
+    "practiceScene": "Prática",
+    "practiceAction": "Praticar este tema",
+    "practiceBusy": "Gerando prática…",
+    "practiceDone": "Praticado",
+    "practiceAdded": "Perguntas de prática adicionadas ao seu curso.",
+    "practiceFailed": "Não foi possível gerar as perguntas de prática. Tente novamente."
   },
   "whiteboard": {
     "title": "Quadro Interativo",

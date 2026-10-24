@@ -8,6 +8,12 @@ export interface QuizAnswerResult {
   sceneTitle: string;
   question: string;
   correct: boolean;
+  /**
+   * What this question is worth. Course questions are worth 1; generated
+   * practice is worth half (`PRACTICE_POINTS`), so drilling a weak topic
+   * moves the score without letting it be farmed.
+   */
+  weight: number;
 }
 
 export interface CompleteSummary {
@@ -84,19 +90,33 @@ export async function summarizeScenes(
     if (answers === undefined) continue;
     const graded = gradeChoiceQuestions(questions, answers);
     for (const r of graded) {
-      total += 1;
-      if (r.correct === true) correct += 1;
+      // `earned` is already the question's points when right and 0 when
+      // wrong, so the weighting costs nothing here.
+      const weight = questions.find((q) => q.id === r.questionId)?.points ?? 1;
+      total += weight;
+      correct += r.earned;
       results.push({
         questionId: r.questionId,
         sceneId: scene.id,
         sceneTitle: scene.title ?? '',
         question: questions.find((q) => q.id === r.questionId)?.question ?? '',
         correct: r.correct === true,
+        weight,
       });
     }
   }
 
-  const quiz = total > 0 ? { correct, total, pct: Math.round((correct / total) * 100) } : null;
+  // Half-weight practice makes both figures fractional. The percentage is
+  // computed from the exact values and only the display counts are rounded:
+  // "6.5 correct answers" is not something a learner has ever been shown.
+  const quiz =
+    total > 0
+      ? {
+          correct: Math.round(correct),
+          total: Math.round(total),
+          pct: Math.round((correct / total) * 100),
+        }
+      : null;
 
   return { countsByType, quiz, results };
 }

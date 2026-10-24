@@ -771,7 +771,13 @@
       "doingWell": "Bien",
       "satisfactory": "Satisfactorio",
       "needsPractice": "A practicar"
-    }
+    },
+    "practiceScene": "Práctica",
+    "practiceAction": "Practicar este tema",
+    "practiceBusy": "Generando práctica…",
+    "practiceDone": "Practicado",
+    "practiceAdded": "Se agregaron preguntas de práctica a tu curso.",
+    "practiceFailed": "No se pudieron generar las preguntas de práctica. Inténtalo de nuevo."
   },
   "whiteboard": {
     "title": "Pizarrón interactivo",

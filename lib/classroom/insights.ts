@@ -48,8 +48,15 @@ export function ratingKey(score: number): RatingKey {
   return 'needsPractice';
 }
 
-function pct(correct: number, total: number): number {
-  return total > 0 ? Math.round((correct / total) * 100) : 0;
+/** Weighted accuracy, so half-weight practice answers count for half. */
+function weightedScore(answers: QuizAnswerResult[]): number {
+  let earned = 0;
+  let total = 0;
+  for (const answer of answers) {
+    total += answer.weight;
+    if (answer.correct) earned += answer.weight;
+  }
+  return total > 0 ? Math.round((earned / total) * 100) : 0;
 }
 
 /** Trim a label to something that still fits as a radar axis caption. */
@@ -77,45 +84,52 @@ function clampAxes(categories: InsightCategory[], maxAxes: number): InsightCateg
 
 /** Group graded answers by their quiz scene title. Used when no LLM answers. */
 export function fallbackCategories(results: QuizAnswerResult[]): InsightCategory[] {
-  const byTitle = new Map<string, { correct: number; total: number }>();
+  const byTitle = new Map<string, QuizAnswerResult[]>();
   for (const result of results) {
     const key = trimLabel(result.sceneTitle || '');
     if (!key) continue;
-    const bucket = byTitle.get(key) ?? { correct: 0, total: 0 };
-    bucket.total += 1;
-    if (result.correct) bucket.correct += 1;
-    byTitle.set(key, bucket);
+    byTitle.set(key, [...(byTitle.get(key) ?? []), result]);
   }
-  const categories = [...byTitle].map(([label, { correct, total }]) => ({
+  const categories = [...byTitle].map(([label, answers]) => ({
     label,
-    score: pct(correct, total),
+    score: weightedScore(answers),
   }));
   return clampAxes(categories, maxAxesFor(results.length));
 }
 
 /**
- * Validate whatever the model returned before it reaches the chart.
- * `questionCount` is the number of graded questions the categories describe;
- * it caps the axis count so each axis keeps at least
- * `MIN_QUESTIONS_PER_AXIS` questions behind it on average.
+ * Turn the model's grouping into scored axes.
+ *
+ * The model returns which questions belong to each topic, by their 1-based
+ * position in the list it was given, and the scoring is done here. Asking a
+ * language model for `correct / total * 100` was asking it to do arithmetic
+ * it has no reason to get right, and it could not weight practice answers at
+ * all, since it does not know what a question is worth.
  */
-export function normalizeCategories(raw: unknown, questionCount: number): InsightCategory[] {
+export function normalizeCategories(raw: unknown, results: QuizAnswerResult[]): InsightCategory[] {
   if (!Array.isArray(raw)) return [];
   const seen = new Set<string>();
+  const claimed = new Set<number>();
   const categories: InsightCategory[] = [];
   for (const entry of raw) {
     if (!entry || typeof entry !== 'object') continue;
-    const { label, score } = entry as { label?: unknown; score?: unknown };
+    const { label, questions } = entry as { label?: unknown; questions?: unknown };
     if (typeof label !== 'string' || !label.trim()) continue;
-    const value = Number(score);
-    if (!Number.isFinite(value)) continue;
     const clean = trimLabel(label);
     const dedupeKey = clean.toLowerCase();
     if (seen.has(dedupeKey)) continue;
+    // One question belongs to one topic: a model that lists the same question
+    // under two topics would otherwise have it counted twice.
+    const answers = (Array.isArray(questions) ? questions : [])
+      .map((value) => Number(value) - 1)
+      .filter((index) => Number.isInteger(index) && index >= 0 && index < results.length)
+      .filter((index) => !claimed.has(index) && (claimed.add(index), true))
+      .map((index) => results[index]!);
+    if (answers.length === 0) continue;
     seen.add(dedupeKey);
-    categories.push({ label: clean, score: Math.max(0, Math.min(100, Math.round(value))) });
+    categories.push({ label: clean, score: weightedScore(answers) });
   }
-  return clampAxes(categories, maxAxesFor(questionCount));
+  return clampAxes(categories, maxAxesFor(results.length));
 }
 
 /** A radar needs at least a triangle to read as one. */
@@ -150,7 +164,7 @@ export async function fetchInsightCategories(
     });
     if (!res.ok) return fallback;
     const data = (await res.json()) as { categories?: unknown };
-    const categories = normalizeCategories(data.categories, request.results.length);
+    const categories = normalizeCategories(data.categories, request.results);
     return hasEnoughAxes(categories) ? categories : fallback;
   } catch {
     return fallback;

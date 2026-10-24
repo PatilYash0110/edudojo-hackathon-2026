@@ -771,7 +771,13 @@
       "doingWell": "Doing well",
       "satisfactory": "Satisfactory",
       "needsPractice": "Needs practice"
-    }
+    },
+    "practiceScene": "Practice",
+    "practiceAction": "Practise this topic",
+    "practiceBusy": "Generating practice…",
+    "practiceDone": "Practised",
+    "practiceAdded": "Practice questions added to your course.",
+    "practiceFailed": "Could not generate practice questions. Please try again."
   },
   "whiteboard": {
     "title": "Interactive Whiteboard",

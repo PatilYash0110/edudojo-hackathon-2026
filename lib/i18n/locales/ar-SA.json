@@ -771,7 +771,13 @@
       "doingWell": "جيد",
       "satisfactory": "مقبول",
       "needsPractice": "يحتاج تدريبًا"
-    }
+    },
+    "practiceScene": "تدريب",
+    "practiceAction": "تدرّب على هذا الموضوع",
+    "practiceBusy": "جارٍ إنشاء التدريب…",
+    "practiceDone": "تم التدرب",
+    "practiceAdded": "تمت إضافة أسئلة التدريب إلى دورتك.",
+    "practiceFailed": "تعذّر إنشاء أسئلة التدريب. يرجى المحاولة مرة أخرى."
   },
   "whiteboard": {
     "title": "السبورة التفاعلية",

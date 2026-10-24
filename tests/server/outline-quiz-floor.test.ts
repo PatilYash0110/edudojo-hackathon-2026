@@ -48,7 +48,7 @@ async function outlinesFrom(responseText: string): Promise<SceneOutline[]> {
     {
       log: createLogger('Outline'),
       workspaceId: null,
-      resolveVisionImages: async (images) => [...images],
+      resolveVisionImages: async (images: unknown[]) => [...images],
     } as never,
   );
   return result.outlines;
