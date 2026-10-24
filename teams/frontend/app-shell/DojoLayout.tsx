@@ -8,8 +8,7 @@ import type { ReactNode } from 'react';
 import '@/teams/frontend/theme/dojo.css';
 
 const NAV = [
-  ['/dojo', 'Dojos'],
-  ['/dojo/demo', 'Map'],
+  ['/dojo', 'Tower'],
   ['/dojo/demo/floor/1', 'Floor'],
   ['/dojo/demo/floor/1/battle', 'Battle'],
   ['/dojo/demo/boss', 'Boss'],

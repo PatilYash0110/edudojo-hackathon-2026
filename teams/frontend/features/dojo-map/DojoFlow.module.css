@@ -1,0 +1,456 @@
+.page {
+  min-height: 76vh;
+  padding: 28px;
+  color: #ebeee9;
+  background: #10191d;
+  border: 1px solid #d7b7772e;
+}
+.intro {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 22px;
+  border-bottom: 1px solid #d7b7772e;
+}
+.intro h1 {
+  margin: 3px 0 7px;
+  font:
+    34px/1.1 Georgia,
+    serif;
+}
+.intro p:not(.eyebrow) {
+  margin: 0;
+  color: #aeb9b5;
+}
+.eyebrow {
+  margin: 0;
+  color: #d7b777;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+.reset,
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 38px;
+  padding: 0 13px;
+  color: #f4ead4;
+  background: transparent;
+  border: 1px solid #d7b77755;
+  text-decoration: none;
+  font-size: 12px;
+}
+.reset:hover,
+.primaryAction:hover,
+.secondaryAction:hover {
+  border-color: #e6c783;
+  background: #e6c78316;
+}
+.primaryAction {
+  background: #8c3f28;
+  border-color: #d57952;
+  white-space: nowrap;
+}
+.loop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin: 20px 0;
+  color: #aeb9b5;
+  font-size: 11px;
+  letter-spacing: 0.05em;
+}
+.loop b {
+  color: #d7b777;
+}
+.layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 260px;
+  gap: 24px;
+  align-items: start;
+}
+.tower {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 32px;
+  background: #0b1418;
+  border-inline: 10px solid #302b26;
+  box-shadow: inset 0 0 70px #0008;
+}
+.floor,
+.bossFloor {
+  position: relative;
+  display: grid;
+  grid-template-columns: 46px 1fr auto;
+  align-items: center;
+  gap: 14px;
+  width: min(100%, 620px);
+  min-height: 92px;
+  padding: 14px 18px;
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, #ffffff08 1px, transparent 1px),
+    linear-gradient(#ffffff08 1px, transparent 1px), #17252a;
+  background-size: 38px 26px;
+  border: 1px solid #96aaa433;
+  border-radius: 3px;
+}
+.floor::after,
+.bossFloor::after {
+  content: '';
+  position: absolute;
+  right: 3%;
+  bottom: 0;
+  width: 46px;
+  height: 68px;
+  background: #0a1013;
+  border: 3px solid #7d6950;
+  border-bottom: 0;
+  box-shadow: inset 0 0 16px #000;
+}
+.floor > :not(.mapPlayer),
+.bossFloor > :not(.mapPlayer) {
+  position: relative;
+  z-index: 2;
+}
+.floor[data-selected='true'],
+.bossFloor[data-selected='true'] {
+  outline: 2px solid #f1d38b;
+  outline-offset: 3px;
+}
+.floor,
+.bossFloor {
+  cursor: pointer;
+}
+.mapPlayer {
+  position: absolute;
+  left: calc(var(--player-x) - 9px);
+  bottom: 9px;
+  width: 18px;
+  height: 35px;
+  border-radius: 50% 50% 42% 42%;
+  background: linear-gradient(#ffc47e, #b84b29);
+  border: 1px solid #ffe0a8;
+  box-shadow: 0 7px 12px #0008;
+  animation: mapIdle 1.35s ease-in-out infinite alternate;
+  transition: left 120ms ease-out;
+  z-index: 4;
+}
+.mapPlayer::after {
+  content: '';
+  position: absolute;
+  left: -7px;
+  bottom: -5px;
+  width: 32px;
+  height: 7px;
+  border-radius: 50%;
+  background: #0008;
+  filter: blur(3px);
+  z-index: -1;
+}
+.bossFloor {
+  margin-bottom: 10px;
+  background: #291b1a;
+  border-color: #d5795266;
+}
+.floor[data-status='locked'] {
+  opacity: 0.46;
+}
+.floor[data-status='lesson'],
+.floor[data-status='battle'],
+.bossFloor[data-status='boss'] {
+  border-color: #e2c175;
+  box-shadow: 0 0 0 1px #e2c17521;
+}
+.floor[data-status='cleared'] {
+  background: #15231f;
+  border-color: #6ea98a55;
+}
+.floorNumber {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  color: #efdaac;
+  border: 1px solid #d7b77766;
+  border-radius: 50%;
+  font:
+    20px Georgia,
+    serif;
+}
+.floor p,
+.bossFloor p {
+  margin: 0 0 4px;
+  color: #d7b777;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+.floor h2,
+.bossFloor h2 {
+  margin: 0 0 4px;
+  font:
+    20px Georgia,
+    serif;
+}
+.floor small,
+.bossFloor small {
+  color: #93a19d;
+}
+.clearedBadge,
+.lockedBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #8fbea4;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+.lockedBadge {
+  color: #7f8c89;
+}
+.doorBadge {
+  position: relative;
+  z-index: 3;
+  margin-right: 53px;
+  color: #edcc87;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+.statusPanel {
+  position: sticky;
+  top: 20px;
+  padding: 20px;
+  background: #132126;
+  border: 1px solid #d7b7772e;
+}
+.statusPanel strong {
+  display: block;
+  margin: 8px 0;
+  font:
+    22px/1.25 Georgia,
+    serif;
+}
+.statusPanel > span,
+.statusPanel > p:last-child {
+  color: #9daba7;
+  font-size: 12px;
+  line-height: 1.6;
+}
+.progressTrack {
+  height: 5px;
+  margin: 15px 0;
+  overflow: hidden;
+  background: #071014;
+}
+.progressTrack i {
+  display: block;
+  height: 100%;
+  background: #d7b777;
+  transition: width 240ms ease;
+}
+.mapControls {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid #ffffff12;
+}
+.mapControls > div {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 7px;
+  margin: 10px 0 7px;
+}
+.mapControls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-height: 35px;
+  color: #d8dfda;
+  background: #0c171b;
+  border: 1px solid #ffffff1f;
+  font-size: 10px;
+}
+.mapControls button:disabled {
+  opacity: 0.35;
+}
+.autoDoorHint {
+  margin: 10px 0 0;
+  color: #d7b777;
+  font-size: 10px;
+  line-height: 1.5;
+}
+@keyframes mapIdle {
+  from {
+    transform: translateY(0) rotate(-2deg);
+  }
+  to {
+    transform: translateY(-4px) rotate(2deg);
+  }
+}
+.lessonPage,
+.gate,
+.completion {
+  max-width: 760px;
+  margin: 30px auto;
+  padding: 28px;
+  color: #e9ece7;
+  background: #111d22;
+  border: 1px solid #d7b7773d;
+}
+.lessonPage h1,
+.gate h1,
+.completion h1 {
+  margin: 6px 0 12px;
+  font:
+    32px/1.15 Georgia,
+    serif;
+}
+.lessonPage > p,
+.gate > p,
+.completion > p {
+  color: #a7b2af;
+  line-height: 1.65;
+}
+.objectiveList {
+  display: grid;
+  gap: 10px;
+  margin: 24px 0;
+  padding: 0;
+  list-style: none;
+}
+.objectiveList li {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: center;
+  gap: 12px;
+  padding: 14px;
+  background: #17272c;
+  border-left: 2px solid #d7b777;
+}
+.objectiveList b {
+  color: #d7b777;
+  font:
+    18px Georgia,
+    serif;
+}
+.learningEngine {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+  padding: 16px;
+  background: #18272c;
+  border: 1px solid #6c928866;
+}
+.learningEngine > svg {
+  color: #d7b777;
+}
+.learningEngine b,
+.learningEngine span {
+  display: block;
+}
+.runtimeScene {
+  grid-column: 1 / -1;
+  min-height: 130px;
+  padding: 20px;
+  background: #0d171a;
+  border: 1px solid #ffffff14;
+}
+.runtimeScene small,
+.runtimeScene strong {
+  display: block;
+}
+.runtimeScene small {
+  color: #71847e;
+  font-size: 9px;
+  letter-spacing: 0.14em;
+}
+.runtimeScene strong {
+  margin: 10px 0;
+  font:
+    23px Georgia,
+    serif;
+}
+.runtimeScene p {
+  margin: 0;
+  color: #91a19d;
+  font-size: 12px;
+}
+.learningEngine > button {
+  grid-column: 1 / -1;
+  justify-self: end;
+}
+.learningEngine span {
+  margin-top: 4px;
+  color: #91a19d;
+  font-size: 11px;
+}
+.lessonActions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 24px;
+}
+.devNote {
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #ffffff12;
+  color: #758681 !important;
+  font-size: 11px;
+}
+
+@media (max-width: 780px) {
+  .page {
+    padding: 18px 12px;
+  }
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .statusPanel {
+    position: static;
+    grid-row: 1;
+  }
+  .loop {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .loop b {
+    display: none;
+  }
+  .floor,
+  .bossFloor {
+    grid-template-columns: 38px 1fr;
+    margin-left: 22px;
+  }
+  .floor > :last-child,
+  .bossFloor > :last-child {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .intro {
+    flex-direction: column;
+  }
+  .lessonActions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+  .learningEngine {
+    grid-template-columns: 28px 1fr;
+  }
+  .learningEngine > :last-child {
+    grid-column: 2;
+    justify-self: start;
+  }
+}
