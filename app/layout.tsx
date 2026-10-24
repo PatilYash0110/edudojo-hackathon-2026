@@ -32,6 +32,13 @@ import { LOCALE_COOKIE, resolveRequestLocale } from '@/lib/i18n/resolve-locale';
 // next/font's generated class.
 import '@fontsource-variable/inter';
 
+// Dojo theme: Japanese-style serif for headings/brand (see --font-serif in
+// globals.css). Install once: npm i @fontsource/shippori-mincho
+// Only these two weights are loaded; the browser fetches subsets on demand
+// via unicode-range, so Japanese glyphs cost nothing until they appear.
+import '@fontsource/shippori-mincho/500.css';
+import '@fontsource/shippori-mincho/700.css';
+
 /**
  * Applies the dark theme before the first paint. `ThemeProvider` resolves the
  * theme (the `theme` key in localStorage, else the system preference) only
@@ -42,7 +49,7 @@ import '@fontsource-variable/inter';
 const THEME_INIT_SCRIPT = `try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`;
 
 export const metadata: Metadata = {
-  title: 'OpenMAIC',
+  title: 'EduDojo',
   description:
     'The open-source AI interactive classroom. Upload a PDF to instantly generate an immersive, multi-agent learning experience.',
 };
