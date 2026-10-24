@@ -54,7 +54,7 @@ Every result shows a short explanation before the next turn. The player should u
 
 After an attack resolves, that technique enters a visible cooldown. The player must use other techniques while its countdown reaches zero: Heavy Attack takes two other attack turns, Three-Hit Combo takes one, and Quiz Technique takes three. The enemy's sword slash plays in slow motion while the player chooses Block, Parry/Counter, or Dodge; the chosen defense then has its own real-time execution window.
 
-The MVP ships with a handwritten German-language question set in `teams/game/content/prototype-battle.ts`. It exists only for browser playtesting. Backend owns generated questions and authoritative grading for live sessions.
+The demo dojo ships with a handwritten English question bank in `teams/game/content/demo-question-bank.ts`, keyed by objective. Battles read it only through the demo `DojoSource`, so answer keys never reach the battle screen. It exists only for offline playtesting. Backend owns generated questions and authoritative grading for live sessions.
 
 ## 5. Enemy attack responses
 
