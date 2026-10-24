@@ -76,7 +76,7 @@ type QuotaKind = 'classroom' | 'chat' | 'quiz';
 
 /** Per user per day; null = no limit. */
 const DAILY_LIMITS: Record<UserRole, Record<QuotaKind, number | null>> = {
-  student: { classroom: 3, chat: 200, quiz: 30 },
+  student: { classroom: 6, chat: 200, quiz: 30 },
   teacher: { classroom: 20, chat: null, quiz: null },
 };
 
