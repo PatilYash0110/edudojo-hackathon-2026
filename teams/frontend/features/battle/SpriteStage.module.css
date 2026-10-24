@@ -1,0 +1,210 @@
+/* Battle stage: the floor's map from the Frontend-design repo, with a slow camera
+   drift and a light ambience layer per arena. Uses the layout variables on .arena. */
+.stage {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  overflow: hidden;
+  background: #0b171d;
+}
+
+.map {
+  position: absolute;
+  inset: -2%;
+  background: var(--map) center bottom / cover no-repeat;
+  transform-origin: 50% 85%;
+  animation: drift 42s ease-in-out infinite alternate;
+}
+
+.ambience,
+.vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.vignette {
+  background:
+    radial-gradient(ellipse at 60% 55%, transparent 52%, #050a0e8c 100%),
+    linear-gradient(0deg, #080e1266, transparent 28%);
+}
+
+/* Warm dust drifting up under the cage lanterns. */
+.stage[data-ambience='dust'] .ambience {
+  background-image:
+    radial-gradient(circle, #ffd9a0cc 0 1px, transparent 2px),
+    radial-gradient(circle, #ffb36099 0 1.5px, transparent 2.5px);
+  background-size:
+    140px 160px,
+    230px 260px;
+  mix-blend-mode: screen;
+  opacity: 0.55;
+  animation: riseSlow 26s linear infinite;
+}
+
+/* Fireflies over the lake. */
+.stage[data-ambience='fireflies'] .ambience {
+  background-image:
+    radial-gradient(circle, #f4ff9a 0 1.5px, #c8ff6a55 3px, transparent 6px),
+    radial-gradient(circle, #eaff8a 0 1px, #b6ff6a44 2.5px, transparent 5px);
+  background-size:
+    260px 220px,
+    380px 300px;
+  mix-blend-mode: screen;
+  animation:
+    wander 34s ease-in-out infinite alternate,
+    glimmer 2.6s ease-in-out infinite alternate;
+}
+
+/* Slanted rain on the neon street. */
+.stage[data-ambience='rain'] .ambience {
+  background-image:
+    linear-gradient(100deg, transparent 0 48%, #bfe8ff55 49% 50%, transparent 51%),
+    linear-gradient(100deg, transparent 0 48%, #ffffff33 49% 50%, transparent 51%);
+  background-size:
+    90px 140px,
+    150px 220px;
+  mix-blend-mode: screen;
+  animation: rainFall 0.55s linear infinite;
+}
+.stage[data-ambience='rain'] .vignette {
+  animation: neonFlicker 7s steps(1, end) infinite;
+}
+
+/* Leaves drifting down (jungle, final Fuji). */
+.stage[data-ambience='leaves'] .ambience {
+  background-image:
+    radial-gradient(ellipse 5px 3px, #ff8a3dcc 0 60%, transparent 70%),
+    radial-gradient(ellipse 4px 2.5px, #c9e86acc 0 60%, transparent 70%);
+  background-size:
+    300px 260px,
+    420px 340px;
+  opacity: 0.8;
+  animation: leafFall 22s linear infinite;
+}
+
+/* Embers rising from the lava floor. */
+.stage[data-ambience='embers'] .ambience {
+  background-image:
+    radial-gradient(circle, #ffd27a 0 1.5px, #ff6a1a66 3px, transparent 5px),
+    radial-gradient(circle, #ff9a3a 0 1px, #ff4a1a55 2.5px, transparent 4px);
+  background-size:
+    180px 200px,
+    260px 300px;
+  mix-blend-mode: screen;
+  animation: riseFast 9s linear infinite;
+}
+.stage[data-ambience='embers'] .vignette {
+  background:
+    radial-gradient(ellipse at 50% 100%, #ff4a1a33, transparent 45%),
+    radial-gradient(ellipse at 60% 55%, transparent 52%, #120404a0 100%);
+  animation: lavaPulse 3.4s ease-in-out infinite alternate;
+}
+
+/* Narrow screens: the map fills only the fighters' band above the docked panels. */
+@media (max-width: 1100px) {
+  .map {
+    inset: 0 0 auto;
+    height: calc(100cqh - var(--ground) + var(--fighter-h) * 0.18);
+  }
+  .vignette {
+    background:
+      linear-gradient(0deg, #0b171d 0 calc(var(--ground) - var(--fighter-h) * 0.2), transparent calc(var(--ground) - var(--fighter-h) * 0.04)),
+      radial-gradient(ellipse at 50% 40%, transparent 50%, #050a0e8c 100%);
+  }
+}
+
+/* Turns the battle's capsule placeholder (.playerSprite / .enemySprite) into an empty slot
+   for painted art, keeping its position and the stance animations it receives. */
+.paintedSlot.paintedSlot {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+}
+.paintedSlot.paintedSlot::before {
+  display: none;
+}
+
+@keyframes drift {
+  from {
+    transform: scale(1) translateX(0);
+  }
+  to {
+    transform: scale(1.05) translateX(-1.2%);
+  }
+}
+@keyframes riseSlow {
+  to {
+    background-position:
+      40px -160px,
+      -30px -260px;
+  }
+}
+@keyframes riseFast {
+  to {
+    background-position:
+      30px -200px,
+      -40px -300px;
+  }
+}
+@keyframes wander {
+  to {
+    background-position:
+      120px -60px,
+      -90px 80px;
+  }
+}
+@keyframes glimmer {
+  from {
+    opacity: 0.45;
+  }
+  to {
+    opacity: 0.95;
+  }
+}
+@keyframes rainFall {
+  to {
+    background-position:
+      -25px 140px,
+      -38px 220px;
+  }
+}
+@keyframes leafFall {
+  to {
+    background-position:
+      -160px 260px,
+      120px 340px;
+  }
+}
+@keyframes neonFlicker {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  62% {
+    opacity: 0.82;
+  }
+  64% {
+    opacity: 1;
+  }
+  66% {
+    opacity: 0.88;
+  }
+}
+@keyframes lavaPulse {
+  from {
+    opacity: 0.75;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .map,
+  .ambience,
+  .vignette {
+    animation: none;
+  }
+}

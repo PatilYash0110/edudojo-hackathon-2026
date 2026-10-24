@@ -37,6 +37,9 @@ import {
   isPrototypeAnswerCorrect,
 } from '@/teams/game/content/prototype-battle';
 import styles from './PrototypeBattle.module.css';
+import stageStyles from './SpriteStage.module.css';
+import { SpriteFighter } from './SpriteFighter';
+import { HERO, levelFor, type Arena, type FighterArt } from './fighter-roster';
 
 type ActiveChallenge =
   | { side: 'attack'; id: AttackTechnique }
@@ -47,6 +50,10 @@ type PrototypeBattleProps = {
   topicLabel?: string;
   opponentName?: string;
   opponentRole?: string;
+  /** Painted villain to draw; defaults to the floor 1 villain. */
+  opponentFighter?: FighterArt;
+  /** Arena map and ambience; defaults to floor 1. */
+  arena?: Arena;
   boss?: boolean;
   onVictory?: () => void;
 };
@@ -221,7 +228,7 @@ function ReactiveDefense({
   );
 }
 
-function CombatEffects({ fx }: { fx: CombatFx }) {
+function CombatEffects({ fx, color }: { fx: CombatFx; color: string }) {
   const sword =
     fx.kind === 'heavy' || fx.kind === 'combo' || fx.kind === 'counter' || fx.kind === 'hit';
   const slashes = fx.kind === 'combo' ? fx.hits : 1;
@@ -232,7 +239,7 @@ function CombatEffects({ fx }: { fx: CombatFx }) {
       data-target={fx.target}
       data-failed={fx.failed}
       aria-hidden="true"
-      style={{ '--impact': `${fx.impactMs}ms` } as CSSProperties}
+      style={{ '--impact': `${fx.impactMs}ms`, '--fx-color': color } as CSSProperties}
     >
       {sword &&
         (!fx.failed || fx.kind === 'hit') &&
@@ -361,6 +368,8 @@ export default function PrototypeBattle({
   topicLabel,
   opponentName = 'Tinten-Yokai',
   opponentRole = 'FLOOR GUARDIAN',
+  opponentFighter = levelFor('1').villain,
+  arena = levelFor('1').arena,
   boss = false,
   onVictory,
 }: PrototypeBattleProps = {}) {
@@ -748,7 +757,15 @@ export default function PrototypeBattle({
         }
       >
         <div className={styles.world} aria-hidden="true">
-          <div className={styles.backdrop} />
+          <div
+            className={stageStyles.stage}
+            data-ambience={arena.ambience}
+            style={{ '--map': `url(${arena.map})` } as CSSProperties}
+          >
+            <span className={stageStyles.map} />
+            <span className={stageStyles.ambience} />
+            <span className={stageStyles.vignette} />
+          </div>
           <div className={styles.atmosphere} />
 
           <div
@@ -767,14 +784,17 @@ export default function PrototypeBattle({
             <div className={styles.groundShadow} />
             <span className={styles.actorAura} />
             <span className={styles.motionDust} />
-            <div
-              className={styles.playerSprite}
-              role="img"
-              aria-label="2D player sprite placeholder"
-            >
-              <span className={styles.actorSword}>
-                <span className={styles.weaponSprite} />
-              </span>
+            <div className={`${styles.playerSprite} ${stageStyles.paintedSlot}`}>
+              <SpriteFighter
+                art={HERO}
+                motion={playerMotion}
+                kind={fx?.kind ?? ''}
+                hits={fx?.hits ?? 1}
+                impactMs={fx?.impactMs ?? 0}
+                glow={weapon === 'dragon'}
+                bodyScale={1}
+                label={HERO.name}
+              />
             </div>
           </div>
           <div
@@ -793,10 +813,17 @@ export default function PrototypeBattle({
             <div className={styles.groundShadow} />
             <span className={styles.actorAura} />
             <span className={styles.motionDust} />
-            <div className={styles.enemySprite} role="img" aria-label="2D enemy sprite placeholder">
-              <span className={styles.actorSword}>
-                <span className={styles.weaponSprite} />
-              </span>
+            <div className={`${styles.enemySprite} ${stageStyles.paintedSlot}`}>
+              <SpriteFighter
+                art={opponentFighter}
+                motion={enemyMotion}
+                kind={fx?.kind ?? ''}
+                hits={fx?.hits ?? 1}
+                impactMs={fx?.impactMs ?? 0}
+                flip
+                bodyScale={1}
+                label={opponentFighter.name}
+              />
             </div>
           </div>
           {isDefense && !fx && (
@@ -805,7 +832,12 @@ export default function PrototypeBattle({
               <b>刃</b>
             </div>
           )}
-          {fx && <CombatEffects fx={fx} />}
+          {fx && (
+            <CombatEffects
+              fx={fx}
+              color={fx.target === 'enemy' ? HERO.element : opponentFighter.element}
+            />
+          )}
         </div>
         <span className={styles.stageHint} aria-hidden="true">
           2D SIDE-VIEW COMBAT PLANE

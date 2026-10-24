@@ -2,12 +2,10 @@
  * Page: /dojo/[dojoId]
  *
  * OWNER: FRONTEND TEAM
- * STATUS: placeholder, not implemented.
- *
- * TODO: compose this page from the feature's components
+ * The 2.5D pagoda tower; falls back to the flat DojoMap when WebGL is unavailable.
  */
-import { DojoMap } from './DojoMap';
+import { TowerMap } from './TowerMap';
 
 export default function DojoMapPage() {
-  return <DojoMap />;
+  return <TowerMap />;
 }

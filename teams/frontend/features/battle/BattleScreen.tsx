@@ -9,6 +9,7 @@ import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgr
 import flowStyles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 import { FloorEncounter } from './FloorEncounter';
 import PrototypeBattle from './PrototypeBattle';
+import { levelFor, villainForFloor } from './fighter-roster';
 
 export function BattleScreen() {
   const params = useParams<{ dojoId: string; floorId: string }>();
@@ -82,7 +83,8 @@ export function BattleScreen() {
     return (
       <FloorEncounter
         floorLabel={`Floor ${floor.order} · ${floor.title}`}
-        opponent={`Floor ${floor.order} Guardian`}
+        opponent={villainForFloor(floor.id).name}
+        opponentFighter={villainForFloor(floor.id)}
         onReady={() => setRoomEntered(true)}
       />
     );
@@ -91,7 +93,10 @@ export function BattleScreen() {
   return (
     <PrototypeBattle
       topicLabel={`Floor ${floor.order} · ${floor.title}`}
-      opponentName={`Floor ${floor.order} Guardian`}
+      opponentName={villainForFloor(floor.id).name}
+      opponentRole={`FLOOR ${floor.order} GUARDIAN`}
+      opponentFighter={villainForFloor(floor.id)}
+      arena={levelFor(floor.id).arena}
       onVictory={winFloor}
     />
   );
