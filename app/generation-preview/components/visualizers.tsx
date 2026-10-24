@@ -241,14 +241,14 @@ function StreamingOutlineVisualizer({
         'bg-white/90 shadow-xl shadow-slate-900/10 backdrop-blur',
         'dark:bg-slate-900/80',
         isInteractive
-          ? 'cursor-pointer border-blue-400/40 shadow-blue-500/10 transition-shadow hover:border-blue-500/60 hover:shadow-2xl hover:shadow-blue-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500/40 dark:border-blue-400/30 dark:hover:border-blue-400/50'
+          ? 'cursor-pointer border-primary/40 shadow-primary/10 transition-shadow hover:border-primary/60 hover:shadow-2xl hover:shadow-primary/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/40 dark:border-primary/30 dark:hover:border-primary/50'
           : 'border-slate-200/70 dark:border-white/10',
       )}
     >
       <div className="mb-3 flex items-center justify-between">
         <div className="h-1.5 w-12 rounded-full bg-slate-200 dark:bg-slate-700" />
         <motion.div
-          className="size-2 rounded-full bg-blue-500"
+          className="size-2 rounded-full bg-primary"
           animate={{ opacity: [0.3, 1, 0.3], scale: [0.9, 1.15, 0.9] }}
           transition={{ repeat: Infinity, duration: 1.1 }}
         />
@@ -266,7 +266,7 @@ function StreamingOutlineVisualizer({
                   animate={{ opacity: [0.35, 0.75, 0.35] }}
                   transition={{ duration: 1.2, repeat: Infinity, delay: i * 0.16 }}
                 >
-                  <div className="absolute -left-[15px] top-0.5 size-2 rounded-full border border-blue-300 bg-white dark:bg-slate-900" />
+                  <div className="absolute -left-[15px] top-0.5 size-2 rounded-full border border-primary bg-white dark:bg-slate-900" />
                   <div
                     className="h-2 rounded-full bg-slate-100 dark:bg-slate-800"
                     style={{ width: `${w}%` }}
@@ -284,7 +284,7 @@ function StreamingOutlineVisualizer({
                   transition={{ type: 'spring', stiffness: 420, damping: 34 }}
                   className="relative mb-3"
                 >
-                  <div className="absolute -left-[15px] top-0.5 size-2 rounded-full border border-blue-300 bg-white shadow-sm shadow-blue-500/20 dark:bg-slate-900" />
+                  <div className="absolute -left-[15px] top-0.5 size-2 rounded-full border border-primary bg-white shadow-sm shadow-primary/20 dark:bg-slate-900" />
                   <div className="truncate text-[9px] font-semibold leading-tight text-slate-700 dark:text-slate-200">
                     {i + 1}. {outline.title}
                   </div>
@@ -299,7 +299,7 @@ function StreamingOutlineVisualizer({
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-[8px] font-medium text-blue-500/70"
+            className="text-[8px] font-medium text-primary/70"
           >
             +{outlines.length - 4}
           </motion.div>
@@ -315,7 +315,7 @@ function StreamingOutlineVisualizer({
       {isInteractive && (
         <div className="pointer-events-none absolute inset-x-0 bottom-2 z-20 flex items-center justify-center px-2">
           <motion.span
-            className="inline-flex items-center gap-1 rounded-full bg-blue-500 px-2.5 py-1 text-[10px] font-semibold tracking-wide text-white shadow-lg shadow-blue-500/50 backdrop-blur"
+            className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold tracking-wide text-white shadow-lg shadow-primary/50 backdrop-blur"
             animate={{ y: [0, -1.5, 0] }}
             transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
           >
@@ -328,7 +328,7 @@ function StreamingOutlineVisualizer({
       {/* Subtle expand icon in top-right corner — pulses gently */}
       {isInteractive && (
         <motion.div
-          className="absolute right-2 top-2 z-10 flex size-5 items-center justify-center rounded-md text-blue-500/80 group-hover/outline-card:text-blue-600 dark:text-blue-400/80 dark:group-hover/outline-card:text-blue-300"
+          className="absolute right-2 top-2 z-10 flex size-5 items-center justify-center rounded-md text-primary/80 group-hover/outline-card:text-primary dark:text-primary/80 dark:group-hover/outline-card:text-primary"
           animate={{ opacity: [0.6, 1, 0.6] }}
           transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
           aria-hidden
@@ -348,7 +348,7 @@ function AgentGenerationVisualizer() {
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
-            className="w-14 h-20 rounded-lg bg-gradient-to-br from-purple-400 to-blue-500 dark:from-purple-600 dark:to-blue-700 shadow-lg"
+            className="w-14 h-20 rounded-lg bg-gradient-to-br from-purple-400 to-primary dark:from-purple-600 dark:to-primary shadow-lg"
             animate={{ y: [0, -8, 0], rotateZ: [0, 3, -3, 0] }}
             transition={{
               duration: 1.5,
@@ -396,7 +396,7 @@ function ContentVisualizer() {
           color: 'blue',
           label: 'SLIDE',
           badge:
-            'bg-blue-100 text-blue-600 border-blue-200 dark:bg-blue-900/40 dark:text-blue-300 dark:border-blue-800',
+            'bg-primary/15 text-primary border-primary/20 dark:bg-primary/40 dark:text-primary dark:border-primary',
         };
       case 1:
         return {
@@ -433,7 +433,7 @@ function ContentVisualizer() {
         key={`glow-${index}`}
         className={cn(
           'absolute inset-0 blur-3xl rounded-full transition-colors duration-1000',
-          theme.color === 'blue' && 'bg-blue-500/10',
+          theme.color === 'blue' && 'bg-primary/10',
           theme.color === 'purple' && 'bg-purple-500/10',
           theme.color === 'amber' && 'bg-amber-500/10',
           theme.color === 'emerald' && 'bg-emerald-500/10',
@@ -448,7 +448,7 @@ function ContentVisualizer() {
           key={i}
           className={cn(
             'absolute border rounded-full transition-colors duration-1000',
-            theme.color === 'blue' && 'border-blue-500/10',
+            theme.color === 'blue' && 'border-primary/10',
             theme.color === 'purple' && 'border-purple-500/10',
             theme.color === 'amber' && 'border-amber-500/10',
             theme.color === 'emerald' && 'border-emerald-500/10',
@@ -480,7 +480,7 @@ function ContentVisualizer() {
             transition={{ type: 'spring', stiffness: 80, damping: 16 }}
             className={cn(
               'absolute inset-0 bg-white dark:bg-slate-800 rounded-xl border shadow-xl overflow-hidden flex flex-col p-3 origin-center',
-              theme.color === 'blue' && 'border-blue-200 dark:border-blue-900/30',
+              theme.color === 'blue' && 'border-primary/20 dark:border-primary/30',
               theme.color === 'purple' && 'border-purple-200 dark:border-purple-900/30',
               theme.color === 'amber' && 'border-amber-200 dark:border-amber-900/30',
               theme.color === 'emerald' && 'border-emerald-200 dark:border-emerald-900/30',
@@ -506,7 +506,7 @@ function ContentVisualizer() {
                   initial={{ width: '0%' }}
                   animate={{ width: '55%' }}
                   transition={{ delay: 0.2 }}
-                  className="h-2 bg-blue-500/20 rounded-full mb-3 shrink-0"
+                  className="h-2 bg-primary/20 rounded-full mb-3 shrink-0"
                 />
                 <div className="flex gap-2 flex-1">
                   <div className="flex-1 space-y-2">
@@ -524,9 +524,9 @@ function ContentVisualizer() {
                     initial={{ scale: 0.8, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     transition={{ delay: 0.4 }}
-                    className="w-12 h-12 bg-blue-50 dark:bg-blue-900/20 rounded-lg flex items-center justify-center shrink-0"
+                    className="w-12 h-12 bg-primary/10 dark:bg-primary/20 rounded-lg flex items-center justify-center shrink-0"
                   >
-                    <BarChart3 className="size-6 text-blue-500/60" />
+                    <BarChart3 className="size-6 text-primary/60" />
                   </motion.div>
                 </div>
               </div>

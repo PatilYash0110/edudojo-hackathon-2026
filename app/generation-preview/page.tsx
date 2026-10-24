@@ -32,6 +32,7 @@ import { visibleOutlines } from '@/lib/generation-run-client/reducer';
 import { useGenerationRun } from '@/lib/generation-run-client/use-generation-run';
 import { ALL_STEPS } from './types';
 import { StepVisualizer } from './components/visualizers';
+import { DojoBackground } from '@/components/dojo-background';
 
 const log = createLogger('GenerationPreview');
 
@@ -271,7 +272,8 @@ function GenerationPreviewContent() {
   // The run cannot be read now; the page keeps trying.
   if (status === 'error' && runId) {
     return (
-      <div className="min-h-[100dvh] w-full bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] w-full flex items-center justify-center p-4">
+      <DojoBackground />
         <Card className="p-8 max-w-md w-full">
           <div className="text-center space-y-4">
             <div className="size-8 border-2 border-muted-foreground border-t-transparent rounded-full animate-spin mx-auto" />
@@ -290,7 +292,8 @@ function GenerationPreviewContent() {
   // Still reading the run
   if (status === 'loading' && runId) {
     return (
-      <div className="min-h-[100dvh] w-full bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] w-full flex items-center justify-center p-4">
+      <DojoBackground />
         <div className="text-center text-muted-foreground">
           <div className="size-8 border-2 border-current border-t-transparent rounded-full animate-spin mx-auto" />
         </div>
@@ -301,7 +304,8 @@ function GenerationPreviewContent() {
   // No run (or it was discarded)
   if (!view || status === 'missing' || view.state === 'ended') {
     return (
-      <div className="min-h-[100dvh] w-full bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] w-full flex items-center justify-center p-4">
+      <DojoBackground />
         <Card className="p-8 max-w-md w-full">
           <div className="text-center space-y-4">
             <AlertCircle className="size-12 text-muted-foreground mx-auto" />
@@ -348,7 +352,8 @@ function GenerationPreviewContent() {
     const editorOutlines = editedOutlines ?? outlines;
 
     return (
-      <div className="min-h-[100dvh] w-full bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex flex-col items-center p-4 relative overflow-hidden">
+      <div className="min-h-[100dvh] w-full flex flex-col items-center p-4 relative overflow-hidden">
+      <DojoBackground />
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -373,9 +378,9 @@ function GenerationPreviewContent() {
                   className={cn(
                     'h-1.5 rounded-full transition-all duration-500',
                     idx < outlineStepIndex
-                      ? 'w-1.5 bg-blue-500/30'
+                      ? 'w-1.5 bg-primary/30'
                       : idx === outlineStepIndex
-                        ? 'w-8 bg-blue-500'
+                        ? 'w-8 bg-primary'
                         : 'w-1.5 bg-muted/50',
                   )}
                 />
@@ -417,11 +422,12 @@ function GenerationPreviewContent() {
   }
 
   return (
-    <div className="min-h-[100dvh] w-full bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex flex-col items-center justify-center p-4 relative overflow-hidden text-center">
+    <div className="min-h-[100dvh] w-full flex flex-col items-center justify-center p-4 relative overflow-hidden text-center">
+      <DojoBackground />
       {/* Background Decor */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
         <div
-          className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"
+          className="absolute top-0 left-1/4 w-96 h-96 bg-primary/10 rounded-full blur-3xl animate-pulse"
           style={{ animationDuration: '4s' }}
         />
         <div
@@ -458,9 +464,9 @@ function GenerationPreviewContent() {
                   className={cn(
                     'h-1.5 rounded-full transition-all duration-500',
                     idx < currentStepIndex
-                      ? 'w-1.5 bg-blue-500/30'
+                      ? 'w-1.5 bg-primary/30'
                       : idx === currentStepIndex
-                        ? 'w-8 bg-blue-500'
+                        ? 'w-8 bg-primary'
                         : 'w-1.5 bg-muted/50',
                   )}
                 />
@@ -592,7 +598,8 @@ export default function GenerationPreviewPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-[100dvh] w-full bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex items-center justify-center">
+        <div className="min-h-[100dvh] w-full flex items-center justify-center">
+      <DojoBackground />
           <div className="animate-pulse space-y-4 text-center">
             <div className="h-8 w-48 bg-muted rounded mx-auto" />
             <div className="h-4 w-64 bg-muted rounded mx-auto" />

@@ -70,6 +70,95 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════════
+   DOJO PALETTE OVERRIDE — remaps Tailwind's built-in colour names so that
+   components still using bg-gray-50, text-violet-600, bg-slate-900 ... pick
+   up the Dojo look without being edited one by one.
+   gray/slate/zinc/neutral -> warm washi/sumi scale, violet/purple/indigo ->
+   shu (vermilion) scale. Delete this block to get stock Tailwind colours back.
+   Does NOT affect hex/rgb literals or inline styles.
+   ═══════════════════════════════════════════════════════════════════ */
+@theme {
+  --color-white: oklch(0.975 0.015 85);
+  --color-gray-50: oklch(0.975 0.012 85);
+  --color-gray-100: oklch(0.955 0.02 85);
+  --color-gray-200: oklch(0.915 0.028 80);
+  --color-gray-300: oklch(0.85 0.03 78);
+  --color-gray-400: oklch(0.7 0.03 72);
+  --color-gray-500: oklch(0.58 0.03 68);
+  --color-gray-600: oklch(0.46 0.025 65);
+  --color-gray-700: oklch(0.38 0.02 62);
+  --color-gray-800: oklch(0.32 0.014 60);
+  --color-gray-900: oklch(0.27 0.01 60);
+  --color-gray-950: oklch(0.2 0.012 60);
+  --color-slate-50: oklch(0.975 0.012 85);
+  --color-slate-100: oklch(0.955 0.02 85);
+  --color-slate-200: oklch(0.915 0.028 80);
+  --color-slate-300: oklch(0.85 0.03 78);
+  --color-slate-400: oklch(0.7 0.03 72);
+  --color-slate-500: oklch(0.58 0.03 68);
+  --color-slate-600: oklch(0.46 0.025 65);
+  --color-slate-700: oklch(0.38 0.02 62);
+  --color-slate-800: oklch(0.32 0.014 60);
+  --color-slate-900: oklch(0.27 0.01 60);
+  --color-slate-950: oklch(0.2 0.012 60);
+  --color-zinc-50: oklch(0.975 0.012 85);
+  --color-zinc-100: oklch(0.955 0.02 85);
+  --color-zinc-200: oklch(0.915 0.028 80);
+  --color-zinc-300: oklch(0.85 0.03 78);
+  --color-zinc-400: oklch(0.7 0.03 72);
+  --color-zinc-500: oklch(0.58 0.03 68);
+  --color-zinc-600: oklch(0.46 0.025 65);
+  --color-zinc-700: oklch(0.38 0.02 62);
+  --color-zinc-800: oklch(0.32 0.014 60);
+  --color-zinc-900: oklch(0.27 0.01 60);
+  --color-zinc-950: oklch(0.2 0.012 60);
+  --color-neutral-50: oklch(0.975 0.012 85);
+  --color-neutral-100: oklch(0.955 0.02 85);
+  --color-neutral-200: oklch(0.915 0.028 80);
+  --color-neutral-300: oklch(0.85 0.03 78);
+  --color-neutral-400: oklch(0.7 0.03 72);
+  --color-neutral-500: oklch(0.58 0.03 68);
+  --color-neutral-600: oklch(0.46 0.025 65);
+  --color-neutral-700: oklch(0.38 0.02 62);
+  --color-neutral-800: oklch(0.32 0.014 60);
+  --color-neutral-900: oklch(0.27 0.01 60);
+  --color-neutral-950: oklch(0.2 0.012 60);
+  --color-violet-50: oklch(0.97 0.015 30);
+  --color-violet-100: oklch(0.94 0.035 30);
+  --color-violet-200: oklch(0.89 0.065 28);
+  --color-violet-300: oklch(0.82 0.1 27);
+  --color-violet-400: oklch(0.72 0.15 27);
+  --color-violet-500: oklch(0.62 0.18 27);
+  --color-violet-600: oklch(0.5 0.17 27);
+  --color-violet-700: oklch(0.43 0.15 27);
+  --color-violet-800: oklch(0.36 0.12 27);
+  --color-violet-900: oklch(0.3 0.09 27);
+  --color-violet-950: oklch(0.22 0.06 27);
+  --color-purple-50: oklch(0.97 0.015 30);
+  --color-purple-100: oklch(0.94 0.035 30);
+  --color-purple-200: oklch(0.89 0.065 28);
+  --color-purple-300: oklch(0.82 0.1 27);
+  --color-purple-400: oklch(0.72 0.15 27);
+  --color-purple-500: oklch(0.62 0.18 27);
+  --color-purple-600: oklch(0.5 0.17 27);
+  --color-purple-700: oklch(0.43 0.15 27);
+  --color-purple-800: oklch(0.36 0.12 27);
+  --color-purple-900: oklch(0.3 0.09 27);
+  --color-purple-950: oklch(0.22 0.06 27);
+  --color-indigo-50: oklch(0.97 0.015 30);
+  --color-indigo-100: oklch(0.94 0.035 30);
+  --color-indigo-200: oklch(0.89 0.065 28);
+  --color-indigo-300: oklch(0.82 0.1 27);
+  --color-indigo-400: oklch(0.72 0.15 27);
+  --color-indigo-500: oklch(0.62 0.18 27);
+  --color-indigo-600: oklch(0.5 0.17 27);
+  --color-indigo-700: oklch(0.43 0.15 27);
+  --color-indigo-800: oklch(0.36 0.12 27);
+  --color-indigo-900: oklch(0.3 0.09 27);
+  --color-indigo-950: oklch(0.22 0.06 27);
+}
+
+/* ═══════════════════════════════════════════════════════════════════
    DOJO THEME — the ONE place to change colours, radius and fonts.
    washi = rice paper, sumi = ink, shu = vermilion (stamp/seal),
    wood = hinoki/dark timber, gold = kintsugi accent.
@@ -162,6 +251,35 @@
   --sidebar-accent-foreground: oklch(0.95 0.016 85);
   --sidebar-border: oklch(0.95 0.016 85 / 18%);
   --sidebar-ring: oklch(0.66 0.18 27);
+}
+
+/* Classroom page (variant="page"): let the Dojo background picture show through.
+   Makes the backgrounds of the stage root (1st level) and its main panels
+   (2nd level) transparent. Readability comes from the veil in DojoBackground.
+   Want panels a bit solid again? Replace `transparent` with
+   color-mix(in oklab, var(--background) 55%, transparent). Deeper elements
+   (cards, slide canvas, popovers) keep their own backgrounds. */
+[data-dojo-page='true'] > *,
+[data-dojo-page='true'] > * > * {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* Stage canvas area: `bg-gray-50/30 dark:bg-gray-900/30` is a 30% tint behind
+   the slide card (found via DevTools: div.overflow-hidden.relative.flex-1.min-h-0.isolate).
+   Cleared so the Dojo picture shows through. The slide card itself keeps its fill. */
+[data-dojo-page='true'] .bg-gray-50\/30,
+[data-dojo-page='true'] .dark\:bg-gray-900\/30:is(.dark *) {
+  background-color: transparent !important;
+}
+
+/* Stage layout containers: DevTools showed two opaque ancestors above the slide
+   (div.w-full.h-full.flex.flex-col.bg-gray-50 and div.flex-1.flex.overflow-hidden.bg-gray-50,
+   both with dark:bg-gray-900). They are flex layout wrappers, so only flex
+   elements carrying these classes are cleared; the slide card (bg-white) stays solid. */
+[data-dojo-page='true'] .flex.bg-gray-50,
+[data-dojo-page='true'] .flex.dark\:bg-gray-900:is(.dark *) {
+  background-color: transparent !important;
 }
 
 /* ─── Dojo building blocks (use as plain classes in TSX) ─────────── */
