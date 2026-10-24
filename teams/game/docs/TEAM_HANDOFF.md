@@ -19,6 +19,8 @@
 - A persistent tower flow: OpenMAIC lesson → floor battle → next OpenMAIC lesson → Final Boss.
 - A simple player marker that walks with `A/D`, changes floors with `W/S`, and enters an open door automatically on contact; locked doors remain inaccessible.
 - A room-entry transition where the guardian jumps into the dojo and combat starts automatically, plus automatic teleport to the next lesson after a win.
+- A 3.2-second technique-selection window that auto-locks the highlighted legal move, plus close-range face-off movement between actions.
+- Three rotating guard/feint stances and alternate heavy, combo, and enemy strike motions exposed as animation-state hooks for production models.
 - A fixed combat camera, simple capsule placeholders, and a clean reference sword-swipe effect for testing timing and direction.
 
 ## Game Team — remaining work
@@ -38,7 +40,7 @@
 2. **Deliver the source and runtime assets.** Put editable `.blend` files in `assets/source/characters/` and exported files in `public/models/dojo/`. Deliver `apprentice.glb`, `guardian.glb`, and one shared `katana.glb`.
 3. **Use one shared humanoid skeleton.** Keep names and hierarchy identical across both characters so the same clips can be reused. Add `WeaponSocket_R` under the right-hand bone and a `SwordTip` node at the blade tip.
 4. **Build the fixed combat scene.** Lock the camera, player mark, enemy mark, ground plane, and light positions before polishing characters. Keep the current left-foreground/right-background composition.
-5. **Implement the animation state machine.** Required states: `Idle`, `Heavy`, `Combo1`, `Combo2`, `Combo3`, `Charge`, `Hit`, `Block`, `Parry`, `Dodge`, `Defeat`, and `BossTransform`.
+5. **Implement the animation state machine.** Required states: `IdleHigh`, `IdleLow`, `IdleFeint`, `FaceOffDash`, `HeavyOverhead`, `HeavyReverse`, `HeavySpin`, `Combo1`, `Combo2`, `Combo3`, `Charge`, `Hit`, `Block`, `Parry`, `Dodge`, `Defeat`, and `BossTransform`.
 6. **Author readable attack clips.** Every attack needs three clear phases: anticipation, contact, and recovery. Enemy attacks need a longer anticipation than player attacks so Block, Parry, and Dodge remain readable.
 7. **Synchronize contact events.** Store one contact time for each clip in a small TypeScript metadata file. Apply damage, start recoil, play the hit sound, and begin the hit pause from that same timestamp.
 8. **Build the reference sword swipe.** Sample `SwordTip` every rendered frame, create one curved ribbon from the recent positions, make the newest edge bright and wide, fade the oldest vertices to alpha zero, then remove the ribbon after 250–400 ms.

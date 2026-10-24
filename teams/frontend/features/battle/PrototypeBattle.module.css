@@ -204,6 +204,51 @@
 .questionTimer[data-locked='true'] {
   opacity: 0.48;
 }
+.decisionTimer {
+  position: absolute;
+  left: 50%;
+  top: 11%;
+  z-index: 9;
+  display: grid;
+  justify-items: center;
+  width: 132px;
+  color: #fff1d0;
+  text-align: center;
+  text-shadow: 0 2px 8px #000;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.decisionTimer small {
+  color: #f0c274;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+}
+.decisionTimer strong {
+  margin-top: 2px;
+  font:
+    42px/1 Georgia,
+    serif;
+  font-variant-numeric: tabular-nums;
+}
+.decisionTimer > span {
+  width: 100%;
+  height: 4px;
+  margin-top: 7px;
+  overflow: hidden;
+  background: #ffffff20;
+  transform: skewX(-20deg);
+}
+.decisionTimer > span i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #ee735e, #f5d18c);
+  transition: width 90ms linear;
+}
+.decisionTimer[data-low='true'] strong {
+  color: #ff7869;
+  animation: timerPulse 240ms ease-in-out infinite alternate;
+}
 .backdrop {
   position: absolute;
   inset: 0;
@@ -230,6 +275,13 @@
   background:
     linear-gradient(90deg, #061e25bd, transparent 55%),
     linear-gradient(0deg, #0b1925f5, #11282d28 40%, #14292e30 75%, #1020289c);
+}
+.arena[data-standoff='true'] .atmosphere {
+  background:
+    radial-gradient(circle at 53% 57%, #d4845524, transparent 19%),
+    linear-gradient(90deg, #061e25d9, transparent 45% 60%, #1f1113a8),
+    linear-gradient(0deg, #0b1925f5, #11282d28 40%, #14292e30 75%, #1020289c);
+  animation: standoffPulse 850ms ease-in-out infinite alternate;
 }
 .arena::after {
   content: '';
@@ -302,6 +354,8 @@
   left: 26%;
   bottom: 19%;
   --direction: 1;
+  --faceoff-shift: 105%;
+  --recoil-shift: -8%;
 }
 .enemyActor {
   width: 10%;
@@ -309,6 +363,8 @@
   left: 71%;
   bottom: 29%;
   --direction: -1;
+  --faceoff-shift: -130%;
+  --recoil-shift: 8%;
 }
 .playerModel,
 .enemyModel {
@@ -411,6 +467,52 @@
 .shell[data-weapon='dragon'] .playerModel .actorSword::after {
   display: none;
 }
+.playerActor[data-motion='faceoff'] {
+  z-index: 3;
+  animation: playerFaceoffEnter 480ms cubic-bezier(0.16, 0.82, 0.24, 1) both;
+}
+.enemyActor[data-motion='faceoff'] {
+  z-index: 3;
+  animation: enemyFaceoffEnter 480ms cubic-bezier(0.16, 0.82, 0.24, 1) both;
+}
+.playerActor[data-motion='faceoff'] .motionDust,
+.enemyActor[data-motion='faceoff'] .motionDust {
+  animation: dashDust 420ms 40ms ease-out both;
+}
+.playerActor[data-motion='faceoff'] .actorAura,
+.enemyActor[data-motion='faceoff'] .actorAura {
+  border-color: #efc77b55;
+  box-shadow: 0 0 18px #d97e5355;
+  animation: threatAura 720ms ease-in-out infinite alternate;
+}
+.playerActor[data-motion='faceoff'][data-stance='0'] .playerModel,
+.enemyActor[data-motion='faceoff'][data-stance='0'] .enemyModel {
+  animation: highGuardStance 680ms ease-in-out infinite alternate;
+}
+.playerActor[data-motion='faceoff'][data-stance='1'] .playerModel,
+.enemyActor[data-motion='faceoff'][data-stance='1'] .enemyModel {
+  animation: lowGuardStance 520ms ease-in-out infinite alternate;
+}
+.playerActor[data-motion='faceoff'][data-stance='2'] .playerModel,
+.enemyActor[data-motion='faceoff'][data-stance='2'] .enemyModel {
+  animation: feintStance 360ms steps(2, end) infinite;
+}
+.playerActor[data-motion='faceoff'][data-stance='0'] .actorSword {
+  animation: playerHighGuardSword 680ms ease-in-out infinite alternate;
+}
+.enemyActor[data-motion='faceoff'][data-stance='0'] .actorSword {
+  animation: enemyHighGuardSword 680ms ease-in-out infinite alternate;
+}
+.playerActor[data-motion='faceoff'][data-stance='1'] .actorSword {
+  animation: playerLowGuardSword 520ms ease-in-out infinite alternate;
+}
+.enemyActor[data-motion='faceoff'][data-stance='1'] .actorSword {
+  animation: enemyLowGuardSword 520ms ease-in-out infinite alternate;
+}
+.playerActor[data-motion='faceoff'][data-stance='2'] .actorSword,
+.enemyActor[data-motion='faceoff'][data-stance='2'] .actorSword {
+  animation: feintSword 360ms steps(2, end) infinite;
+}
 .playerActor[data-motion='idle'] .playerModel,
 .enemyActor[data-motion='idle'] .enemyModel {
   animation: idleBreath 2.5s ease-in-out infinite;
@@ -477,11 +579,41 @@
 .playerActor[data-motion='lunge'][data-kind='combo'] .actorSword {
   animation: comboSword 150ms 225ms ease-in-out var(--hits) alternate both;
 }
+.playerActor[data-motion='lunge'][data-kind='heavy'][data-variant='1'] {
+  animation-name: playerReverseLunge;
+}
+.playerActor[data-motion='lunge'][data-kind='heavy'][data-variant='1'] .actorSword {
+  animation-name: playerReverseSword;
+}
+.playerActor[data-motion='lunge'][data-kind='heavy'][data-variant='2'] {
+  animation-name: playerSpinLunge;
+}
+.playerActor[data-motion='lunge'][data-kind='heavy'][data-variant='2'] .actorSword {
+  animation-name: playerSpinSword;
+}
+.playerActor[data-motion='lunge'][data-kind='combo'][data-variant='1'] {
+  animation-name: comboLowLunge;
+}
+.playerActor[data-motion='lunge'][data-kind='combo'][data-variant='1'] .actorSword {
+  animation-name: comboLowSword;
+}
 .enemyActor[data-motion='lunge'] {
   animation: enemyLunge 950ms ease both;
 }
 .enemyActor[data-motion='lunge'] .actorSword {
   animation: enemySwordSwing 950ms cubic-bezier(0.2, 0.72, 0.24, 1) both;
+}
+.enemyActor[data-motion='lunge'][data-variant='1'] {
+  animation-name: enemyHighLunge;
+}
+.enemyActor[data-motion='lunge'][data-variant='1'] .actorSword {
+  animation-name: enemyHighSword;
+}
+.enemyActor[data-motion='lunge'][data-variant='2'] {
+  animation-name: enemyLowLunge;
+}
+.enemyActor[data-motion='lunge'][data-variant='2'] .actorSword {
+  animation-name: enemyLowSword;
 }
 .playerActor[data-motion='hurt'],
 .enemyActor[data-motion='hurt'] {
@@ -493,6 +625,9 @@
 }
 .playerActor[data-motion='evade'] {
   animation: evade 900ms ease both;
+}
+.playerActor[data-motion='charge'] {
+  animation: chargeStepBack 1.7s ease both;
 }
 .playerActor[data-motion='charge'] .playerModel {
   animation: chargeBody 1.7s ease both;
@@ -1361,10 +1496,10 @@
 @keyframes playerLunge {
   0%,
   10% {
-    transform: translateX(0) rotate(0deg);
+    transform: translateX(var(--faceoff-shift)) rotate(0deg);
   }
   18% {
-    transform: translateX(-8%) rotate(-6deg);
+    transform: translateX(88%) rotate(-6deg);
   }
   32% {
     transform: translateX(190%) rotate(4deg);
@@ -1384,10 +1519,10 @@
 @keyframes enemyLunge {
   0%,
   12% {
-    transform: translateX(0);
+    transform: translateX(var(--faceoff-shift));
   }
   20% {
-    transform: translateX(7%) rotate(5deg);
+    transform: translateX(-112%) rotate(5deg);
   }
   34% {
     transform: translateX(-300%) rotate(-4deg);
@@ -1407,10 +1542,10 @@
 @keyframes comboLunge {
   0%,
   10% {
-    transform: translateX(0) rotate(0deg);
+    transform: translateX(var(--faceoff-shift)) rotate(0deg);
   }
   18% {
-    transform: translateX(-6%) rotate(-5deg);
+    transform: translateX(92%) rotate(-5deg);
   }
   30%,
   68% {
@@ -1656,10 +1791,11 @@
 }
 @keyframes recoil {
   0% {
-    transform: translateX(0);
+    transform: translateX(var(--faceoff-shift));
   }
   20% {
-    transform: translateX(calc(var(--direction) * -6%)) rotate(calc(var(--direction) * -5deg));
+    transform: translateX(calc(var(--faceoff-shift) + var(--recoil-shift)))
+      rotate(calc(var(--direction) * -5deg));
   }
   100% {
     transform: translateX(0);
@@ -1668,18 +1804,262 @@
 @keyframes evade {
   0%,
   10% {
-    transform: translateX(0);
+    transform: translateX(var(--faceoff-shift));
     opacity: 1;
   }
   30%,
   50% {
-    transform: translateX(-22%) skewX(8deg);
+    transform: translateX(62%) skewX(8deg);
     opacity: 0.35;
   }
   80%,
   100% {
     transform: translateX(0);
     opacity: 1;
+  }
+}
+@keyframes playerFaceoffEnter {
+  0% {
+    transform: translateX(0) scale(0.98);
+  }
+  68% {
+    transform: translateX(114%) scale(1.03, 0.97);
+  }
+  100% {
+    transform: translateX(var(--faceoff-shift)) scale(1);
+  }
+}
+@keyframes enemyFaceoffEnter {
+  0% {
+    transform: translateX(0) scale(0.98);
+  }
+  68% {
+    transform: translateX(-142%) scale(1.03, 0.97);
+  }
+  100% {
+    transform: translateX(var(--faceoff-shift)) scale(1);
+  }
+}
+@keyframes highGuardStance {
+  from {
+    transform: translateY(0) rotate(-2deg) scale(1.02, 0.98);
+  }
+  to {
+    transform: translateY(-5%) rotate(3deg) scale(0.98, 1.03);
+  }
+}
+@keyframes lowGuardStance {
+  from {
+    transform: translateY(3%) rotate(4deg) scale(1.04, 0.95);
+  }
+  to {
+    transform: translateY(-2%) rotate(-3deg) scale(0.99, 1.02);
+  }
+}
+@keyframes feintStance {
+  0%,
+  100% {
+    transform: translateX(-2%) rotate(-4deg) scale(1.01, 0.99);
+  }
+  50% {
+    transform: translateX(4%) rotate(5deg) scale(0.98, 1.02);
+  }
+}
+@keyframes playerHighGuardSword {
+  from {
+    transform: rotate(-22deg) translateY(-8%);
+  }
+  to {
+    transform: rotate(-5deg) translateY(-12%);
+  }
+}
+@keyframes enemyHighGuardSword {
+  from {
+    transform: rotate(22deg) translateY(-8%);
+  }
+  to {
+    transform: rotate(5deg) translateY(-12%);
+  }
+}
+@keyframes playerLowGuardSword {
+  from {
+    transform: rotate(62deg) translateY(2%);
+  }
+  to {
+    transform: rotate(48deg) translateY(-4%);
+  }
+}
+@keyframes enemyLowGuardSword {
+  from {
+    transform: rotate(-62deg) translateY(2%);
+  }
+  to {
+    transform: rotate(-48deg) translateY(-4%);
+  }
+}
+@keyframes feintSword {
+  0%,
+  100% {
+    transform: rotate(18deg);
+  }
+  50% {
+    transform: rotate(42deg) translateY(-6%);
+  }
+}
+@keyframes playerReverseLunge {
+  0%,
+  12% {
+    transform: translateX(var(--faceoff-shift)) rotate(0);
+  }
+  22% {
+    transform: translateX(92%) rotate(9deg);
+  }
+  39%,
+  54% {
+    transform: translateX(244%) rotate(-8deg);
+  }
+  78%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes playerReverseSword {
+  0%,
+  18% {
+    transform: rotate(104deg);
+  }
+  42%,
+  58% {
+    transform: rotate(-72deg);
+  }
+  100% {
+    transform: rotate(34deg);
+  }
+}
+@keyframes playerSpinLunge {
+  0%,
+  10% {
+    transform: translateX(var(--faceoff-shift)) rotate(0);
+  }
+  24% {
+    transform: translateX(118%) rotate(-24deg);
+  }
+  42%,
+  58% {
+    transform: translateX(248%) rotate(16deg) scale(1.06, 0.94);
+  }
+  80%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes playerSpinSword {
+  0% {
+    transform: rotate(-90deg);
+  }
+  52% {
+    transform: rotate(250deg);
+  }
+  100% {
+    transform: rotate(394deg);
+  }
+}
+@keyframes comboLowLunge {
+  0%,
+  10% {
+    transform: translateX(var(--faceoff-shift)) translateY(0);
+  }
+  28%,
+  68% {
+    transform: translateX(246%) translateY(11%) skewX(-7deg);
+  }
+  82%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+}
+@keyframes comboLowSword {
+  from {
+    transform: rotate(78deg);
+  }
+  to {
+    transform: rotate(-54deg);
+  }
+}
+@keyframes enemyHighLunge {
+  0%,
+  12% {
+    transform: translateX(var(--faceoff-shift));
+  }
+  24% {
+    transform: translateX(-112%) rotate(-12deg);
+  }
+  42%,
+  57% {
+    transform: translateX(-354%) rotate(8deg);
+  }
+  80%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes enemyHighSword {
+  0%,
+  18% {
+    transform: rotate(-118deg);
+  }
+  46%,
+  62% {
+    transform: rotate(84deg);
+  }
+  100% {
+    transform: rotate(-38deg);
+  }
+}
+@keyframes enemyLowLunge {
+  0%,
+  12% {
+    transform: translateX(var(--faceoff-shift)) translateY(0);
+  }
+  38%,
+  58% {
+    transform: translateX(-350%) translateY(12%) skewX(7deg);
+  }
+  80%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+}
+@keyframes enemyLowSword {
+  0% {
+    transform: rotate(-72deg);
+  }
+  48%,
+  66% {
+    transform: rotate(62deg);
+  }
+  100% {
+    transform: rotate(-38deg);
+  }
+}
+@keyframes chargeStepBack {
+  0% {
+    transform: translateX(var(--faceoff-shift));
+  }
+  24%,
+  82% {
+    transform: translateX(74%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes standoffPulse {
+  from {
+    filter: saturate(0.9) brightness(0.94);
+  }
+  to {
+    filter: saturate(1.18) brightness(1.04);
   }
 }
 @keyframes chargeBody {

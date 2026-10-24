@@ -124,7 +124,8 @@ const impactSparks = [
   { angle: 78, distance: 46 },
 ] as const;
 
-const QUESTION_TIME_SECONDS = 12;
+const QUESTION_TIME_SECONDS = 9;
+const DECISION_TIME_MS = 3200;
 const FEEDBACK_PAUSE_MS = 520;
 
 function ReactiveDefense({
@@ -380,11 +381,15 @@ export default function PrototypeBattle({
   const [cameraYaw, setCameraYaw] = useState(0);
   const [isOrbiting, setIsOrbiting] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(QUESTION_TIME_SECONDS);
+  const [decisionMsLeft, setDecisionMsLeft] = useState(DECISION_TIME_MS);
   const actionLock = useRef(false);
   const answerLock = useRef(false);
+  const decisionLock = useRef(false);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const victoryReported = useRef(false);
   const advanceChallengeRef = useRef<(correct: boolean) => void>(() => undefined);
+  const beginChallengeRef = useRef<(index: number) => void>(() => undefined);
+  const selectedRef = useRef(0);
   const orbitDrag = useRef<{ pointerId: number; startX: number; startYaw: number } | null>(null);
   const menu = useRef<HTMLDivElement>(null);
   const answerInput = useRef<HTMLInputElement>(null);
@@ -399,6 +404,7 @@ export default function PrototypeBattle({
       : (sampleLanguage === 'de' ? DEFENSE_CHALLENGES : ENGLISH_DEFENSE_CHALLENGES)[active.id]
     : null;
   const question = challenge?.questions[questionIndex];
+  const stanceVariant = (battle.round + Number(isDefense)) % 3;
 
   useEffect(() => {
     if (!fx) return;
@@ -432,8 +438,9 @@ export default function PrototypeBattle({
 
   const beginChallenge = useCallback(
     (index: number) => {
-      if (!choosing || actionLock.current) return;
+      if (!choosing || actionLock.current || decisionLock.current) return;
       if (!isDefense && battle.cooldowns[attacks[index].id] > 0) return;
+      decisionLock.current = true;
       setSelected(index);
       setActive(
         isDefense
@@ -450,6 +457,42 @@ export default function PrototypeBattle({
     },
     [battle.cooldowns, choosing, isDefense],
   );
+
+  useEffect(() => {
+    beginChallengeRef.current = beginChallenge;
+  }, [beginChallenge]);
+
+  useEffect(() => {
+    selectedRef.current = selected;
+  }, [selected]);
+
+  useEffect(() => {
+    if (!choosing) return;
+    decisionLock.current = false;
+    const available = commands
+      .map((_, index) => index)
+      .filter((index) => isDefense || battle.cooldowns[attacks[index].id] === 0);
+    const initial = available.includes(selectedRef.current)
+      ? selectedRef.current
+      : (available[0] ?? 0);
+    selectedRef.current = initial;
+    const deadline = performance.now() + DECISION_TIME_MS;
+    const frame = window.requestAnimationFrame(() => {
+      setSelected(initial);
+      setDecisionMsLeft(DECISION_TIME_MS);
+    });
+    const timer = window.setInterval(() => {
+      const remaining = Math.max(0, deadline - performance.now());
+      setDecisionMsLeft(remaining);
+      if (remaining > 0) return;
+      window.clearInterval(timer);
+      beginChallengeRef.current(selectedRef.current);
+    }, 100);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearInterval(timer);
+    };
+  }, [battle.cooldowns, battle.round, battle.turn, choosing, commands, isDefense]);
 
   useEffect(() => {
     if (!choosing) return;
@@ -477,6 +520,7 @@ export default function PrototypeBattle({
           available[
             (position + (event.code === 'ArrowDown' ? 1 : available.length - 1)) % available.length
           ];
+        selectedRef.current = next;
         setSelected(next);
         menu.current?.querySelectorAll('button')[next]?.focus();
       }
@@ -606,9 +650,12 @@ export default function PrototypeBattle({
     setFeedback(null);
     actionLock.current = false;
     answerLock.current = false;
+    decisionLock.current = false;
     victoryReported.current = false;
+    selectedRef.current = 0;
     setSelected(0);
     setSecondsLeft(QUESTION_TIME_SECONDS);
+    setDecisionMsLeft(DECISION_TIME_MS);
     dispatch({ type: 'RESET' });
   }
 
@@ -657,20 +704,18 @@ export default function PrototypeBattle({
       ? battle.turn === 'victory'
         ? 'victory'
         : 'defeat'
-      : 'idle';
+      : 'faceoff';
   const enemyMotion = fx
     ? fx.target === 'enemy' && !fx.failed
       ? 'hurt'
       : fx.target === 'player' && fx.kind !== 'quiz'
         ? 'lunge'
-        : 'idle'
+        : 'faceoff'
     : isFinished
       ? battle.turn === 'victory'
         ? 'defeat'
         : 'victory'
-      : isDefense
-        ? 'windup'
-        : 'idle';
+      : 'faceoff';
 
   return (
     <div className={styles.shell} data-full-motion={fullMotion} data-weapon={weapon}>
@@ -729,6 +774,7 @@ export default function PrototypeBattle({
         data-fx={fx?.kind ?? ''}
         data-target={fx?.target ?? ''}
         data-failed={fx?.failed ?? false}
+        data-standoff={choosing || active !== null || timingSession !== null}
         data-orbiting={isOrbiting}
         onPointerDown={beginOrbit}
         onPointerMove={moveOrbit}
@@ -753,6 +799,8 @@ export default function PrototypeBattle({
             className={styles.playerActor}
             data-motion={playerMotion}
             data-kind={fx?.kind ?? ''}
+            data-stance={stanceVariant}
+            data-variant={battle.round % 3}
             style={
               {
                 '--first-impact': `${fx?.kind === 'combo' ? 300 : (fx?.impactMs ?? 0)}ms`,
@@ -773,6 +821,8 @@ export default function PrototypeBattle({
             className={styles.enemyActor}
             data-motion={enemyMotion}
             data-kind={fx?.kind ?? ''}
+            data-stance={stanceVariant}
+            data-variant={battle.round % 3}
             style={
               {
                 '--first-impact': `${fx?.kind === 'combo' ? 300 : (fx?.impactMs ?? 0)}ms`,
@@ -816,6 +866,21 @@ export default function PrototypeBattle({
           </div>
         )}
 
+        {choosing && (
+          <div
+            className={styles.decisionTimer}
+            data-low={decisionMsLeft <= 1200}
+            role="timer"
+            aria-label={`Technique locks in ${Math.ceil(decisionMsLeft / 100) / 10} seconds`}
+          >
+            <small>LOCK IN</small>
+            <strong>{(Math.ceil(decisionMsLeft / 100) / 10).toFixed(1)}</strong>
+            <span>
+              <i style={{ width: `${(decisionMsLeft / DECISION_TIME_MS) * 100}%` }} />
+            </span>
+          </div>
+        )}
+
         <div className={styles.enemyHud}>
           <span>{opponentRole}</span>
           <h3>{opponentName}</h3>
@@ -850,8 +915,14 @@ export default function PrototypeBattle({
                 return (
                   <button
                     key={id}
-                    onMouseEnter={() => setSelected(index)}
-                    onFocus={() => setSelected(index)}
+                    onMouseEnter={() => {
+                      selectedRef.current = index;
+                      setSelected(index);
+                    }}
+                    onFocus={() => {
+                      selectedRef.current = index;
+                      setSelected(index);
+                    }}
                     className={selected === index ? styles.commandSelected : ''}
                     disabled={cooldown > 0}
                     onClick={() => beginChallenge(index)}
@@ -881,8 +952,7 @@ export default function PrototypeBattle({
               <kbd>2</kbd>
               <kbd>3</kbd> choose <span> / </span>
               <kbd>↑</kbd>
-              <kbd>↓</kbd> navigate <span> / </span>
-              <kbd>↵</kbd> confirm
+              <kbd>↓</kbd> navigate <span> / </span> auto-locks when time expires
             </div>
           </div>
         )}
