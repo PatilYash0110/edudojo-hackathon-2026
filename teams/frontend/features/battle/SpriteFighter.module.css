@@ -26,12 +26,14 @@
   position: absolute;
   left: 82%;
   top: 38%;
-  width: 46%;
+  width: 64%;
   aspect-ratio: 1;
   border-radius: 50%;
   opacity: 0;
-  background: radial-gradient(circle, #ffffff 0 12%, var(--element) 30%, transparent 68%);
-  box-shadow: 0 0 40px 10px var(--element);
+  background: radial-gradient(circle, #ffffff 0 14%, var(--element) 34%, transparent 70%);
+  box-shadow:
+    0 0 60px 18px var(--element),
+    0 0 120px 30px color-mix(in oklab, var(--element) 45%, transparent);
   mix-blend-mode: screen;
   transform: translate(-50%, -50%) scale(0.4);
 }
