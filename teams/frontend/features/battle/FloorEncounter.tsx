@@ -26,7 +26,8 @@ export function FloorEncounter({
   }, [boss]);
 
   return (
-    <section className={styles.encounter} data-boss={boss} aria-live="polite">
+    // `dark`: the cutscene leads straight into the always-dark battle arena.
+    <section className={`dark ${styles.encounter}`} data-boss={boss} aria-live="polite">
       <div className={styles.room} aria-hidden="true">
         <div className={styles.backWall}>
           <span>道</span>
