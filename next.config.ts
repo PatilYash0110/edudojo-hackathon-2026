@@ -27,6 +27,8 @@ const nextConfig: NextConfig = {
       // Docker (Alpine/musl) deployments. Force-include every sharp-libvips
       // native lib dir.
       'node_modules/.pnpm/@img+sharp-libvips-*/node_modules/@img/sharp-libvips-*/lib/**',
+      // DojoLearn model config, read at boot via OPENMAIC_CONFIG (render.yaml).
+      'teams/backend/config/**',
     ],
   },
   typescript: {
@@ -54,6 +56,15 @@ const nextConfig: NextConfig = {
   ],
   experimental: {
     proxyClientMaxBodySize: '200mb',
+  },
+  // Vercel only: pages stay here, every API call goes to the Render backend (same origin, so cookies just work).
+  async rewrites() {
+    const backend = process.env.BACKEND_URL?.trim().replace(/\/+$/, '');
+    return {
+      beforeFiles: backend ? [{ source: '/api/:path*', destination: `${backend}/api/:path*` }] : [],
+      afterFiles: [],
+      fallback: [],
+    };
   },
   async headers() {
     const extraAncestors = process.env.ALLOWED_FRAME_ANCESTORS?.trim();
