@@ -27,14 +27,16 @@ const SCENE_TYPE_ICONS: Record<SceneType, typeof FileText> = {
 
 const TYPE_ORDER: SceneType[] = ['slide', 'quiz', 'interactive', 'pbl'];
 
+// Dojo palette (app/globals.css): vermilion seal, kintsugi gold, hinoki
+// timber and rice paper. Flips with the light/dark tokens like the home page.
 const CONFETTI_COLORS = [
-  '#fbbf24',
-  '#f97316',
-  '#ef4444',
-  '#ec4899',
-  '#a855f7',
-  '#3b82f6',
-  '#10b981',
+  'var(--shu)',
+  'var(--gold)',
+  'var(--wood)',
+  'color-mix(in oklab, var(--gold) 55%, var(--washi))',
+  'color-mix(in oklab, var(--shu) 60%, var(--washi))',
+  'var(--washi-deep)',
+  'color-mix(in oklab, var(--wood) 55%, var(--washi))',
 ];
 
 function encouragementKey(pct: number): 'high' | 'mid' | 'low' {
@@ -141,7 +143,7 @@ function Sparkles() {
         <motion.div
           key={i}
           aria-hidden
-          className="absolute text-amber-300 dark:text-amber-200"
+          className="absolute text-[var(--gold)]"
           style={{
             width: s.size,
             height: s.size,
@@ -170,19 +172,19 @@ function TrophySvg({ className }: { className?: string }) {
     <svg viewBox="0 0 120 150" className={className} aria-hidden>
       <defs>
         <linearGradient id="tc-gold" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fef3c7" />
-          <stop offset="35%" stopColor="#fbbf24" />
-          <stop offset="75%" stopColor="#d97706" />
-          <stop offset="100%" stopColor="#92400e" />
+          <stop offset="0%" stopColor="color-mix(in oklab, var(--gold) 35%, white)" />
+          <stop offset="35%" stopColor="var(--gold)" />
+          <stop offset="75%" stopColor="color-mix(in oklab, var(--gold) 45%, var(--wood))" />
+          <stop offset="100%" stopColor="var(--wood)" />
         </linearGradient>
         <linearGradient id="tc-gold-light" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor="#fcd34d" />
-          <stop offset="50%" stopColor="#f59e0b" />
-          <stop offset="100%" stopColor="#b45309" />
+          <stop offset="0%" stopColor="color-mix(in oklab, var(--gold) 60%, white)" />
+          <stop offset="50%" stopColor="var(--gold)" />
+          <stop offset="100%" stopColor="var(--wood)" />
         </linearGradient>
         <linearGradient id="tc-shine" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fffbeb" stopOpacity="0.85" />
-          <stop offset="100%" stopColor="#fffbeb" stopOpacity="0" />
+          <stop offset="0%" stopColor="var(--washi)" stopOpacity="0.85" />
+          <stop offset="100%" stopColor="var(--washi)" stopOpacity="0" />
         </linearGradient>
       </defs>
       {/* Handles */}
@@ -205,21 +207,27 @@ function TrophySvg({ className }: { className?: string }) {
       {/* Shine */}
       <path d="M 33 22 Q 32 60 42 88 L 38 88 Q 30 60 31 22 Z" fill="url(#tc-shine)" />
       {/* Rim */}
-      <ellipse cx="60" cy="19" rx="36" ry="4.5" fill="#fde68a" />
+      <ellipse
+        cx="60"
+        cy="19"
+        rx="36"
+        ry="4.5"
+        fill="color-mix(in oklab, var(--gold) 50%, white)"
+      />
       <ellipse
         cx="60"
         cy="19"
         rx="36"
         ry="4.5"
         fill="none"
-        stroke="#b45309"
+        stroke="var(--wood)"
         strokeWidth="0.6"
         opacity="0.35"
       />
       {/* Star */}
       <path
         d="M 60 42 L 63.6 52.3 L 74.5 52.3 L 65.7 58.7 L 69 69 L 60 62.7 L 51 69 L 54.3 58.7 L 45.5 52.3 L 56.4 52.3 Z"
-        fill="#ffffff"
+        fill="var(--washi)"
         opacity="0.92"
       />
       {/* Stem */}
@@ -276,8 +284,8 @@ function QuizRing({
       <svg viewBox="0 0 88 88" className="w-full h-full -rotate-90">
         <defs>
           <linearGradient id="tc-ring-gold" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#fbbf24" />
-            <stop offset="100%" stopColor="#f97316" />
+            <stop offset="0%" stopColor="var(--gold)" />
+            <stop offset="100%" stopColor="var(--shu)" />
           </linearGradient>
         </defs>
         <circle
@@ -287,7 +295,7 @@ function QuizRing({
           fill="none"
           stroke="currentColor"
           strokeWidth="8"
-          className="text-amber-200/70 dark:text-amber-900/40"
+          className="text-[var(--washi-deep)]"
         />
         <motion.circle
           cx="44"
@@ -308,7 +316,7 @@ function QuizRing({
         />
       </svg>
       <div className="absolute inset-0 flex items-center justify-center">
-        <span className="text-xl font-black text-amber-700 dark:text-amber-300">
+        <span className="font-serif text-xl font-bold text-[var(--shu)]">
           <AnimatedCounter value={pct} delay={delay} duration={1.0} />
           <span className="text-sm font-bold">%</span>
         </span>
@@ -440,7 +448,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
           {t('classroomComplete.title')}
         </span>
         {/* Base background — pinned to the section, NOT to scroll height */}
-        <div className="absolute inset-0 bg-gradient-to-br from-amber-50 via-white to-orange-50 dark:from-gray-900 dark:via-gray-900 dark:to-amber-950/30" />
+        <div className="dojo-paper absolute inset-0" />
         {/* Radial glow — same, pinned to section */}
         <motion.div
           aria-hidden
@@ -450,7 +458,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
           className="pointer-events-none absolute inset-0"
           style={{
             background:
-              'radial-gradient(circle at 50% 42%, rgba(251, 191, 36, 0.32), rgba(249, 115, 22, 0.12) 38%, transparent 68%)',
+              'radial-gradient(circle at 50% 42%, color-mix(in oklab, var(--gold) 30%, transparent), color-mix(in oklab, var(--shu) 12%, transparent) 38%, transparent 68%)',
           }}
         />
         {/* Confetti — pinned to section */}
@@ -485,7 +493,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                   className="absolute inset-0 rounded-full"
                   style={{
                     background:
-                      'radial-gradient(circle, rgba(251, 191, 36, 0.5), rgba(249, 115, 22, 0.12) 55%, transparent 72%)',
+                      'radial-gradient(circle, color-mix(in oklab, var(--gold) 45%, transparent), color-mix(in oklab, var(--shu) 12%, transparent) 55%, transparent 72%)',
                     filter: 'blur(14px)',
                   }}
                 />
@@ -504,7 +512,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                       height: compact ? 112 : 185,
                     }}
                   >
-                    <TrophySvg className="w-full h-full drop-shadow-[0_10px_18px_rgba(180,83,9,0.35)]" />
+                    <TrophySvg className="w-full h-full drop-shadow-[0_10px_18px_color-mix(in_oklab,var(--wood)_45%,transparent)]" />
                   </motion.div>
                 </motion.div>
                 {!compact && <Sparkles />}
@@ -516,7 +524,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{ delay: 0.65, type: 'spring', stiffness: 280, damping: 18 }}
                 className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-amber-400 via-orange-400 to-amber-500 text-white font-bold uppercase tracking-wider shadow-lg shadow-amber-500/30',
+                  'dojo-seal inline-flex items-center gap-1.5 font-bold uppercase',
                   compact ? 'px-3 py-1 text-[10px]' : 'px-4 py-1.5 text-xs',
                 )}
               >
@@ -534,18 +542,15 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
               >
                 <h2
                   className={cn(
-                    'font-black leading-tight bg-gradient-to-br from-amber-700 via-orange-600 to-amber-800 dark:from-amber-200 dark:via-orange-200 dark:to-amber-300 bg-clip-text text-transparent',
+                    'dojo-heading font-bold leading-tight text-foreground',
                     compact ? 'text-xl md:text-2xl' : 'text-3xl md:text-4xl',
                   )}
                 >
                   {title || t('classroomComplete.title')}
                 </h2>
-                <p
-                  className={cn(
-                    'text-gray-500 dark:text-gray-400',
-                    compact ? 'text-xs' : 'text-sm',
-                  )}
-                >
+                {/* Brush-stroke rule, as under the home page's headings. */}
+                <div aria-hidden className={cn('dojo-rule mx-auto', compact ? 'w-16' : 'w-24')} />
+                <p className={cn('text-muted-foreground', compact ? 'text-xs' : 'text-sm')}>
                   {dateLabel}
                 </p>
               </motion.div>
@@ -576,20 +581,17 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                           damping: 20,
                         }}
                         className={cn(
-                          'rounded-2xl bg-white/90 dark:bg-gray-900/70 border border-amber-100 dark:border-amber-900/40 shadow-sm flex flex-col items-center backdrop-blur-sm',
+                          'dojo-frame rounded-sm bg-card flex flex-col items-center',
                           compact ? 'px-3 py-2 gap-0.5' : 'px-4 py-4 gap-1.5',
                         )}
                       >
                         <Icon
-                          className={cn(
-                            'text-amber-500 dark:text-amber-400',
-                            compact ? 'w-4 h-4' : 'w-6 h-6',
-                          )}
+                          className={cn('text-[var(--shu)]', compact ? 'w-4 h-4' : 'w-6 h-6')}
                           strokeWidth={1.8}
                         />
                         <div
                           className={cn(
-                            'font-black text-gray-900 dark:text-gray-100 leading-none',
+                            'font-serif font-bold text-foreground leading-none',
                             compact ? 'text-xl' : 'text-3xl',
                           )}
                         >
@@ -597,7 +599,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                         </div>
                         <div
                           className={cn(
-                            'text-gray-500 dark:text-gray-400 uppercase tracking-wider',
+                            'text-muted-foreground uppercase tracking-wider',
                             compact ? 'text-[10px]' : 'text-[11px]',
                           )}
                         >
@@ -616,7 +618,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   transition={{ delay: 1.2, type: 'spring', stiffness: 220, damping: 20 }}
                   className={cn(
-                    'w-full rounded-2xl bg-gradient-to-br from-amber-100 via-orange-50 to-amber-100 dark:from-amber-950/50 dark:via-orange-950/30 dark:to-amber-950/50 border border-amber-200 dark:border-amber-900/50 shadow-md shadow-amber-200/30 dark:shadow-amber-950/20',
+                    'dojo-frame w-full rounded-sm bg-card',
                     compact ? 'px-4 py-3' : 'px-6 py-5',
                   )}
                 >
@@ -625,7 +627,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                     <div className="flex-1 min-w-0">
                       <div
                         className={cn(
-                          'font-bold text-amber-700 dark:text-amber-300',
+                          'font-serif font-bold text-foreground',
                           compact ? 'text-sm' : 'text-base',
                         )}
                       >
@@ -636,7 +638,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                       </div>
                       <div
                         className={cn(
-                          'mt-1 text-amber-700/80 dark:text-amber-300/80',
+                          'mt-1 text-muted-foreground',
                           compact ? 'text-xs' : 'text-sm',
                         )}
                       >

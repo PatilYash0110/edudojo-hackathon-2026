@@ -18,9 +18,9 @@ interface SessionListProps {
 }
 
 const sessionBadgeStyles = {
-  qa: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300',
-  discussion: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300',
-  lecture: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300',
+  qa: 'bg-[var(--wood)]/12 text-[var(--wood)]',
+  discussion: 'bg-[var(--gold)]/18 text-[var(--wood)]',
+  lecture: 'bg-primary/12 text-primary',
 };
 
 // Labels are provided via i18n in the component
@@ -30,16 +30,16 @@ function getStatusIcon(status: SessionStatus) {
     case 'active':
       return <Circle className="size-2.5 fill-green-500 text-green-500" />;
     case 'soft-closing':
-      return <Circle className="size-2.5 fill-amber-500 text-amber-500 animate-pulse" />;
+      return <Circle className="size-2.5 fill-[var(--gold)] text-[var(--gold)] animate-pulse" />;
     case 'interrupted':
       return <Clock className="size-2.5 text-yellow-500" />;
     case 'completed':
-      return <CheckCircle className="size-2.5 text-gray-400" />;
+      return <CheckCircle className="size-2.5 text-muted-foreground" />;
     case 'error':
       return <AlertCircle className="size-2.5 text-red-500" />;
     case 'idle':
     default:
-      return <Circle className="size-2.5 text-gray-300" />;
+      return <Circle className="size-2.5 text-muted-foreground" />;
   }
 }
 
@@ -60,25 +60,25 @@ export function SessionList({
         const isActive = session.status === 'active' || session.status === 'soft-closing';
         const dotColor =
           session.type === 'lecture'
-            ? 'bg-purple-500'
+            ? 'bg-primary'
             : session.type === 'qa'
-              ? 'bg-blue-500'
-              : 'bg-amber-500';
+              ? 'bg-[var(--wood)]'
+              : 'bg-[var(--gold)]';
 
         return (
           <div
             key={session.id}
             className={cn(
-              'rounded-xl border transition-all duration-500 overflow-hidden',
+              'rounded-sm border transition-all duration-500 overflow-hidden',
               isActive
-                ? 'border-purple-200 dark:border-purple-700 bg-purple-50/30 dark:bg-purple-900/20 shadow-sm'
-                : 'border-gray-100 dark:border-gray-800 bg-white/50 dark:bg-gray-800/50',
+                ? 'border-primary/40 bg-primary/10 shadow-sm'
+                : 'border-border bg-white/50 dark:bg-muted/50',
             )}
           >
             {/* Session Header */}
             <button
               onClick={() => onToggleExpand(session.id)}
-              className="w-full flex items-center gap-1.5 px-3 py-2 text-left hover:bg-gray-50/50 dark:hover:bg-gray-800/50 transition-colors"
+              className="w-full flex items-center gap-1.5 px-3 py-2 text-left hover:bg-muted/50 dark:hover:bg-muted/50 transition-colors"
             >
               <span className="relative flex h-2.5 w-2.5 shrink-0">
                 <span className={cn(dotColor, 'relative inline-flex rounded-full h-2.5 w-2.5')} />
@@ -99,18 +99,18 @@ export function SessionList({
               >
                 {t(`chat.badge.${session.type}`)}
               </span>
-              <span className="flex-1 text-[11px] font-semibold text-gray-700 dark:text-gray-300 truncate">
+              <span className="flex-1 text-[11px] font-semibold text-foreground/85 truncate">
                 {session.title}
               </span>
-              <div className="flex items-center gap-1 text-[9px] text-gray-400 dark:text-gray-500">
+              <div className="flex items-center gap-1 text-[9px] text-muted-foreground">
                 {getStatusIcon(session.status)}
               </div>
-              <span className="text-[9px] text-gray-400 dark:text-gray-500 font-medium tabular-nums shrink-0">
+              <span className="text-[9px] text-muted-foreground font-medium tabular-nums shrink-0">
                 {session.messages.length}
               </span>
               <ChevronDown
                 className={cn(
-                  'w-3.5 h-3.5 text-gray-400 dark:text-gray-500 transition-transform duration-200 shrink-0',
+                  'w-3.5 h-3.5 text-muted-foreground transition-transform duration-200 shrink-0',
                   !isExpanded && '-rotate-90',
                 )}
               />
@@ -124,7 +124,7 @@ export function SessionList({
                   animate={{ height: 'auto', opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
                   transition={{ duration: 0.2, ease: 'easeInOut' }}
-                  className="overflow-hidden border-t border-gray-100/50 dark:border-gray-700/50"
+                  className="overflow-hidden border-t border-border/50"
                 >
                   <div className="px-2 pb-2 pt-1">
                     <ChatSessionComponent

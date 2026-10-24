@@ -2,14 +2,13 @@
  * Sensei persona.
  *
  * OWNER: GAME TEAM
- * STATUS: placeholder, not implemented.
- *
- * TODO: personality, dialogue style, rules
+ * Teaches between battles, then becomes the Final Boss after all floors.
  */
 import type { CharacterPersona } from './types';
 
 export const SENSEI: CharacterPersona = {
   role: 'sensei',
-  name: 'TODO',
-  personality: 'TODO: patient teacher, guides with hints',
+  name: 'Dojo Sensei',
+  personality:
+    'Patient and encouraging during lessons. In the Final Boss form, demands clear application of everything learned from the input.',
 };

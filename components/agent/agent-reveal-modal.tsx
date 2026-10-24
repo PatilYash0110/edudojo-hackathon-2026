@@ -106,7 +106,7 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-zinc-100/90 backdrop-blur-sm dark:bg-black/70 dark:backdrop-blur-md"
+          className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-muted/90 backdrop-blur-sm dark:bg-black/70 dark:backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -115,7 +115,7 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
           {/* Close button */}
           {allRevealed && (
             <motion.button
-              className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-black/5 text-zinc-500 backdrop-blur-sm transition-colors hover:bg-black/10 hover:text-zinc-700 dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/20 dark:hover:text-white"
+              className="absolute right-4 top-4 flex size-9 items-center justify-center rounded-full bg-black/5 text-muted-foreground backdrop-blur-sm transition-colors hover:bg-black/10 hover:text-foreground dark:bg-white/10 dark:text-white/70 dark:hover:bg-white/20 dark:hover:text-white"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.2, duration: 0.2 }}
@@ -127,12 +127,12 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
 
           {/* Title */}
           <motion.h2
-            className="mb-8 text-2xl font-bold text-zinc-800 drop-shadow-sm dark:text-white dark:drop-shadow-lg md:text-3xl"
+            className="mb-8 text-2xl font-bold text-foreground drop-shadow-sm dark:text-white dark:drop-shadow-lg md:text-3xl"
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.1, duration: 0.4 }}
           >
-            <Sparkles className="mr-2 inline-block size-6 text-amber-500 dark:text-yellow-400" />
+            <Sparkles className="mr-2 inline-block size-6 text-[var(--gold)]" />
             {t('generation.agentRevealTitle')}
           </motion.h2>
 
@@ -172,7 +172,7 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
                         }}
                       >
                         {/* Inner card body */}
-                        <div className="relative flex size-full flex-col overflow-clip rounded-[14px] bg-white dark:bg-zinc-900">
+                        <div className="relative flex size-full flex-col overflow-clip rounded-[14px] bg-white dark:bg-muted">
                           {/* Top gradient band with texture */}
                           <div className="relative shrink-0 overflow-hidden" style={{ height: 56 }}>
                             {/* Color gradient fill */}
@@ -286,7 +286,7 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
 
                           {/* Persona text — fills remaining space */}
                           <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-3.5 pt-1.5 pb-3">
-                            <p className="text-left text-[10.5px] leading-[1.65] text-zinc-600 dark:text-zinc-400">
+                            <p className="text-left text-[10.5px] leading-[1.65] text-foreground">
                               {agent.persona}
                             </p>
                           </div>
@@ -352,8 +352,8 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
                             <path d="M10 0 L20 10 L10 20 L0 10 Z" fill="currentColor" />
                           </svg>
                           {/* Center icon */}
-                          <Sparkles className="size-9 text-purple-300/70" />
-                          <span className="mt-1.5 text-xl font-bold text-purple-200/60">?</span>
+                          <Sparkles className="size-9 text-primary/70" />
+                          <span className="mt-1.5 text-xl font-bold text-primary/60">?</span>
                         </div>
                       </div>
                     </div>
@@ -376,9 +376,7 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
                   key={index}
                   className={cn(
                     'size-2 rounded-full transition-colors duration-300',
-                    index < revealedCount
-                      ? 'bg-zinc-700 dark:bg-white'
-                      : 'bg-zinc-300 dark:bg-white/30',
+                    index < revealedCount ? 'bg-muted dark:bg-white' : 'bg-muted dark:bg-white/30',
                   )}
                 />
               ))}
@@ -386,7 +384,7 @@ export function AgentRevealModal({ agents, open, onClose, onAllRevealed }: Agent
 
             {allRevealed && (
               <motion.button
-                className="rounded-full bg-zinc-800 px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-zinc-700 dark:bg-white/15 dark:hover:bg-white/25"
+                className="rounded-full bg-muted px-6 py-2 text-sm font-medium text-white transition-colors hover:bg-muted dark:bg-white/15 dark:hover:bg-white/25"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.3 }}
