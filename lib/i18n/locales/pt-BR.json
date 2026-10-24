@@ -762,6 +762,15 @@
       "high": "Excelente — você arrasou!",
       "mid": "Bom trabalho — continue assim.",
       "low": "Um bom começo — revise e tente novamente."
+    },
+    "topicBreakdown": "Divisão por tema",
+    "radarGoal": "Meta 85%",
+    "radarLabel": "Precisão por tema: {{scores}}. O anel tracejado marca a meta de 85%.",
+    "rating": {
+      "excelling": "Excelente",
+      "doingWell": "Muito bem",
+      "satisfactory": "Satisfatório",
+      "needsPractice": "Praticar mais"
     }
   },
   "whiteboard": {

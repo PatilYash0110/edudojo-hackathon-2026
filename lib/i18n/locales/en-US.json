@@ -762,6 +762,15 @@
       "high": "Outstanding — you nailed it.",
       "mid": "Solid work — keep it up.",
       "low": "A good start — review and try again."
+    },
+    "topicBreakdown": "Topic breakdown",
+    "radarGoal": "Goal 85%",
+    "radarLabel": "Topic accuracy: {{scores}}. The dashed ring marks the 85% goal.",
+    "rating": {
+      "excelling": "Excelling",
+      "doingWell": "Doing well",
+      "satisfactory": "Satisfactory",
+      "needsPractice": "Needs practice"
     }
   },
   "whiteboard": {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { animate, motion, MotionConfig, useReducedMotion } from 'motion/react';
 import { FileText, HelpCircle, Gamepad2, Puzzle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,14 @@ import {
   readSceneQuizAnswers,
   summarizeScenes,
 } from '@/lib/classroom/complete-summary';
+import {
+  fallbackCategories,
+  fetchInsightCategories,
+  hasEnoughAxes,
+  ratingKey,
+  type InsightCategory,
+} from '@/lib/classroom/insights';
+import { CompleteRadar } from '@/components/scene-renderers/complete-radar';
 import { loadQuizAttemptState } from '@/lib/quiz/runtime';
 import { createLogger } from '@/lib/logger';
 
@@ -80,10 +88,20 @@ function makeConfetti(count: number): Particle[] {
   return arr;
 }
 
+/** Never-changing store: the snapshot differs between server and client. */
+const subscribeNever = () => () => {};
+
 function Confetti() {
   const prefersReducedMotion = useReducedMotion();
   const particles = useMemo(() => makeConfetti(55), []);
-  if (prefersReducedMotion) return null;
+  // The particle geometry is random, so server and client HTML can never
+  // agree — render nothing until after hydration.
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+  if (prefersReducedMotion || !hydrated) return null;
 
   return (
     <div
@@ -328,9 +346,17 @@ function QuizRing({
 interface ClassroomCompletePageProps {
   readonly scenes: Scene[];
   readonly title: string;
+  /** Design-preview overrides: skip the stored answers and the LLM request. */
+  readonly insightsOverride?: InsightCategory[];
+  readonly quizOverride?: { correct: number; total: number; pct: number };
 }
 
-export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePageProps) {
+export function ClassroomCompletePage({
+  scenes,
+  title,
+  insightsOverride,
+  quizOverride,
+}: ClassroomCompletePageProps) {
   const { t, locale } = useI18n();
   const prefersReducedMotion = useReducedMotion();
 
@@ -338,7 +364,8 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
     scenes,
     summary: pendingCompleteSummary(scenes),
   }));
-  const summary = completeSummaryForScenes(scenes, resolvedSummary);
+  const resolved = completeSummaryForScenes(scenes, resolvedSummary);
+  const summary = quizOverride ? { ...resolved, quiz: quizOverride } : resolved;
 
   useEffect(() => {
     let cancelled = false;
@@ -358,6 +385,32 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
     };
   }, [scenes]);
 
+  // Topic breakdown for the radar. The LLM groups the graded questions, which
+  // takes a model round trip, so the scene-title grouping is drawn immediately
+  // and the model's topics crossfade over it when they land. Waiting instead
+  // would leave the card empty for seconds and then pop a chart into a page
+  // the learner is already reading.
+  const [llmInsights, setLlmInsights] = useState<InsightCategory[]>([]);
+  const quizResults = summary.results;
+  // Not memoized by hand: the React Compiler cannot preserve a memo keyed on
+  // this array, and the grouping is a single pass over the graded answers.
+  const insights =
+    insightsOverride ?? (llmInsights.length > 0 ? llmInsights : fallbackCategories(quizResults));
+  useEffect(() => {
+    if (insightsOverride) return;
+    if (quizResults.length === 0) return;
+    const controller = new AbortController();
+    void fetchInsightCategories(
+      { courseTitle: title, language: locale, results: quizResults },
+      controller.signal,
+    ).then((categories) => {
+      if (!controller.signal.aborted) setLlmInsights(categories);
+    });
+    return () => controller.abort();
+  }, [quizResults, title, locale, insightsOverride]);
+
+  const showRadar = hasEnoughAxes(insights);
+
   const dateLabel = useMemo(() => {
     try {
       return new Intl.DateTimeFormat(locale).format(new Date());
@@ -376,42 +429,49 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
   );
 
   // Adaptive compact mode. The complete page lives inside the `<Stage>`
-  // viewport — when that viewport is short (e.g. user shrinks the browser, or
-  // the stage is embedded in a thin column), the natural content (trophy +
-  // ribbon + title + stats + quiz) overflows. A centered flex container that
-  // overflows clips its top half beyond the scroll origin, so the trophy
-  // becomes unreachable — instead of relying on scrolling, we toggle a
-  // `compact` token before content overflows the container.
+  // viewport — when that viewport is short (a small window, or the stage
+  // embedded in a thin column), the full layout overflows. A centered flex
+  // container that overflows clips its top half beyond the scroll origin, so
+  // the trophy becomes unreachable; swapping to a `compact` token before that
+  // happens keeps the whole page reachable without scrolling.
   //
-  // We base the decision on the **container height alone**, not on
-  // measuring content vs. container. Measuring content while in compact
-  // would only see the compact size, so if we used "content + margin >
-  // container" both ways, we'd ping-pong between the two layouts (compact
-  // fits → swap to full → full overflows → swap to compact → repeat every
-  // frame).
+  // The decision is measured, not guessed at with a fixed pixel threshold.
+  // Content height is not constant here: the topic breakdown appears only for
+  // courses with a quiz, its chart is taller than its bar fallback, and the
+  // row count follows the topic count. A hard-coded "full layout needs 760px"
+  // was calibrated before the breakdown existed and silently stopped being
+  // true once it shipped.
   //
-  // Hysteresis on the container size avoids that:
-  //   - flip TO compact when container drops below FULL_MIN
-  //   - flip BACK to full only when container climbs above FULL_SAFE
-  //
-  // FULL_MIN matches the natural full-layout height (trophy + title + 4
-  // stat cards + quiz card, all spaced); FULL_SAFE has a little headroom
-  // on top of that so we don't oscillate around the seam.
+  // Measuring naively would oscillate — compact content fits, so it would
+  // flip back to full, overflow, and flip again every frame. The fix is to
+  // remember how tall the content was the last time it rendered full, and
+  // require that much room again before leaving compact:
+  //   - in full: overflow the container → go compact, remembering that height
+  //   - in compact: only return to full once the container clears the
+  //     remembered full height plus a margin
   const sectionRef = useRef<HTMLElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const fullContentHeight = useRef<number>(0);
   const [compact, setCompact] = useState(false);
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
-    const FULL_MIN = 760; // below this height, full layout overflows
-    const FULL_SAFE = 820; // only re-expand once we have this much again
+    const content = contentRef.current;
+    if (!section || !content) return;
+    // Enough to clear a rounding difference without inviting a flip-flop.
+    const MARGIN = 24;
     const measure = () => {
-      const h = section.clientHeight;
-      setCompact((prev) => (prev ? h < FULL_SAFE : h < FULL_MIN));
+      const available = section.clientHeight;
+      setCompact((prev) => {
+        if (prev) return available < fullContentHeight.current + MARGIN;
+        fullContentHeight.current = content.scrollHeight;
+        return content.scrollHeight > available;
+      });
     };
-    const ro = new ResizeObserver(measure);
-    ro.observe(section);
+    const observer = new ResizeObserver(measure);
+    observer.observe(section);
+    observer.observe(content);
     measure();
-    return () => ro.disconnect();
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -469,15 +529,16 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
           <div className="min-h-full flex items-center justify-center">
             {/* Content */}
             <div
+              ref={contentRef}
               className={cn(
-                'relative flex flex-col items-center max-w-2xl w-full',
-                compact ? 'gap-3 px-6 py-4' : 'gap-6 px-8 py-10',
+                'relative flex flex-col items-center max-w-3xl w-full',
+                compact ? 'gap-2 px-6 py-3' : 'gap-5 px-8 py-6',
               )}
             >
               {/* Trophy + halo + sparkles */}
               <div
                 className="relative"
-                style={{ width: compact ? 120 : 200, height: compact ? 120 : 200 }}
+                style={{ width: compact ? 88 : 168, height: compact ? 88 : 168 }}
               >
                 <motion.div
                   aria-hidden
@@ -508,8 +569,8 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                     animate={{ y: [0, -5, 0] }}
                     transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
                     style={{
-                      width: compact ? 90 : 148,
-                      height: compact ? 112 : 185,
+                      width: compact ? 66 : 124,
+                      height: compact ? 82 : 155,
                     }}
                   >
                     <TrophySvg className="w-full h-full drop-shadow-[0_10px_18px_color-mix(in_oklab,var(--wood)_45%,transparent)]" />
@@ -582,7 +643,7 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                         }}
                         className={cn(
                           'dojo-frame rounded-sm bg-card flex flex-col items-center',
-                          compact ? 'px-3 py-2 gap-0.5' : 'px-4 py-4 gap-1.5',
+                          compact ? 'px-3 py-1.5 gap-0.5' : 'px-4 py-3 gap-1.5',
                         )}
                       >
                         <Icon
@@ -611,7 +672,9 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                 </div>
               )}
 
-              {/* Quiz card */}
+              {/* Results card — score summary on the left, topic radar on the
+                  right. The radar only appears once the breakdown has at
+                  least three axes; below that a radar reads as noise. */}
               {summary.quiz && (
                 <motion.div
                   initial={{ opacity: 0, y: 14, scale: 0.95 }}
@@ -619,32 +682,124 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
                   transition={{ delay: 1.2, type: 'spring', stiffness: 220, damping: 20 }}
                   className={cn(
                     'dojo-frame w-full rounded-sm bg-card',
-                    compact ? 'px-4 py-3' : 'px-6 py-5',
+                    compact ? 'px-4 py-3' : 'px-6 py-4',
                   )}
                 >
-                  <div className={cn('flex items-center', compact ? 'gap-3' : 'gap-5')}>
-                    <QuizRing pct={summary.quiz.pct} delay={1.3} compact={compact} />
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className={cn(
-                          'font-serif font-bold text-foreground',
-                          compact ? 'text-sm' : 'text-base',
-                        )}
-                      >
-                        {t('classroomComplete.quizScoreLabel', {
-                          correct: summary.quiz.correct,
-                          total: summary.quiz.total,
-                        })}
-                      </div>
-                      <div
-                        className={cn(
-                          'mt-1 text-muted-foreground',
-                          compact ? 'text-xs' : 'text-sm',
-                        )}
-                      >
-                        {t(`classroomComplete.encouragement.${encouragementKey(summary.quiz.pct)}`)}
+                  <div className={cn('flex flex-col', compact ? 'gap-2.5' : 'gap-4')}>
+                    <div className={cn('flex items-center', compact ? 'gap-3' : 'gap-5')}>
+                      <QuizRing pct={summary.quiz.pct} delay={1.3} compact={compact} />
+                      <div className="flex-1 min-w-0">
+                        <div
+                          className={cn(
+                            'font-serif font-bold text-foreground',
+                            compact ? 'text-sm' : 'text-base',
+                          )}
+                        >
+                          {t('classroomComplete.quizScoreLabel', {
+                            correct: summary.quiz.correct,
+                            total: summary.quiz.total,
+                          })}
+                        </div>
+                        <div
+                          className={cn(
+                            'mt-1 text-muted-foreground',
+                            compact ? 'text-xs' : 'text-sm',
+                          )}
+                        >
+                          {t(
+                            `classroomComplete.encouragement.${encouragementKey(summary.quiz.pct)}`,
+                          )}
+                        </div>
                       </div>
                     </div>
+
+                    {insights.length > 0 && (
+                      <div
+                        className={cn(
+                          'border-t border-[color-mix(in_oklab,var(--wood)_18%,transparent)]',
+                          compact ? 'pt-2.5' : 'pt-4',
+                        )}
+                      >
+                        <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                          {t('classroomComplete.topicBreakdown')}
+                        </div>
+                        <div
+                          className={cn(
+                            'mt-1.5 flex items-center',
+                            // Side by side when there is a chart: the radar is
+                            // square and the list is short, so stacking them
+                            // spent height the viewport did not have while
+                            // leaving the card's width empty either side.
+                            // Without a chart the bars want the full width.
+                            showRadar ? 'flex-row' : 'flex-col',
+                            compact ? 'gap-2' : 'gap-5',
+                          )}
+                        >
+                          {showRadar && (
+                            <CompleteRadar
+                              categories={insights}
+                              compact={compact}
+                              goalLabel={t('classroomComplete.radarGoal')}
+                              ariaLabel={t('classroomComplete.radarLabel', {
+                                scores: insights
+                                  .map((category) => `${category.label} ${category.score}%`)
+                                  .join(', '),
+                              })}
+                            />
+                          )}
+                          {/* The same numbers as text, beside the chart: the
+                              chart is never the only way to read a score, and
+                              the list carries the untruncated topic names the
+                              radar captions have to shorten.
+
+                              Below three axes there is no chart at all — a one-
+                              or two-sided polygon is not a shape anyone can
+                              read — so each row grows a bar instead. The score
+                              still gets a visual length, which is all a radar
+                              was giving it. */}
+                          <ul
+                            className={cn(
+                              'min-w-0 flex-1 grid grid-cols-1',
+                              showRadar ? 'gap-y-1' : 'w-full gap-y-3',
+                            )}
+                          >
+                            {insights.map((category, index) => (
+                              <li key={category.label} className="min-w-0 text-xs">
+                                <div className="flex items-baseline justify-between gap-3">
+                                  <span className="truncate text-foreground">{category.label}</span>
+                                  <span className="shrink-0 whitespace-nowrap text-muted-foreground">
+                                    <span className="font-serif font-bold text-foreground">
+                                      {category.score}%
+                                    </span>{' '}
+                                    {t(`classroomComplete.rating.${ratingKey(category.score)}`)}
+                                  </span>
+                                </div>
+                                {!showRadar && (
+                                  <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[color-mix(in_oklab,var(--wood)_14%,transparent)]">
+                                    <motion.div
+                                      className="h-full rounded-full bg-[var(--shu)]"
+                                      initial={{ width: 0 }}
+                                      animate={{ width: `${category.score}%` }}
+                                      transition={{
+                                        duration: prefersReducedMotion ? 0 : 0.6,
+                                        delay: prefersReducedMotion ? 0 : 1.4 + index * 0.1,
+                                        ease: [0.16, 1, 0.3, 1],
+                                      }}
+                                    />
+                                    {/* The same 85% the radar draws as a ring. */}
+                                    <div
+                                      className="absolute inset-y-0 w-px bg-[var(--gold)]"
+                                      style={{ left: '85%' }}
+                                      aria-hidden
+                                    />
+                                  </div>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}

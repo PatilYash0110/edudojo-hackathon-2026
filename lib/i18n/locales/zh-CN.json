@@ -762,6 +762,15 @@
       "high": "太棒了，完美发挥！",
       "mid": "表现不错，继续加油！",
       "low": "万事开头难，回去再练练吧。"
+    },
+    "topicBreakdown": "主题分布",
+    "radarGoal": "目标 85%",
+    "radarLabel": "各主题正确率：{{scores}}。虚线环表示 85% 的目标。",
+    "rating": {
+      "excelling": "优秀",
+      "doingWell": "良好",
+      "satisfactory": "及格",
+      "needsPractice": "需要练习"
     }
   },
   "whiteboard": {

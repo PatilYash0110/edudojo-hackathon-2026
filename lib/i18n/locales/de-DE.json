@@ -762,6 +762,15 @@
       "high": "Hervorragend — das sitzt.",
       "mid": "Starke Leistung — weiter so.",
       "low": "Ein guter Anfang — wiederhole den Stoff und versuche es erneut."
+    },
+    "topicBreakdown": "Themenübersicht",
+    "radarGoal": "Ziel 85 %",
+    "radarLabel": "Genauigkeit nach Thema: {{scores}}. Der gestrichelte Ring markiert das Ziel von 85 %.",
+    "rating": {
+      "excelling": "Ausgezeichnet",
+      "doingWell": "Gut",
+      "satisfactory": "Befriedigend",
+      "needsPractice": "Üben"
     }
   },
   "whiteboard": {

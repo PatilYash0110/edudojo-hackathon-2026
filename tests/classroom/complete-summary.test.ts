@@ -67,12 +67,17 @@ describe('summarizeScenes', () => {
     const nextScenes = [slide('new-1', 0), slide('new-2', 1)];
     const previous = {
       scenes: previousScenes,
-      summary: { countsByType: { quiz: 1 }, quiz: { correct: 1, total: 1, pct: 100 } },
+      summary: {
+        countsByType: { quiz: 1 },
+        quiz: { correct: 1, total: 1, pct: 100 },
+        results: [],
+      },
     };
 
     expect(completeSummaryForScenes(nextScenes, previous)).toEqual({
       countsByType: { slide: 2 },
       quiz: null,
+      results: [],
     });
   });
 
@@ -82,6 +87,7 @@ describe('summarizeScenes', () => {
     expect(pendingCompleteSummary(scenes)).toEqual({
       countsByType: { slide: 2, interactive: 1 },
       quiz: null,
+      results: [],
     });
   });
 

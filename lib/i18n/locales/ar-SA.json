@@ -762,6 +762,15 @@
       "high": "ممتاز — أبدعت!",
       "mid": "عمل جيد — استمر.",
       "low": "بداية جيدة — راجع وحاول مجددًا."
+    },
+    "topicBreakdown": "توزيع المواضيع",
+    "radarGoal": "الهدف ٨٥٪",
+    "radarLabel": "الدقة حسب الموضوع: {{scores}}. الحلقة المتقطعة تمثل هدف ٨٥٪.",
+    "rating": {
+      "excelling": "متميز",
+      "doingWell": "جيد",
+      "satisfactory": "مقبول",
+      "needsPractice": "يحتاج تدريبًا"
     }
   },
   "whiteboard": {

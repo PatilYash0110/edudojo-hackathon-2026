@@ -2466,6 +2466,15 @@
       "high": "太棒了，你答對了！",
       "mid": "做得好，繼續保持！",
       "low": "不錯的開始，回顧一下再試一次。"
+    },
+    "topicBreakdown": "主題分布",
+    "radarGoal": "目標 85%",
+    "radarLabel": "各主題正確率：{{scores}}。虛線環表示 85% 的目標。",
+    "rating": {
+      "excelling": "優秀",
+      "doingWell": "良好",
+      "satisfactory": "及格",
+      "needsPractice": "需要練習"
     }
   },
   "proMode": {

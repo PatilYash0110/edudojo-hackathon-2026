@@ -1,9 +1,20 @@
 import type { Scene, SceneType, QuizContent } from '@/lib/types/stage';
 import { gradeChoiceQuestions } from '@/lib/quiz/grading';
 
+/** One graded choice question, kept so the radar can group them by topic. */
+export interface QuizAnswerResult {
+  questionId: string;
+  sceneId: string;
+  sceneTitle: string;
+  question: string;
+  correct: boolean;
+}
+
 export interface CompleteSummary {
   countsByType: Partial<Record<SceneType, number>>;
   quiz: { correct: number; total: number; pct: number } | null;
+  /** Empty until the async pass has read the stored answers. */
+  results: QuizAnswerResult[];
 }
 
 export interface ResolvedCompleteSummary {
@@ -18,6 +29,7 @@ export function pendingCompleteSummary(scenes: Scene[]): CompleteSummary {
       return counts;
     }, {}),
     quiz: null,
+    results: [],
   };
 }
 
@@ -59,6 +71,7 @@ export async function summarizeScenes(
 
   let correct = 0;
   let total = 0;
+  const results: QuizAnswerResult[] = [];
   for (const scene of scenes) {
     if (scene.type !== 'quiz') continue;
     const questions = (scene.content as QuizContent).questions ?? [];
@@ -69,14 +82,21 @@ export async function summarizeScenes(
       continue;
     }
     if (answers === undefined) continue;
-    const results = gradeChoiceQuestions(questions, answers);
-    for (const r of results) {
+    const graded = gradeChoiceQuestions(questions, answers);
+    for (const r of graded) {
       total += 1;
       if (r.correct === true) correct += 1;
+      results.push({
+        questionId: r.questionId,
+        sceneId: scene.id,
+        sceneTitle: scene.title ?? '',
+        question: questions.find((q) => q.id === r.questionId)?.question ?? '',
+        correct: r.correct === true,
+      });
     }
   }
 
   const quiz = total > 0 ? { correct, total, pct: Math.round((correct / total) * 100) } : null;
 
-  return { countsByType, quiz };
+  return { countsByType, quiz, results };
 }

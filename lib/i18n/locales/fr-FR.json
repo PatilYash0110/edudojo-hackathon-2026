@@ -762,6 +762,15 @@
       "high": "Remarquable, vous maîtrisez le sujet.",
       "mid": "Du bon travail, continuez ainsi.",
       "low": "Un bon début. Revoyez le cours et retentez."
+    },
+    "topicBreakdown": "Répartition par thème",
+    "radarGoal": "Objectif 85 %",
+    "radarLabel": "Précision par thème : {{scores}}. L’anneau en pointillés indique l’objectif de 85 %.",
+    "rating": {
+      "excelling": "Excellent",
+      "doingWell": "Bien",
+      "satisfactory": "Satisfaisant",
+      "needsPractice": "À travailler"
     }
   },
   "whiteboard": {
