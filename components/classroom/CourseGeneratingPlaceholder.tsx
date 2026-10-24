@@ -33,7 +33,7 @@ export function CourseGeneratingPlaceholder({
   const paused = status.kind === 'paused';
   return (
     <div
-      className="flex flex-1 items-center justify-center bg-gray-50 px-6 dark:bg-gray-900"
+      className="flex flex-1 items-center justify-center dojo-paper px-6"
       data-testid="course-generating-placeholder"
       data-run-state={status.kind}
     >

@@ -1,0 +1,24 @@
+# DojoLearn add-on to docker-compose.yml: free German TTS (Speaches + Piper).
+# OWNER: BACKEND TEAM. Full setup: teams/backend/README.md
+#
+#   docker compose -f docker-compose.yml -f docker-compose.dojo.yml up -d --build
+#   # once, download the German voice (~60 MB):
+#   curl -X POST http://localhost:8000/v1/models/speaches-ai/piper-de_DE-thorsten-medium
+#
+# The app reaches it at http://speaches:8000/v1 (set SPEACHES_BASE_URL in .env.local).
+services:
+  speaches:
+    image: ghcr.io/speaches-ai/speaches:latest-cpu
+    ports:
+      - '127.0.0.1:8000:8000'
+    volumes:
+      - speaches-models:/home/ubuntu/.cache/huggingface/hub
+    healthcheck:
+      test: ['CMD', 'curl', '--fail', 'http://localhost:8000/health']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+volumes:
+  speaches-models:

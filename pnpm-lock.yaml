@@ -95,6 +95,9 @@ importers:
       '@fontsource/roboto':
         specifier: ^5.2.10
         version: 5.2.10
+      '@fontsource/shippori-mincho':
+        specifier: ^5.3.0
+        version: 5.3.0
       '@fontsource/source-sans-3':
         specifier: ^5.2.9
         version: 5.2.9
@@ -2893,6 +2896,9 @@ packages:
 
   '@fontsource/roboto@5.2.10':
     resolution: {integrity: sha512-8HlA5FtSfz//oFSr2eL7GFXAiE7eIkcGOtx7tjsLKq+as702x9+GU7K95iDeWFapHC4M2hv9RrpXKRTGGBI8Zg==}
+
+  '@fontsource/shippori-mincho@5.3.0':
+    resolution: {integrity: sha512-S41kRxQuubAaYss+LeXu0IOc02RQwsPaJbR1cWZx4VV15hXaYZViH3WAve9HpDVFqKYd/BVk86Bg7lp9ytV3KQ==}
 
   '@fontsource/source-sans-3@5.2.9':
     resolution: {integrity: sha512-u3ymIq4rfmCCyB9MEw/sFR5lPVJ1yTNXmIMbUz+9kVCFIHvNtfzXOEBuvkg3Tk0zhmioPeJ28ZK5smZ7TurezQ==}
@@ -16109,6 +16115,8 @@ snapshots:
   '@fontsource/open-sans@5.2.7': {}
 
   '@fontsource/roboto@5.2.10': {}
+
+  '@fontsource/shippori-mincho@5.3.0': {}
 
   '@fontsource/source-sans-3@5.2.9': {}
 

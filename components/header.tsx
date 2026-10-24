@@ -56,7 +56,7 @@ export function Header({
             : (backControl ?? (
                 <button
                   onClick={() => exitClassroom(router, searchParams)}
-                  className="shrink-0 p-2 rounded-lg text-gray-400 dark:text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-700 dark:hover:text-gray-300 transition-colors"
+                  className="shrink-0 p-2 rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
                   title={exitLabel}
                   aria-label={exitLabel}
                 >
@@ -73,16 +73,19 @@ export function Header({
               briefly stack on top of the incoming EditChromeRoot's
               CommandBar title during the cross-fade. */}
           {mode !== 'edit' && (
-            <div className="flex flex-col min-w-0">
-              <span className="text-[10px] uppercase tracking-widest font-bold text-gray-400 dark:text-gray-500 mb-0.5">
-                {t('stage.currentScene')}
-              </span>
+            <div className="flex min-w-0 flex-col gap-1.5">
+              {/* The scene title carries its own weight; the former
+                  "current scene" eyebrow only repeated what the heading and
+                  the pager (`8 / 12`) already say, so it is screen-reader
+                  context now, not a second visible label. */}
               <h1
-                className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight truncate"
+                className="dojo-heading truncate text-xl font-bold text-foreground"
+                aria-label={`${t('stage.currentScene')}: ${currentSceneTitle}`}
                 suppressHydrationWarning
               >
                 {currentSceneTitle || t('common.loading')}
               </h1>
+              <div className="dojo-rule w-10" aria-hidden />
             </div>
           )}
         </div>

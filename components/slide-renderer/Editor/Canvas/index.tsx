@@ -195,48 +195,48 @@ export function Canvas(_props: CanvasProps) {
   const contextmenus = (): ContextmenuItem[] => {
     return [
       {
-        text: '粘贴',
+        text: 'Paste',
         subText: 'Ctrl + V',
         handler: pasteElement,
       },
       {
-        text: '全选',
+        text: 'Select all',
         subText: 'Ctrl + A',
         handler: selectAllElements,
       },
       {
-        text: '标尺',
+        text: 'Rulers',
         subText: showRuler ? '√' : '',
         handler: () => setRulerState(!showRuler),
       },
       {
-        text: '网格线',
+        text: 'Grid',
         handler: () => setGridLineSize(gridLineSize ? 0 : 50),
         children: [
           {
-            text: '无',
+            text: 'None',
             subText: gridLineSize === 0 ? '√' : '',
             handler: () => setGridLineSize(0),
           },
           {
-            text: '小',
+            text: 'Small',
             subText: gridLineSize === 25 ? '√' : '',
             handler: () => setGridLineSize(25),
           },
           {
-            text: '中',
+            text: 'Medium',
             subText: gridLineSize === 50 ? '√' : '',
             handler: () => setGridLineSize(50),
           },
           {
-            text: '大',
+            text: 'Large',
             subText: gridLineSize === 100 ? '√' : '',
             handler: () => setGridLineSize(100),
           },
         ],
       },
       {
-        text: '重置当前页',
+        text: 'Reset this slide',
         handler: deleteAllElements,
       },
     ];

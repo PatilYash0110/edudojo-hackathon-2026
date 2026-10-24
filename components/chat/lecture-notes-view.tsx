@@ -19,8 +19,7 @@ import type { LectureNoteEntry } from '@/lib/types/chat';
 const ACTION_ICON_ONLY: Record<string, { Icon: typeof Flashlight; style: string }> = {
   spotlight: {
     Icon: Flashlight,
-    style:
-      'bg-yellow-50 dark:bg-yellow-500/15 border-yellow-300/40 dark:border-yellow-500/30 text-yellow-700 dark:text-yellow-300',
+    style: 'bg-[var(--gold)]/15 border-[var(--gold)]/40 text-[var(--gold)]',
   },
   laser: {
     Icon: MousePointer2,
@@ -29,23 +28,19 @@ const ACTION_ICON_ONLY: Record<string, { Icon: typeof Flashlight; style: string 
   },
   play_video: {
     Icon: Play,
-    style:
-      'bg-yellow-50 dark:bg-yellow-500/15 border-yellow-300/40 dark:border-yellow-500/30 text-yellow-700 dark:text-yellow-300',
+    style: 'bg-[var(--gold)]/15 border-[var(--gold)]/40 text-[var(--gold)]',
   },
   widget_highlight: {
     Icon: Highlighter,
-    style:
-      'bg-amber-50 dark:bg-amber-500/15 border-amber-300/40 dark:border-amber-500/30 text-amber-700 dark:text-amber-300',
+    style: 'bg-[var(--gold)]/15 border-[var(--gold)]/40 text-[var(--gold)]',
   },
   widget_setState: {
     Icon: SlidersHorizontal,
-    style:
-      'bg-indigo-50 dark:bg-indigo-500/15 border-indigo-300/40 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-300',
+    style: 'bg-primary/10 border-primary/40 text-primary',
   },
   widget_annotation: {
     Icon: StickyNote,
-    style:
-      'bg-sky-50 dark:bg-sky-500/15 border-sky-300/40 dark:border-sky-500/30 text-sky-700 dark:text-sky-300',
+    style: 'bg-[var(--wood)]/15 border-[var(--wood)]/40 text-[var(--wood)]',
   },
   widget_reveal: {
     Icon: Eye,
@@ -85,15 +80,11 @@ export function LectureNotesView({
   if (notes.length === 0) {
     return (
       <div className="h-full flex flex-col items-center justify-center text-center p-6">
-        <div className="w-12 h-12 bg-purple-50 dark:bg-purple-900/20 rounded-2xl flex items-center justify-center mb-3 text-purple-300 dark:text-purple-600 ring-1 ring-purple-100 dark:ring-purple-800/30">
+        <div className="w-12 h-12 bg-primary/10 rounded-sm flex items-center justify-center mb-3 text-primary ring-1 ring-primary/40">
           <BookOpen className="w-6 h-6" />
         </div>
-        <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
-          {t('chat.lectureNotes.empty')}
-        </p>
-        <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
-          {t('chat.lectureNotes.emptyHint')}
-        </p>
+        <p className="text-xs font-medium text-muted-foreground">{t('chat.lectureNotes.empty')}</p>
+        <p className="text-[10px] text-muted-foreground mt-1">{t('chat.lectureNotes.emptyHint')}</p>
       </div>
     );
   }
@@ -113,10 +104,8 @@ export function LectureNotesView({
             key={note.sceneId}
             data-scene-id={note.sceneId}
             className={cn(
-              'relative mb-3 last:mb-0 rounded-lg px-3 py-2.5 transition-colors duration-200',
-              isCurrent
-                ? 'bg-purple-50/80 dark:bg-purple-950/25 ring-1 ring-purple-200/60 dark:ring-purple-700/30'
-                : 'bg-gray-50/50 dark:bg-gray-800/30',
+              'relative mb-3 last:mb-0 rounded-sm px-3 py-2.5 transition-colors duration-200',
+              isCurrent ? 'bg-primary/10 ring-1 ring-primary/35' : 'bg-muted/40',
             )}
           >
             {/* Page label row */}
@@ -125,30 +114,26 @@ export function LectureNotesView({
               <div
                 className={cn(
                   'w-2 h-2 rounded-full shrink-0',
-                  isCurrent
-                    ? 'bg-purple-500 dark:bg-purple-400 shadow-sm shadow-purple-400/40'
-                    : 'bg-gray-300 dark:bg-gray-600',
+                  isCurrent ? 'bg-primary dark:bg-primary shadow-sm shadow-primary/40' : 'bg-muted',
                 )}
               />
               <span
                 className={cn(
                   'text-[10px] font-semibold tracking-wide',
-                  isCurrent
-                    ? 'text-purple-600 dark:text-purple-400'
-                    : 'text-gray-400 dark:text-gray-500',
+                  isCurrent ? 'text-primary' : 'text-muted-foreground',
                 )}
               >
                 {pageLabel}
               </span>
               {isCurrent && (
-                <span className="text-[9px] font-bold px-1.5 py-px rounded-full bg-purple-100 dark:bg-purple-900/40 text-purple-600 dark:text-purple-300">
+                <span className="text-[9px] font-bold px-1.5 py-px rounded-full bg-primary/10 text-primary">
                   {t('chat.lectureNotes.currentPage')}
                 </span>
               )}
             </div>
 
             {/* Scene title */}
-            <h4 className="text-[13px] font-bold text-gray-800 dark:text-gray-100 mb-1.5 leading-snug pl-4">
+            <h4 className="text-[13px] font-bold text-foreground mb-1.5 leading-snug pl-4">
               {note.sceneTitle}
             </h4>
 
@@ -206,10 +191,10 @@ export function LectureNotesView({
                     return (
                       <div
                         key={i}
-                        className="my-1.5 flex items-start gap-1.5 rounded-md border border-amber-200/60 dark:border-amber-700/30 bg-amber-50/60 dark:bg-amber-900/10 px-2 py-1.5"
+                        className="my-1.5 flex items-start gap-1.5 rounded-md border border-[var(--gold)]/60 bg-[var(--gold)]/60 px-2 py-1.5"
                       >
-                        <MessageSquare className="w-3 h-3 text-amber-500 dark:text-amber-400 shrink-0 mt-0.5" />
-                        <span className="text-[11px] leading-snug text-amber-800 dark:text-amber-300">
+                        <MessageSquare className="w-3 h-3 text-[var(--gold)] shrink-0 mt-0.5" />
+                        <span className="text-[11px] leading-snug text-[var(--gold)]">
                           {row.label}
                         </span>
                       </div>
@@ -258,12 +243,12 @@ export function LectureNotesView({
                         onClick={() => onJumpToAction?.(note.sceneId, row.actionIndex)}
                         className={cn(
                           'block w-full text-left rounded-md px-1 py-0.5 text-[12px] leading-[1.8] transition-colors',
+                          // Active line: ink text on a seal-tinted ground with a
+                          // vermilion edge. Vermilion-on-vermilion failed contrast.
                           isActiveSpeech
-                            ? 'bg-purple-100/80 text-purple-800 dark:bg-purple-900/35 dark:text-purple-200'
-                            : 'text-gray-700 dark:text-gray-300',
-                          canJump
-                            ? 'cursor-pointer hover:bg-purple-50 dark:hover:bg-purple-950/25'
-                            : 'cursor-default',
+                            ? 'bg-primary/10 text-foreground ring-1 ring-primary/30'
+                            : 'text-foreground/85',
+                          canJump ? 'cursor-pointer hover:bg-accent' : 'cursor-default',
                         )}
                         aria-label={jumpTitle}
                       >
@@ -272,10 +257,7 @@ export function LectureNotesView({
                     );
                   }
                   return (
-                    <p
-                      key={i}
-                      className="text-[12px] leading-[1.8] text-gray-700 dark:text-gray-300"
-                    >
+                    <p key={i} className="text-[12px] leading-[1.8] text-foreground/85">
                       {content}
                     </p>
                   );

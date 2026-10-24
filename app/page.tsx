@@ -27,6 +27,8 @@ import {
   X,
   Presentation,
   Loader2,
+  Menu,
+  Lock,
 } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -116,6 +118,35 @@ import {
 
 const log = createLogger('Home');
 
+// ─── Dojo sidebar config — edit image + levels HERE ────────────────────────
+/** Full-page background picture (file in /public). Swap for any .jpg/.png/.webp. */
+const DOJO_BACKGROUND_IMAGE = '/dojo.jpg';
+/** Brand: logo picture (file in /public) with the name written next to it. */
+const BRAND_NAME = 'EduDojo';
+const LOGO_IMAGE = '/logo-horizontal.png';
+/**
+ * How big the sharp picture is: 0 = whole picture visible (smallest, most blur at the edges),
+ * 1 = fills the screen completely (largest, crops the picture, no blur). Everything
+ * (text field, level bar, buttons) is kept inside the sharp area of the picture.
+ */
+const BACKGROUND_FILL = 0.7;
+
+/** Placeholder progress — no logic yet. Wire to real data later. */
+const CURRENT_LEVEL = 1;
+const CURRENT_XP = 120;
+const NEXT_LEVEL_XP = 300;
+
+/** Judo/karate belt ranks. `belt` is the swatch colour. */
+const LEVELS: { level: number; romaji: string; kanji: string; belt: string }[] = [
+  { level: 1, romaji: 'Shiro-obi', kanji: '白帯', belt: '#f4f1ea' },
+  { level: 2, romaji: 'Ki-obi', kanji: '黄帯', belt: '#e8c547' },
+  { level: 3, romaji: 'Daidai-obi', kanji: '橙帯', belt: '#e38b2c' },
+  { level: 4, romaji: 'Midori-obi', kanji: '緑帯', belt: '#4f8a4b' },
+  { level: 5, romaji: 'Ao-obi', kanji: '青帯', belt: '#3b6ea8' },
+  { level: 6, romaji: 'Cha-obi', kanji: '茶帯', belt: '#7a4b2a' },
+  { level: 7, romaji: 'Kuro-obi', kanji: '黒帯', belt: '#1c1c1c' },
+];
+
 const RECENT_OPEN_STORAGE_KEY = 'recentClassroomsOpen';
 const INTERACTIVE_MODE_STORAGE_KEY = 'interactiveModeEnabled';
 
@@ -138,6 +169,55 @@ const initialFormState: FormState = {
   interactiveMode: false,
   vocationalTestMode: false,
 };
+
+/**
+ * Measures where the background picture is actually drawn and returns the left/right gap
+ * (in px) between the screen edge and the sharp picture. The page uses these gaps so that
+ * its content stays on top of the sharp picture and not on the blurred edge.
+ */
+function useBackgroundStage(src: string, fill: number) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [natural, setNatural] = useState<{ w: number; h: number } | null>(null);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+
+  useEffect(() => {
+    const img = new window.Image();
+    img.onload = () => setNatural({ w: img.naturalWidth, h: img.naturalHeight });
+    img.src = src;
+  }, [src]);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(([entry]) =>
+      setBox({ w: entry.contentRect.width, h: entry.contentRect.height }),
+    );
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const stage = useMemo(() => {
+    if (!natural || !box.w || !box.h || !natural.w || !natural.h) {
+      return { ready: false, insetL: 0, insetR: 0, imgStyle: undefined };
+    }
+    const contain = Math.min(box.w / natural.w, box.h / natural.h);
+    const cover = Math.max(box.w / natural.w, box.h / natural.h);
+    const scale = contain + (cover - contain) * Math.min(1, Math.max(0, fill));
+    const w = Math.round(natural.w * scale);
+    const h = Math.round(natural.h * scale);
+    const left = Math.round((box.w - w) / 2);
+    const top = Math.round((box.h - h) / 2);
+    const inset = Math.max(0, left);
+    return {
+      ready: true,
+      insetL: inset,
+      insetR: inset,
+      imgStyle: { width: w, height: h, left, top } as React.CSSProperties,
+    };
+  }, [natural, box, fill]);
+
+  return { containerRef, ...stage };
+}
 
 function HomePage() {
   const { t } = useI18n();
@@ -186,6 +266,14 @@ function HomePage() {
     if (workbenchEntryEnabled) router.prefetch('/workspace');
   }, [router, workbenchEntryEnabled]);
   const [form, setForm] = useState<FormState>(initialFormState);
+  // Mobile only: the level list lives in a burger drawer.
+  const [levelsOpen, setLevelsOpen] = useState(false);
+  const stage = useBackgroundStage(DOJO_BACKGROUND_IMAGE, BACKGROUND_FILL);
+  // --stage-l / --stage-r: gap between screen edge and the sharp picture (0 when it fills the screen).
+  const stageVars = {
+    '--stage-l': `${stage.insetL}px`,
+    '--stage-r': `${stage.insetR}px`,
+  } as React.CSSProperties;
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [settingsSection, setSettingsSection] = useState<
     import('@/lib/types/settings').SettingsSection | undefined
@@ -636,7 +724,10 @@ function HomePage() {
   };
 
   return (
-    <div className="min-h-[100dvh] w-full bg-gradient-to-b from-slate-50 to-slate-100 dark:from-slate-950 dark:to-slate-900 flex flex-col items-center p-4 pt-16 md:p-8 md:pt-16 overflow-x-hidden">
+    <div
+      style={stageVars}
+      className="relative isolate min-h-[100dvh] w-full flex flex-col items-center p-4 pt-16 md:p-8 md:pt-16 pl-[calc(var(--stage-l)+1rem)] pr-[calc(var(--stage-r)+1rem)] md:pl-[calc(var(--stage-l)+2rem)] md:pr-[calc(var(--stage-r)+12rem)] lg:pr-[calc(var(--stage-r)+15rem)] xl:pr-[calc(var(--stage-r)+17rem)] 2xl:pr-[calc(var(--stage-r)+18rem)] overflow-x-hidden"
+    >
       <input
         ref={fileInputRef}
         type="file"
@@ -656,12 +747,12 @@ function HomePage() {
       {/* ═══ Top-right pill (unchanged) ═══ */}
       <div
         ref={toolbarRef}
-        className="fixed top-4 right-4 z-50 flex items-center gap-1 bg-white/60 dark:bg-gray-800/60 backdrop-blur-md px-2 py-1.5 rounded-full border border-gray-100/50 dark:border-gray-700/50 shadow-sm"
+        className="fixed top-4 right-[calc(var(--stage-r)+1rem)] z-50 flex items-center gap-1 bg-card/90 backdrop-blur-sm px-2 py-1.5 rounded-sm border border-border shadow-sm"
       >
         {/* Language Selector */}
         <LanguageSwitcher onOpen={() => setThemeOpen(false)} />
 
-        <div className="w-[1px] h-4 bg-gray-200 dark:bg-gray-700" />
+        <div className="w-[1px] h-4 bg-border" />
 
         {/* Theme Selector */}
         <div className="relative">
@@ -669,23 +760,22 @@ function HomePage() {
             onClick={() => {
               setThemeOpen(!themeOpen);
             }}
-            className="p-2 rounded-full text-gray-400 dark:text-gray-500 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 hover:shadow-sm transition-all"
+            className="p-2 rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all"
           >
             {theme === 'light' && <Sun className="w-4 h-4" />}
             {theme === 'dark' && <Moon className="w-4 h-4" />}
             {theme === 'system' && <Monitor className="w-4 h-4" />}
           </button>
           {themeOpen && (
-            <div className="absolute top-full mt-2 right-0 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg overflow-hidden z-50 min-w-[140px]">
+            <div className="absolute top-full mt-2 right-0 bg-popover border border-border rounded-md shadow-lg overflow-hidden z-50 min-w-[140px]">
               <button
                 onClick={() => {
                   setTheme('light');
                   setThemeOpen(false);
                 }}
                 className={cn(
-                  'w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2',
-                  theme === 'light' &&
-                    'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
+                  'w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2',
+                  theme === 'light' && 'bg-accent text-primary',
                 )}
               >
                 <Sun className="w-4 h-4" />
@@ -697,9 +787,8 @@ function HomePage() {
                   setThemeOpen(false);
                 }}
                 className={cn(
-                  'w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2',
-                  theme === 'dark' &&
-                    'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
+                  'w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2',
+                  theme === 'dark' && 'bg-accent text-primary',
                 )}
               >
                 <Moon className="w-4 h-4" />
@@ -711,9 +800,8 @@ function HomePage() {
                   setThemeOpen(false);
                 }}
                 className={cn(
-                  'w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors flex items-center gap-2',
-                  theme === 'system' &&
-                    'bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400',
+                  'w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2',
+                  theme === 'system' && 'bg-accent text-primary',
                 )}
               >
                 <Monitor className="w-4 h-4" />
@@ -723,13 +811,13 @@ function HomePage() {
           )}
         </div>
 
-        <div className="w-[1px] h-4 bg-gray-200 dark:bg-gray-700" />
+        <div className="w-[1px] h-4 bg-border" />
 
         {/* Settings Button */}
         <div className="relative">
           <button
             onClick={() => setSettingsOpen(true)}
-            className="p-2 rounded-full text-gray-400 dark:text-gray-500 hover:bg-white dark:hover:bg-gray-700 hover:text-gray-800 dark:hover:text-gray-200 hover:shadow-sm transition-all group"
+            className="p-2 rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground transition-all group"
           >
             <Settings className="w-4 h-4 group-hover:rotate-90 transition-transform duration-500" />
           </button>
@@ -744,49 +832,120 @@ function HomePage() {
         initialSection={settingsSection}
       />
 
-      {/* ═══ Background Decor ═══ */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div
-          className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl animate-pulse"
-          style={{ animationDuration: '4s' }}
+      {/* ═══ Background picture (all screens) ═══ */}
+      <div
+        ref={stage.containerRef}
+        aria-hidden
+        className="fixed inset-0 -z-10 overflow-hidden bg-background"
+      >
+        {/* Back layer: same picture, cropped + blurred; only visible beside the sharp picture. */}
+        <img
+          src={DOJO_BACKGROUND_IMAGE}
+          alt=""
+          className="absolute inset-0 size-full scale-110 object-cover object-center blur-2xl dark:brightness-[0.85]"
         />
-        <div
-          className="absolute bottom-0 right-1/4 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl animate-pulse"
-          style={{ animationDuration: '6s' }}
+        {/* Front layer: the sharp picture, sized by BACKGROUND_FILL. */}
+        <img
+          src={DOJO_BACKGROUND_IMAGE}
+          alt=""
+          style={stage.imgStyle}
+          className={cn(
+            'dark:brightness-[0.85]',
+            stage.ready
+              ? 'absolute max-w-none shadow-[0_0_60px_rgba(0,0,0,0.3)]'
+              : 'absolute inset-0 size-full object-cover',
+          )}
         />
+        {/* Light veil: bigger /numbers = more paper colour, smaller = more picture. */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background/10 via-background/20 to-background/35" />
       </div>
+
+      {/* ═══ Right level column (tablet/desktop only) ═══ */}
+      <aside className="hidden md:flex fixed right-[var(--stage-r)] top-0 z-30 h-[100dvh] w-40 lg:w-52 xl:w-60 2xl:w-64 flex-col border-l border-border bg-card/85 backdrop-blur-sm pt-16">
+        <LevelPanel />
+      </aside>
+
+      {/* ═══ Mobile: burger + level drawer ═══ */}
+      <button
+        type="button"
+        onClick={() => setLevelsOpen(true)}
+        aria-label="Levels"
+        className="md:hidden fixed top-4 left-[calc(var(--stage-l)+1rem)] z-50 inline-flex items-center justify-center size-10 rounded-sm border border-border bg-card/90 backdrop-blur-sm text-foreground shadow-sm"
+      >
+        <Menu className="size-5" />
+      </button>
+      <AnimatePresence>
+        {levelsOpen && (
+          <>
+            <motion.div
+              key="levels-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+              className="md:hidden fixed inset-0 z-[60] bg-black/50"
+              onClick={() => setLevelsOpen(false)}
+            />
+            <motion.div
+              key="levels-drawer"
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ duration: 0.25, ease: [0.25, 0.1, 0.25, 1] }}
+              className="md:hidden fixed left-0 top-0 z-[70] flex h-[100dvh] w-72 max-w-[85vw] flex-col border-r border-border bg-card shadow-xl"
+            >
+              <div className="flex justify-end p-3 pb-0">
+                <button
+                  type="button"
+                  onClick={() => setLevelsOpen(false)}
+                  aria-label="Close"
+                  className="inline-flex items-center justify-center size-8 rounded-sm text-muted-foreground hover:bg-accent hover:text-foreground"
+                >
+                  <X className="size-4" />
+                </button>
+              </div>
+              <LevelPanel />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* ═══ Hero section: title + input (centered, wider) ═══ */}
       <div
         className={cn(
-          'relative z-20 w-full max-w-[800px] flex flex-col items-center mt-[10vh]',
+          'relative z-20 w-full max-w-[800px] flex flex-col items-center mt-[10vh] rounded-sm border border-foreground/25 bg-background/65 px-5 py-6 shadow-lg backdrop-blur-md md:px-8',
           heroEnter('fade-in slide-in-from-bottom-5 duration-600'),
         )}
       >
         {/* ── Logo ── */}
         <div className="relative" data-pro-morph="lockup">
-          <img
-            src="/logo-horizontal.png"
-            alt="OpenMAIC"
+          <div
             className={cn(
-              'h-12 md:h-16 mb-2 -ml-2 md:-ml-3',
+              'mb-3 flex items-center gap-3 md:gap-4',
               heroEnter('fade-in zoom-in-90 duration-500 delay-100'),
             )}
-          />
+          >
+            <img
+              src={LOGO_IMAGE}
+              alt=""
+              className="h-14 w-auto max-w-[45vw] object-contain md:h-20"
+            />
+            <span className="font-serif text-5xl font-bold leading-none tracking-wide text-foreground md:text-7xl">
+              {BRAND_NAME}
+            </span>
+          </div>
           {workbenchEntryEnabled ? (
-            <div
-              className="absolute left-full top-0 ml-1.5 mt-[10px] md:ml-2 md:mt-[14px]"
-              data-pro-morph="badge"
-            >
+            <div className="absolute left-full top-1 ml-2 md:top-3 md:ml-3" data-pro-morph="badge">
               <ProBadge active={false} onToggle={enterWorkbench} />
             </div>
           ) : null}
         </div>
 
         {/* ── Slogan ── */}
+        <div className="dojo-rule w-24 mb-3" aria-hidden />
         <p
           className={cn(
-            'text-sm text-muted-foreground/60 mb-8',
+            'text-base md:text-lg font-serif tracking-[0.18em] text-foreground/80 mb-6',
             heroEnter('fade-in duration-300 delay-250'),
           )}
         >
@@ -795,10 +954,7 @@ function HomePage() {
 
         {/* ── Unified input area ── */}
         <div className={cn('w-full', heroEnter('fade-in zoom-in-97 duration-300 delay-350'))}>
-          <div
-            data-pro-morph="composer"
-            className="w-full rounded-2xl border border-border/60 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl shadow-xl shadow-black/[0.03] dark:shadow-black/20 transition-shadow focus-within:shadow-2xl focus-within:shadow-violet-500/[0.06]"
-          >
+          <div data-pro-morph="composer" className="w-full rounded-sm bg-card dojo-frame">
             {/* ── Greeting + Profile + Agents ── */}
             <div className="relative z-20 flex items-start justify-between">
               <GreetingBar />
@@ -811,7 +967,7 @@ function HomePage() {
             <textarea
               ref={textareaRef}
               placeholder={t('upload.requirementPlaceholder')}
-              className="w-full resize-none border-0 bg-transparent px-4 pt-1 pb-2 text-[13px] leading-relaxed placeholder:text-muted-foreground/40 focus:outline-none min-h-[140px] max-h-[300px]"
+              className="w-full resize-none border-0 bg-transparent px-4 pt-1 pb-2 text-base leading-relaxed placeholder:text-muted-foreground/70 focus:outline-none min-h-[160px] max-h-[320px]"
               value={form.requirement}
               onChange={(e) => updateForm('requirement', e.target.value)}
               onKeyDown={handleKeyDown}
@@ -867,19 +1023,19 @@ function HomePage() {
                 onClick={handleGenerate}
                 disabled={!canGenerate || preparingGenerate}
                 className={cn(
-                  'shrink-0 h-8 rounded-lg flex items-center justify-center gap-1.5 transition-all px-3',
+                  'shrink-0 h-10 rounded-lg flex items-center justify-center gap-2 transition-all px-4',
                   canGenerate && !preparingGenerate
                     ? 'bg-primary text-primary-foreground hover:opacity-90 shadow-sm cursor-pointer'
-                    : 'bg-muted text-muted-foreground/40 cursor-not-allowed',
+                    : 'bg-muted text-muted-foreground cursor-not-allowed',
                 )}
               >
-                <span className="text-xs font-medium">
+                <span className="text-sm font-medium">
                   {preparingGenerate ? t('stage.generating') : t('toolbar.enterClassroom')}
                 </span>
                 {preparingGenerate ? (
-                  <Loader2 className="size-3.5 animate-spin" />
+                  <Loader2 className="size-4 animate-spin" />
                 ) : (
-                  <ArrowUp className="size-3.5" />
+                  <ArrowUp className="size-4" />
                 )}
               </button>
             </div>
@@ -901,17 +1057,17 @@ function HomePage() {
                   aria-checked={form.vocationalTestMode}
                   onClick={() => updateForm('vocationalTestMode', !form.vocationalTestMode)}
                   className={cn(
-                    'inline-flex h-7 items-center gap-2 rounded-full border px-2.5 text-[11px] font-medium transition-colors',
+                    'inline-flex h-7 items-center gap-2 rounded-sm border px-2.5 text-[11px] font-medium transition-colors',
                     form.vocationalTestMode
                       ? 'border-cyan-400/70 bg-cyan-50 text-cyan-700 shadow-[0_0_10px_rgba(6,182,212,0.16)] dark:bg-cyan-950/40 dark:text-cyan-300'
                       : 'border-border/70 bg-background/70 text-muted-foreground hover:border-cyan-300/60 hover:text-cyan-700 dark:hover:text-cyan-300',
                   )}
                 >
                   <span className="rounded-full bg-cyan-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-normal text-cyan-700 dark:bg-cyan-900/45 dark:text-cyan-300">
-                    测试功能
+                    Beta
                   </span>
                   <Sparkles className="size-3.5" />
-                  <span>职教任务</span>
+                  <span>Vocational task</span>
                   <span
                     className={cn(
                       'relative h-3.5 w-6 rounded-full transition-colors',
@@ -928,7 +1084,7 @@ function HomePage() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs">
-                从当前输入框提交职教实操训练测试
+                Submit the current prompt as a vocational hands-on training test
               </TooltipContent>
             </Tooltip>
           </motion.div>
@@ -956,13 +1112,13 @@ function HomePage() {
           action surface across root, folder, and empty. Until the library and
           folder reads resolve, the section shows a skeleton of its own layout
           (server-rendered, so it is on screen before the page's scripts run). */}
-      <div className="relative z-10 mt-10 w-full max-w-6xl flex flex-col items-center">
+      <div className="relative z-10 mt-10 w-full max-w-6xl flex flex-col items-center rounded-sm border border-foreground/25 bg-background/65 px-5 pb-6 shadow-lg backdrop-blur-md">
         {/* Trigger — divider-line with centered text. Fixed height keeps the
               bar geometrically stable when the New-folder action or the folder
               path appears/disappears (entering vs leaving a folder). */}
-        <div className="group w-full flex items-center gap-4 h-9">
+        <div className="group w-full flex items-center gap-4 h-12">
           <div className="flex-1 h-px bg-border/40 group-hover:bg-border/70 transition-colors" />
-          <div className="shrink-0 flex items-center gap-3 text-[13px] text-muted-foreground/60 select-none">
+          <div className="shrink-0 flex items-center gap-3 text-base text-muted-foreground select-none">
             <button
               onClick={() => {
                 if (currentFolderId) setCurrentFolderId(undefined);
@@ -981,14 +1137,11 @@ function HomePage() {
                 </>
               )}
               {hydrated ? (
-                <span className="text-[11px] tabular-nums opacity-60">
+                <span className="text-sm tabular-nums opacity-80">
                   {currentFolder ? currentFolderClassrooms.length : classrooms.length}
                 </span>
               ) : (
-                <span
-                  aria-hidden
-                  className="h-3 w-4 rounded-sm bg-slate-200/70 dark:bg-slate-700/50 animate-pulse"
-                />
+                <span aria-hidden className="h-3 w-4 rounded-sm bg-muted animate-pulse" />
               )}
               <motion.div
                 animate={{ rotate: recentOpen ? 180 : 0 }}
@@ -1015,7 +1168,7 @@ function HomePage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.12, ease: 'easeOut' }}
-                  className="flex items-center justify-center size-6 rounded-full text-muted-foreground/50 hover:text-foreground/70 hover:bg-muted/50 transition-colors cursor-pointer"
+                  className="flex items-center justify-center size-6 rounded-sm text-muted-foreground hover:text-foreground/70 hover:bg-muted/50 transition-colors cursor-pointer"
                 >
                   <Search className="size-3.5" />
                 </motion.button>
@@ -1030,7 +1183,7 @@ function HomePage() {
                 >
                   <InputGroup
                     className={cn(
-                      'h-7 text-[12px] rounded-full bg-muted/40 border-transparent shadow-none',
+                      'h-8 text-sm rounded-sm bg-muted/40 border-transparent shadow-none',
                       'transition-colors',
                       'hover:bg-muted/60',
                       'has-[[data-slot=input-group-control]:focus-visible]:bg-muted/60',
@@ -1060,7 +1213,7 @@ function HomePage() {
                       }}
                       placeholder={t('classroom.searchPlaceholder')}
                       aria-label={t('classroom.searchAriaLabel')}
-                      className="h-7 pl-3 placeholder:text-muted-foreground/50"
+                      className="h-8 pl-3 placeholder:text-muted-foreground/70"
                     />
                     {searchQuery && (
                       <InputGroupButton
@@ -1083,7 +1236,7 @@ function HomePage() {
             <button
               onClick={triggerImport}
               disabled={importing}
-              className="group/import grid grid-cols-[auto_0fr] hover:grid-cols-[auto_1fr] items-center gap-1 rounded-full px-1.5 py-0.5 text-[12px] text-muted-foreground/35 hover:text-muted-foreground/70 hover:bg-muted/50 transition-all duration-200 cursor-pointer"
+              className="group/import grid grid-cols-[auto_0fr] hover:grid-cols-[auto_1fr] items-center gap-1 rounded-sm px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 cursor-pointer"
             >
               <Upload className="size-3" />
               <span className="overflow-hidden opacity-0 group-hover/import:opacity-100 transition-opacity duration-200 whitespace-nowrap">
@@ -1094,7 +1247,7 @@ function HomePage() {
               <button
                 onClick={triggerPptxFileSelect}
                 disabled={pptxImporting}
-                className="group/import-pptx grid grid-cols-[auto_0fr] hover:grid-cols-[auto_1fr] items-center gap-1 rounded-full px-1.5 py-0.5 text-[12px] text-muted-foreground/35 hover:text-muted-foreground/70 hover:bg-muted/50 transition-all duration-200 cursor-pointer"
+                className="group/import-pptx grid grid-cols-[auto_0fr] hover:grid-cols-[auto_1fr] items-center gap-1 rounded-sm px-2 py-1 text-sm text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-all duration-200 cursor-pointer"
               >
                 <Presentation className="size-3" />
                 <span className="overflow-hidden opacity-0 group-hover/import-pptx:opacity-100 transition-opacity duration-200 whitespace-nowrap">
@@ -1112,7 +1265,7 @@ function HomePage() {
                 }}
                 aria-label={t('classroom.newFolderTitle')}
                 title={t('classroom.newFolderTitle')}
-                className="inline-flex items-center justify-center size-7 rounded-full bg-muted/40 text-muted-foreground ring-1 ring-border/50 hover:bg-muted hover:text-foreground hover:ring-border transition-[background-color,color,box-shadow] cursor-pointer"
+                className="inline-flex items-center justify-center size-7 rounded-sm bg-muted/40 text-muted-foreground ring-1 ring-border/50 hover:bg-muted hover:text-foreground hover:ring-border transition-[background-color,color,box-shadow] cursor-pointer"
               >
                 <FolderPlus className="size-3.5" />
               </button>
@@ -1136,7 +1289,7 @@ function HomePage() {
               {!hydrated ? (
                 <LibrarySkeleton />
               ) : folders.length === 0 && classrooms.length === 0 && pendingRuns.length === 0 ? (
-                <div className="pt-8 pb-2 text-center text-[13px] text-muted-foreground/60">
+                <div className="pt-8 pb-2 text-center text-sm text-muted-foreground">
                   {t('classroom.emptyLibraryHint')}
                 </div>
               ) : !isSearching && currentFolderId && currentFolderClassrooms.length === 0 ? (
@@ -1147,7 +1300,7 @@ function HomePage() {
                   </p>
                 </div>
               ) : isSearching && filteredClassrooms.length === 0 ? (
-                <div className="pt-8 pb-2 text-center text-[13px] text-muted-foreground/60">
+                <div className="pt-8 pb-2 text-center text-sm text-muted-foreground">
                   {t('classroom.searchEmpty')}
                 </div>
               ) : (
@@ -1155,7 +1308,7 @@ function HomePage() {
                   {/* Breadcrumb — shown only while searching (the folder path
                         already lives in the centered header above). */}
                   {isSearching && (
-                    <div className="mb-4 flex items-center gap-1.5 text-[13px] text-muted-foreground">
+                    <div className="mb-4 flex items-center gap-1.5 text-sm text-muted-foreground">
                       <button
                         type="button"
                         onClick={() => {
@@ -1171,7 +1324,7 @@ function HomePage() {
                       <span className="text-foreground font-medium">
                         {t('classroom.searchResults')}
                       </span>
-                      <span className="ml-1.5 text-[12px] text-muted-foreground tabular-nums">
+                      <span className="ml-1.5 text-sm text-muted-foreground tabular-nums">
                         ({filteredClassrooms.length})
                       </span>
                     </div>
@@ -1194,7 +1347,7 @@ function HomePage() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -8 }}
                       transition={{ duration: 0.2 }}
-                      className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-5 gap-y-8"
+                      className="grid grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-x-5 gap-y-8"
                     >
                       {/* Root + non-search: render folder tiles first. */}
                       {!isSearching &&
@@ -1280,7 +1433,7 @@ function HomePage() {
                                 />
                                 {/* Search view: show the owning folder as a badge. */}
                                 {isSearching && classroom.folderId && (
-                                  <span className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 rounded-md bg-violet-500/80 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm pointer-events-none">
+                                  <span className="absolute bottom-2 left-2 z-10 inline-flex items-center gap-1 rounded-md bg-primary/90 px-1.5 py-0.5 text-[10px] font-medium text-white backdrop-blur-sm pointer-events-none">
                                     <Folder className="size-2.5" />
                                     {folderNameById.get(classroom.folderId) ?? ''}
                                   </span>
@@ -1312,9 +1465,7 @@ function HomePage() {
       />
 
       {/* Footer — flows with content, at the very end */}
-      <div className="mt-auto pt-12 pb-4 text-center text-xs text-muted-foreground/40">
-        OpenMAIC Open Source Project
-      </div>
+      <div className="mt-auto pt-12 pb-4 text-center text-sm text-muted-foreground">EduDojo</div>
     </div>
   );
 }
@@ -1414,22 +1565,22 @@ function GreetingBar() {
       {/* ── Collapsed pill (always in flow) ── */}
       {!open && (
         <div
-          className="flex items-center gap-2.5 cursor-pointer transition-all duration-200 group rounded-full px-2.5 py-1.5 border border-border/50 text-muted-foreground/70 hover:text-foreground hover:bg-muted/60 active:scale-[0.97]"
+          className="flex items-center gap-2.5 cursor-pointer transition-all duration-200 group rounded-sm px-2.5 py-1.5 border border-border/50 text-muted-foreground hover:text-foreground hover:bg-muted/60 active:scale-[0.97]"
           onClick={() => setOpen(true)}
         >
           <div className="shrink-0 relative">
-            <div className="size-8 rounded-full overflow-hidden ring-[1.5px] ring-border/30 group-hover:ring-violet-400/60 dark:group-hover:ring-violet-400/40 transition-all duration-300">
+            <div className="size-8 rounded-full overflow-hidden ring-[1.5px] ring-border/30 group-hover:ring-primary/60 transition-all duration-300">
               <img src={avatar} alt="" className="size-full object-cover" />
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full bg-white dark:bg-slate-800 border border-border/40 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
-              <Pencil className="size-[7px] text-muted-foreground/70" />
+            <div className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full bg-card border border-border/40 flex items-center justify-center opacity-60 group-hover:opacity-100 transition-opacity">
+              <Pencil className="size-[7px] text-muted-foreground" />
             </div>
           </div>
           <div className="flex-1 min-w-0">
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="leading-none select-none flex items-center gap-1">
-                  <span className="text-[13px] font-semibold text-foreground/85 group-hover:text-foreground transition-colors">
+                  <span className="font-serif text-sm font-semibold text-foreground/85 group-hover:text-foreground transition-colors">
                     {t('home.greetingWithName', { name: displayName })}
                   </span>
                   <ChevronDown className="size-3 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors shrink-0" />
@@ -1453,7 +1604,7 @@ function GreetingBar() {
             transition={{ duration: 0.2, ease: [0.25, 0.1, 0.25, 1] }}
             className="absolute left-4 top-3.5 z-50 w-64"
           >
-            <div className="rounded-2xl bg-white/95 dark:bg-slate-800/95 backdrop-blur-sm ring-1 ring-black/[0.04] dark:ring-white/[0.06] shadow-[0_1px_8px_-2px_rgba(0,0,0,0.06)] dark:shadow-[0_1px_8px_-2px_rgba(0,0,0,0.3)] px-2.5 py-2">
+            <div className="rounded-2xl bg-card ring-1 ring-border shadow-[0_1px_8px_-2px_rgba(0,0,0,0.06)] dark:shadow-[0_1px_8px_-2px_rgba(0,0,0,0.3)] px-2.5 py-2">
               {/* ── Row: avatar + name ── */}
               <div
                 className="flex items-center gap-2.5 cursor-pointer transition-all duration-200"
@@ -1471,17 +1622,17 @@ function GreetingBar() {
                     setAvatarPickerOpen(!avatarPickerOpen);
                   }}
                 >
-                  <div className="size-8 rounded-full overflow-hidden ring-[1.5px] ring-violet-300/70 dark:ring-violet-500/40 transition-all duration-300">
+                  <div className="size-8 rounded-full overflow-hidden ring-[1.5px] ring-primary/70 transition-all duration-300">
                     <img src={avatar} alt="" className="size-full object-cover" />
                   </div>
                   <motion.div
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
-                    className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full bg-white dark:bg-slate-800 border border-border/60 flex items-center justify-center"
+                    className="absolute -bottom-0.5 -right-0.5 size-3.5 rounded-full bg-card border border-border/60 flex items-center justify-center"
                   >
                     <ChevronDown
                       className={cn(
-                        'size-2 text-muted-foreground/70 transition-transform duration-200',
+                        'size-2 text-muted-foreground transition-transform duration-200',
                         avatarPickerOpen && 'rotate-180',
                       )}
                     />
@@ -1505,11 +1656,11 @@ function GreetingBar() {
                         onBlur={commitName}
                         maxLength={20}
                         placeholder={t('profile.defaultNickname')}
-                        className="flex-1 min-w-0 h-6 bg-transparent border-b border-border/80 text-[13px] font-semibold text-foreground outline-none placeholder:text-muted-foreground/40"
+                        className="flex-1 min-w-0 h-6 bg-transparent border-b border-border/80 text-sm font-semibold text-foreground outline-none placeholder:text-muted-foreground/40"
                       />
                       <button
                         onClick={commitName}
-                        className="shrink-0 size-5 rounded flex items-center justify-center text-violet-500 hover:bg-violet-100 dark:hover:bg-violet-900/30"
+                        className="shrink-0 size-5 rounded flex items-center justify-center text-primary hover:bg-primary/10"
                       >
                         <Check className="size-3" />
                       </button>
@@ -1522,7 +1673,7 @@ function GreetingBar() {
                       }}
                       className="group/name inline-flex items-center gap-1 cursor-pointer"
                     >
-                      <span className="text-[13px] font-semibold text-foreground/85 group-hover/name:text-foreground transition-colors">
+                      <span className="text-sm font-semibold text-foreground/85 group-hover/name:text-foreground transition-colors">
                         {displayName}
                       </span>
                       <Pencil className="size-2.5 text-muted-foreground/30 opacity-0 group-hover/name:opacity-100 transition-opacity" />
@@ -1534,9 +1685,9 @@ function GreetingBar() {
                 <motion.div
                   initial={{ opacity: 0, y: -2 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="shrink-0 size-6 rounded-full flex items-center justify-center hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition-colors"
+                  className="shrink-0 size-6 rounded-sm flex items-center justify-center hover:bg-accent transition-colors"
                 >
-                  <ChevronUp className="size-3.5 text-muted-foreground/50" />
+                  <ChevronUp className="size-3.5 text-muted-foreground" />
                 </motion.div>
               </div>
 
@@ -1558,10 +1709,10 @@ function GreetingBar() {
                             key={url}
                             onClick={() => setAvatar(url)}
                             className={cn(
-                              'size-7 rounded-full overflow-hidden bg-gray-50 dark:bg-gray-800 cursor-pointer transition-all duration-150',
+                              'size-7 rounded-full overflow-hidden bg-muted cursor-pointer transition-all duration-150',
                               'hover:scale-110 active:scale-95',
                               avatar === url
-                                ? 'ring-2 ring-violet-400 dark:ring-violet-500 ring-offset-0'
+                                ? 'ring-2 ring-primary ring-offset-0'
                                 : 'hover:ring-1 hover:ring-muted-foreground/30',
                             )}
                           >
@@ -1573,8 +1724,8 @@ function GreetingBar() {
                             'size-7 rounded-full flex items-center justify-center cursor-pointer transition-all duration-150 border border-dashed',
                             'hover:scale-110 active:scale-95',
                             isCustomAvatar(avatar)
-                              ? 'ring-2 ring-violet-400 dark:ring-violet-500 ring-offset-0 border-violet-300 dark:border-violet-600 bg-violet-50 dark:bg-violet-900/30'
-                              : 'border-muted-foreground/30 text-muted-foreground/50 hover:border-muted-foreground/50',
+                              ? 'ring-2 ring-primary ring-offset-0 border-primary bg-primary/10'
+                              : 'border-muted-foreground/30 text-muted-foreground hover:border-muted-foreground/50',
                           )}
                           onClick={() => avatarInputRef.current?.click()}
                           title={t('profile.uploadAvatar')}
@@ -1593,7 +1744,7 @@ function GreetingBar() {
                   placeholder={t('profile.bioPlaceholder')}
                   maxLength={200}
                   rows={2}
-                  className="resize-none border-border/40 bg-transparent min-h-[72px] !text-[13px] !leading-relaxed placeholder:!text-[11px] placeholder:!leading-relaxed focus-visible:ring-1 focus-visible:ring-border/60"
+                  className="resize-none border-border/40 bg-transparent min-h-[72px] !text-sm !leading-relaxed placeholder:!text-xs placeholder:!leading-relaxed focus-visible:ring-1 focus-visible:ring-border/60"
                 />
               </div>
             </div>
@@ -1717,7 +1868,7 @@ function ClassroomCard({
       {/* Thumbnail — large radius, no border, subtle bg */}
       <div
         ref={thumbRef}
-        className="relative w-full aspect-[16/9] rounded-2xl bg-slate-100 dark:bg-slate-800/80 overflow-hidden transition-transform duration-200 group-hover:scale-[1.02]"
+        className="relative w-full aspect-[16/9] rounded-2xl bg-muted overflow-hidden transition-transform duration-200 group-hover:scale-[1.02]"
       >
         {slide && thumbWidth > 0 ? (
           <SlideThumbnail
@@ -1731,7 +1882,7 @@ function ClassroomCard({
           <ThumbnailSkeleton />
         ) : !slide ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <div className="size-12 rounded-2xl bg-gradient-to-br from-violet-100 to-blue-100 dark:from-violet-900/30 dark:to-blue-900/30 flex items-center justify-center">
+            <div className="size-12 rounded-2xl bg-accent flex items-center justify-center">
               <span className="text-xl opacity-50">📄</span>
             </div>
           </div>
@@ -1744,7 +1895,7 @@ function ClassroomCard({
                 aria-label={modeBadgeLabel}
                 onClick={(e) => e.stopPropagation()}
                 className={cn(
-                  'absolute bottom-2 left-2 inline-flex items-center justify-center size-5 rounded-full bg-white/70 dark:bg-slate-900/60 backdrop-blur-sm shadow-sm z-10',
+                  'absolute bottom-2 left-2 inline-flex items-center justify-center size-5 rounded-sm bg-card/90 shadow-sm z-10',
                   isTaskEngineMode
                     ? 'text-amber-600 dark:text-amber-300 ring-1 ring-amber-500/35'
                     : 'text-cyan-600 dark:text-cyan-300 ring-1 ring-cyan-500/30',
@@ -1779,7 +1930,7 @@ function ClassroomCard({
               <Button
                 size="icon"
                 variant="ghost"
-                className="absolute top-2 right-2 size-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 hover:bg-destructive/80 text-white hover:text-white backdrop-blur-sm rounded-full"
+                className="absolute top-2 right-2 size-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 hover:bg-destructive/80 text-white hover:text-white backdrop-blur-sm rounded-sm"
                 onClick={(e) => {
                   e.stopPropagation();
                   onDelete(classroom.id, e);
@@ -1791,7 +1942,7 @@ function ClassroomCard({
                 <Button
                   size="icon"
                   variant="ghost"
-                  className="absolute top-2 right-11 size-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 hover:bg-black/50 text-white hover:text-white backdrop-blur-sm rounded-full"
+                  className="absolute top-2 right-11 size-7 opacity-0 group-hover:opacity-100 transition-opacity bg-black/30 hover:bg-black/50 text-white hover:text-white backdrop-blur-sm rounded-sm"
                   onClick={startRename}
                 >
                   <Pencil className="size-3.5" />
@@ -1813,18 +1964,18 @@ function ClassroomCard({
               className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-black/50 backdrop-blur-[6px]"
               onClick={(e) => e.stopPropagation()}
             >
-              <span className="text-[13px] font-medium text-white/90">
+              <span className="text-sm font-medium text-white/90">
                 {t('classroom.deleteConfirmTitle')}?
               </span>
               <div className="flex gap-2">
                 <button
-                  className="px-3.5 py-1 rounded-lg text-[12px] font-medium bg-white/15 text-white/80 hover:bg-white/25 backdrop-blur-sm transition-colors"
+                  className="px-3.5 py-1 rounded-lg text-sm font-medium bg-white/15 text-white/80 hover:bg-white/25 backdrop-blur-sm transition-colors"
                   onClick={onCancelDelete}
                 >
                   {t('common.cancel')}
                 </button>
                 <button
-                  className="px-3.5 py-1 rounded-lg text-[12px] font-medium bg-red-500/90 text-white hover:bg-red-500 transition-colors"
+                  className="px-3.5 py-1 rounded-lg text-sm font-medium bg-red-500/90 text-white hover:bg-red-500 transition-colors"
                   onClick={onConfirmDelete}
                 >
                   {t('classroom.delete')}
@@ -1840,7 +1991,7 @@ function ClassroomCard({
         {runStatus ? (
           <CourseRunStatusLabel status={runStatus} />
         ) : (
-          <span className="shrink-0 inline-flex items-center rounded-full bg-violet-100 dark:bg-violet-900/30 px-2 py-0.5 text-[11px] font-medium text-violet-600 dark:text-violet-400">
+          <span className="shrink-0 inline-flex items-center rounded-sm border border-primary/30 bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
             {classroom.sceneCount} {t('classroom.slides')} · {formatDate(classroom.updatedAt)}
           </span>
         )}
@@ -1857,14 +2008,14 @@ function ClassroomCard({
               onBlur={commitRename}
               maxLength={100}
               placeholder={t('classroom.renamePlaceholder')}
-              className="w-full bg-transparent border-b border-violet-400/60 text-[15px] font-medium text-foreground/90 outline-none placeholder:text-muted-foreground/40"
+              className="w-full bg-transparent border-b border-primary/60 text-[17px] font-medium text-foreground/90 outline-none placeholder:text-muted-foreground/40"
             />
           </div>
         ) : (
           <Tooltip>
             <TooltipTrigger asChild>
               <p
-                className="font-medium text-[15px] truncate text-foreground/90 min-w-0 cursor-text"
+                className="font-serif font-medium text-[17px] truncate text-foreground/90 min-w-0 cursor-text"
                 onDoubleClick={pendingCourse ? undefined : startRename}
               >
                 {classroom.name}
@@ -1892,6 +2043,76 @@ function ClassroomCard({
           </Tooltip>
         )}
       </div>
+    </div>
+  );
+}
+
+// ─── Level panel — skill display on top, belt levels below (no logic yet) ───
+function LevelPanel() {
+  const [selected, setSelected] = useState(CURRENT_LEVEL);
+  const current = LEVELS.find((l) => l.level === CURRENT_LEVEL) ?? LEVELS[0];
+  const pct = Math.min(100, Math.round((CURRENT_XP / NEXT_LEVEL_XP) * 100));
+
+  return (
+    <div className="flex min-h-0 flex-1 flex-col">
+      {/* Skill / level display */}
+      <div className="px-4 pb-4">
+        <p className="font-serif text-xs uppercase tracking-[0.2em] text-muted-foreground">
+          Skill Level
+        </p>
+        <div className="mt-1 flex items-baseline gap-2">
+          <span className="font-serif text-4xl font-bold leading-none text-foreground">
+            Lv.{current.level}
+          </span>
+          <span className="font-serif text-xl text-primary">{current.kanji}</span>
+        </div>
+        <p className="mt-1 text-sm text-muted-foreground">{current.romaji}</p>
+        <div className="mt-3 h-2 w-full overflow-hidden rounded-sm bg-muted ring-1 ring-border">
+          <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
+        </div>
+        <p className="mt-1 text-xs tabular-nums text-muted-foreground">
+          {CURRENT_XP} / {NEXT_LEVEL_XP} XP
+        </p>
+        <div className="dojo-rule mt-4 w-full" aria-hidden />
+      </div>
+
+      {/* Level list */}
+      <ol className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-3 pb-6">
+        {LEVELS.map((lvl) => {
+          const locked = lvl.level > CURRENT_LEVEL;
+          const active = lvl.level === selected;
+          return (
+            <li key={lvl.level}>
+              <button
+                type="button"
+                disabled={locked}
+                onClick={() => setSelected(lvl.level)}
+                aria-current={active ? 'true' : undefined}
+                className={cn(
+                  'flex w-full items-center gap-3 rounded-sm border px-2.5 py-2 text-left transition-colors',
+                  active
+                    ? 'border-primary bg-accent text-foreground'
+                    : 'border-transparent hover:border-border hover:bg-accent/60',
+                  locked &&
+                    'cursor-not-allowed opacity-45 hover:border-transparent hover:bg-transparent',
+                )}
+              >
+                <span
+                  className="h-6 w-8 shrink-0 rounded-[2px] border border-foreground/30"
+                  style={{ backgroundColor: lvl.belt }}
+                />
+                <span className="min-w-0 flex-1">
+                  <span className="block font-serif text-base font-semibold leading-tight">
+                    Lv.{lvl.level} {lvl.kanji}
+                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">{lvl.romaji}</span>
+                </span>
+                {locked && <Lock className="size-3.5 shrink-0 text-muted-foreground" />}
+              </button>
+            </li>
+          );
+        })}
+      </ol>
     </div>
   );
 }

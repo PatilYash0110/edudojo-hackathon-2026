@@ -1,2 +1,2 @@
-// BACKEND TEAM. Wiring only: implement in teams/backend/api/analytics-student.ts
-export { GET } from '@/teams/backend/api/analytics-student';
+// BACKEND TEAM. Wiring only: implemented in teams/backend/api/classrooms.ts
+export { getStudentAnalytics as GET } from '@/teams/backend/api/classrooms';

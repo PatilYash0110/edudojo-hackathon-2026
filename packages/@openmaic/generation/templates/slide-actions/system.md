@@ -166,8 +166,9 @@ Elements to focus on should be **key content currently being discussed**:
 
 ### 3. Pacing Control
 
-- Generate 5-10 action/text objects for a natural teaching flow
-- Each spotlight should be paired with a corresponding text object
+- Generate 3-6 action/text objects, with at most 2 `text` (speech) objects
+- Keep each `text` object short: 2-3 sentences, at most about 250 characters
+- One `text` object may explain several spotlighted elements; place the spotlights before it
 
 ---
 

@@ -1,14 +1,10 @@
 /**
- * Adaptive difficulty: what to serve next.
+ * Adaptive difficulty: what to serve next for one objective.
  *
- * OWNER: GAME TEAM
- * STATUS: placeholder, not implemented.
- *
- * TODO: from mastery + streak
+ * OWNER: GAME TEAM. First version by the Backend Team; tune freely.
  */
-import { todo } from '@/teams/shared/todo';
-
 export function nextDifficulty(mastery: number): 1 | 2 | 3 {
-  void mastery;
-  return todo('nextDifficulty');
+  if (mastery < 0.4) return 1;
+  if (mastery < 0.75) return 2;
+  return 3;
 }

@@ -71,7 +71,7 @@ function OptionRow<T extends string | number>({
 }) {
   return (
     <div>
-      <div className="text-[11px] text-gray-400 dark:text-gray-500 mb-1">{label}</div>
+      <div className="text-[11px] text-muted-foreground mb-1">{label}</div>
       <div className="flex gap-1.5">
         {options.map((opt) => (
           <button
@@ -82,7 +82,7 @@ function OptionRow<T extends string | number>({
               'flex-1 px-2 py-1.5 text-xs rounded-md border transition-colors disabled:opacity-50',
               opt === value
                 ? 'border-primary bg-primary/10 text-primary'
-                : 'border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700',
+                : 'border-border hover:bg-muted dark:hover:bg-muted',
             )}
           >
             {format ? format(opt) : String(opt)}
@@ -152,7 +152,7 @@ export function VideoExportDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Film className="w-4 h-4 text-gray-400 shrink-0" />
+            <Film className="w-4 h-4 text-muted-foreground shrink-0" />
             {t('export.video')}
           </DialogTitle>
           <DialogDescription>{t('export.videoDesc')}</DialogDescription>
@@ -189,11 +189,11 @@ export function VideoExportDialog({
           )}
 
           {/* Subtitles */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-3 flex flex-col gap-2">
+          <div className="border-t border-border pt-3 flex flex-col gap-2">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <div className="text-sm">{t('export.videoBurnSubtitles')}</div>
-                <div className="text-[11px] text-gray-400 dark:text-gray-500">
+                <div className="text-[11px] text-muted-foreground">
                   {t('export.videoBurnSubtitlesDesc')}
                 </div>
               </div>
@@ -206,7 +206,7 @@ export function VideoExportDialog({
             <button
               onClick={() => downloadSubtitles('srt')}
               disabled={busy || downloading}
-              className="w-full px-2 py-1.5 text-xs rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+              className="w-full px-2 py-1.5 text-xs rounded-md border border-border hover:bg-muted dark:hover:bg-muted transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
             >
               {downloading ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
@@ -221,7 +221,7 @@ export function VideoExportDialog({
           {rendering && (
             <div>
               <Progress value={percent} />
-              <div className="mt-1 text-[11px] text-gray-400 dark:text-gray-500">
+              <div className="mt-1 text-[11px] text-muted-foreground">
                 {etaMs != null
                   ? t('export.videoProgressWithEta', {
                       percent,
@@ -233,7 +233,7 @@ export function VideoExportDialog({
           )}
 
           {/* Actions */}
-          <div className="border-t border-gray-200 dark:border-gray-700 pt-3 flex flex-col gap-1.5">
+          <div className="border-t border-border pt-3 flex flex-col gap-1.5">
             {serviceEnabled && (
               <button
                 onClick={() => renderVideo()}
@@ -262,13 +262,13 @@ export function VideoExportDialog({
             <button
               onClick={() => exportVideo(resolution, burnInSubtitles)}
               disabled={busy}
-              className="w-full px-2 py-2 text-sm rounded-md border border-gray-200 dark:border-gray-700 hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
+              className="w-full px-2 py-2 text-sm rounded-md border border-border hover:bg-muted dark:hover:bg-muted transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5"
             >
               {isExportingVideo && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
               {t('export.videoDownloadZip')}
             </button>
             {serviceEnabled === false && (
-              <div className="text-[11px] text-gray-400 dark:text-gray-500">
+              <div className="text-[11px] text-muted-foreground">
                 {t('export.videoServiceHint')}
               </div>
             )}

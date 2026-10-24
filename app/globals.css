@@ -51,88 +51,169 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
-  --radius-2xl: calc(var(--radius) + 8px);
-  --radius-3xl: calc(var(--radius) + 12px);
-  --radius-4xl: calc(var(--radius) + 16px);
+  /* Dojo palette as Tailwind utilities: bg-washi, text-sumi, border-shu, ... */
+  --color-washi: var(--washi);
+  --color-washi-deep: var(--washi-deep);
+  --color-sumi: var(--sumi);
+  --color-shu: var(--shu);
+  --color-wood: var(--wood);
+  --color-gold: var(--gold);
+  --font-serif: var(--font-serif);
+  /* Dojo = nearly square corners. Every rounded-* utility derives from --radius. */
+  --radius-sm: calc(var(--radius) - 1px);
+  --radius-md: var(--radius);
+  --radius-lg: calc(var(--radius) + 1px);
+  --radius-xl: calc(var(--radius) + 2px);
+  --radius-2xl: calc(var(--radius) + 3px);
+  --radius-3xl: calc(var(--radius) + 4px);
+  --radius-4xl: calc(var(--radius) + 6px);
 }
 
+/* ═══════════════════════════════════════════════════════════════════
+   DOJO THEME — the ONE place to change colours, radius and fonts.
+   washi = rice paper, sumi = ink, shu = vermilion (stamp/seal),
+   wood = hinoki/dark timber, gold = kintsugi accent.
+   ═══════════════════════════════════════════════════════════════════ */
 :root {
-  /* Inter is loaded from @fontsource in app/layout.tsx, which declares one
-     @font-face per unicode subset. Previously this came from next/font wrapping
-     a single latin-only file, which left Cyrillic and Vietnamese text to OS
-     fallback fonts. */
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: #722ed1;
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.58 0.22 27);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  /* Headings/brand. Falls back to system Japanese/serif fonts if not loaded. */
+  --font-serif:
+    'Shippori Mincho', 'Noto Serif JP', 'Hiragino Mincho ProN', 'Yu Mincho', 'Times New Roman',
+    serif;
+
+  --washi: oklch(0.955 0.02 85);
+  --washi-deep: oklch(0.915 0.028 80);
+  --sumi: oklch(0.2 0.012 60);
+  --shu: oklch(0.5 0.17 27);
+  --wood: oklch(0.4 0.06 55);
+  --gold: oklch(0.7 0.1 85);
+
+  --background: var(--washi);
+  --foreground: var(--sumi);
+  --card: oklch(0.975 0.015 85);
+  --card-foreground: var(--sumi);
+  --popover: oklch(0.975 0.015 85);
+  --popover-foreground: var(--sumi);
+  --primary: var(--shu);
+  --primary-foreground: oklch(0.97 0.015 85);
+  --secondary: var(--washi-deep);
+  --secondary-foreground: var(--sumi);
+  --muted: oklch(0.93 0.022 82);
+  --muted-foreground: oklch(0.46 0.025 65);
+  --accent: oklch(0.89 0.032 78);
+  --accent-foreground: var(--sumi);
+  --destructive: oklch(0.5 0.2 27);
+  --border: oklch(0.78 0.035 75);
+  --input: oklch(0.78 0.035 75);
+  --ring: var(--shu);
+  --chart-1: oklch(0.5 0.17 27);
+  --chart-2: oklch(0.4 0.06 55);
+  --chart-3: oklch(0.42 0.09 255);
+  --chart-4: oklch(0.52 0.08 140);
+  --chart-5: oklch(0.7 0.1 85);
+  --radius: 0.125rem;
+  --sidebar: oklch(0.935 0.022 82);
+  --sidebar-foreground: var(--sumi);
+  --sidebar-primary: var(--shu);
+  --sidebar-primary-foreground: oklch(0.97 0.015 85);
+  --sidebar-accent: oklch(0.89 0.032 78);
+  --sidebar-accent-foreground: var(--sumi);
+  --sidebar-border: oklch(0.78 0.035 75);
+  --sidebar-ring: var(--shu);
 }
 
+/* Night dojo: warm charcoal walls (lifted for readability), paper-coloured text. */
 .dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: #8b47ea;
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.371 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.809 0.105 251.813);
-  --chart-2: oklch(0.623 0.214 259.815);
-  --chart-3: oklch(0.546 0.245 262.881);
-  --chart-4: oklch(0.488 0.243 264.376);
-  --chart-5: oklch(0.424 0.199 265.638);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --washi: oklch(0.3 0.012 60);
+  --washi-deep: oklch(0.35 0.014 58);
+  --sumi: oklch(0.95 0.016 85);
+  --shu: oklch(0.66 0.18 27);
+  --wood: oklch(0.66 0.07 60);
+  --gold: oklch(0.8 0.11 85);
+
+  --background: oklch(0.27 0.01 60);
+  --foreground: oklch(0.95 0.016 85);
+  --card: oklch(0.32 0.012 58);
+  --card-foreground: oklch(0.95 0.016 85);
+  --popover: oklch(0.32 0.012 58);
+  --popover-foreground: oklch(0.95 0.016 85);
+  --primary: oklch(0.66 0.18 27);
+  --primary-foreground: oklch(0.15 0.01 60);
+  --secondary: oklch(0.36 0.014 58);
+  --secondary-foreground: oklch(0.95 0.016 85);
+  --muted: oklch(0.35 0.014 58);
+  --muted-foreground: oklch(0.78 0.02 75);
+  --accent: oklch(0.42 0.02 60);
+  --accent-foreground: oklch(0.95 0.016 85);
+  --destructive: oklch(0.68 0.19 25);
+  --border: oklch(0.95 0.016 85 / 20%);
+  --input: oklch(0.95 0.016 85 / 24%);
+  --ring: oklch(0.66 0.18 27);
+  --chart-1: oklch(0.66 0.18 27);
+  --chart-2: oklch(0.66 0.07 60);
+  --chart-3: oklch(0.66 0.1 255);
+  --chart-4: oklch(0.68 0.09 140);
+  --chart-5: oklch(0.8 0.11 85);
+  --sidebar: oklch(0.3 0.01 58);
+  --sidebar-foreground: oklch(0.95 0.016 85);
+  --sidebar-primary: oklch(0.66 0.18 27);
+  --sidebar-primary-foreground: oklch(0.15 0.01 60);
+  --sidebar-accent: oklch(0.36 0.014 58);
+  --sidebar-accent-foreground: oklch(0.95 0.016 85);
+  --sidebar-border: oklch(0.95 0.016 85 / 18%);
+  --sidebar-ring: oklch(0.66 0.18 27);
 }
+
+/* ─── Dojo building blocks (use as plain classes in TSX) ─────────── */
+
+/* Washi paper: faint vertical fibres over the page colour. */
+.dojo-paper {
+  background-color: var(--background);
+  background-image:
+    repeating-linear-gradient(90deg, oklch(0.5 0.03 70 / 0.035) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(0deg, oklch(0.5 0.03 70 / 0.02) 0 1px, transparent 1px 11px);
+}
+.dark .dojo-paper {
+  background-image:
+    repeating-linear-gradient(90deg, oklch(1 0 0 / 0.02) 0 1px, transparent 1px 7px),
+    repeating-linear-gradient(0deg, oklch(1 0 0 / 0.012) 0 1px, transparent 1px 11px);
+}
+
+/* Shoji-style double frame: thin ink line + inner hairline. */
+.dojo-frame {
+  border: 1px solid color-mix(in oklab, var(--foreground) 55%, transparent);
+  box-shadow:
+    inset 0 0 0 3px var(--card),
+    inset 0 0 0 4px color-mix(in oklab, var(--foreground) 22%, transparent),
+    0 10px 28px -14px rgb(0 0 0 / 0.35);
+  transition: border-color 0.2s;
+}
+.dojo-frame:focus-within {
+  border-color: var(--shu);
+}
+
+/* Hanko (red seal) pill/badge. */
+.dojo-seal {
+  background: var(--shu);
+  color: var(--primary-foreground);
+  border-radius: 2px;
+  font-family: var(--font-serif);
+  letter-spacing: 0.08em;
+}
+
+/* Brush-stroke divider under headings. */
+.dojo-rule {
+  height: 3px;
+  background: linear-gradient(90deg, var(--shu), var(--shu) 28%, transparent);
+  border-radius: 0 2px 2px 0;
+}
+
+.font-serif,
+.dojo-heading {
+  font-family: var(--font-serif);
+  letter-spacing: 0.04em;
+}
+
 
 @layer base {
   * {
@@ -287,7 +368,7 @@ body[data-maic-editor='true'] .editable-element-text li,
   scrollbar-width: none;
 }
 
-/* PBL v2 workspace scrollbars: scoped so the rest of OpenMAIC keeps native behavior. */
+/* PBL v2 workspace scrollbars: scoped so the rest of EduDojo keeps native behavior. */
 [data-pbl-workspace='true'] .pbl-v2-scrollbar,
 [data-pbl-workspace='true'] .pbl-v2-scroll-fade {
   scrollbar-color: rgb(224 231 255 / 0.44) transparent;

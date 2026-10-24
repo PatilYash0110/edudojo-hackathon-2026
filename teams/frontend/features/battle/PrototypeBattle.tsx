@@ -683,7 +683,8 @@ export default function PrototypeBattle({
       : 'faceoff';
 
   return (
-    <div className={styles.shell} data-full-motion={fullMotion} data-weapon={weapon}>
+    // `dark`: the arena always uses the night-dojo tokens; glows and trails are tuned for a dark stage.
+    <div className={`dark ${styles.shell}`} data-full-motion={fullMotion} data-weapon={weapon}>
       <header className={styles.header}>
         <h1>
           EDUDOJO <small>Combat test · 1 vs 1</small>

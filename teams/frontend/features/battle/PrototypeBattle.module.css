@@ -1,34 +1,20 @@
 /* Scoped to the temporary battle prototype; the other teams' pages keep their layout. */
 :global(.dojo-root):has(.shell) {
-  background: #111e22;
+  background: oklch(0.27 0.01 60);
 }
 :global(.dojo-root):has(.shell) > main {
   max-width: none;
   padding: 0;
 }
-:global(.dojo-root):has(.shell) > nav {
-  min-height: 34px;
-  padding: 7px 24px;
-  gap: 18px;
-  border-color: #ffffff0e;
-  color: #a2b0ad;
-  background: #101b20;
-  font-size: 10px;
-}
-:global(.dojo-root):has(.shell) > nav a:hover {
-  color: #eed29a;
-}
 
 .shell {
-  --gold: #e5c48b;
-  --paper: #faf1dc;
-  --muted: #bbc5c0;
-  --ink: #142429;
+  /* Night-dojo palette: .shell also carries the global `dark` class, so --gold,
+     --shu, --foreground, --card... resolve to app/globals.css .dark tokens.
+     --teal stays: it is the player's energy colour, part of the game art. */
   --teal: #8cdbcf;
-  --red: #ef8675;
-  color: var(--paper);
-  background: var(--ink);
-  font-family: Arial, Helvetica, sans-serif;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
 }
 .shell button,
 .shell input,
@@ -44,7 +30,7 @@
 .shell button:focus-visible,
 .shell input:focus-visible,
 .shell select:focus-visible {
-  outline: 2px solid var(--paper);
+  outline: 2px solid var(--foreground);
   outline-offset: 5px;
 }
 .header {
@@ -53,8 +39,8 @@
   align-items: center;
   justify-content: space-between;
   padding: 0 3.5%;
-  border-bottom: 1px solid #e5c48b26;
-  background: #122127;
+  border-bottom: 1px solid var(--border);
+  background: var(--card);
 }
 
 .header h1 {
@@ -67,31 +53,31 @@
   font-size: 10px;
   font-weight: 400;
   letter-spacing: 0;
-  color: var(--muted);
+  color: var(--muted-foreground);
 }
 .header > span {
   font-size: 11px;
-  color: var(--muted);
+  color: var(--muted-foreground);
 }
 .resetButton {
   display: flex;
   align-items: center;
   gap: 9px;
-  color: #c4cec6;
+  color: var(--foreground);
   background: transparent;
-  border: 1px solid #e5c48b30;
+  border: 1px solid var(--border);
   padding: 10px 16px;
   font-size: 11px !important;
 }
 .resetButton:hover {
-  color: var(--paper);
+  color: var(--foreground);
   border-color: var(--gold);
 }
 .motionControl {
   display: flex;
   align-items: center;
   gap: 6px;
-  color: var(--muted);
+  color: var(--muted-foreground);
   font-size: 11px;
 }
 .devControl,
@@ -99,15 +85,15 @@
   display: flex;
   align-items: center;
   gap: 7px;
-  color: var(--muted);
+  color: var(--muted-foreground);
   font-size: 10px;
   letter-spacing: 0.08em;
 }
 .devControl select,
 .equipmentControl select {
-  color: var(--paper);
-  background: #0e1a1f;
-  border: 1px solid #e5c48b38;
+  color: var(--foreground);
+  background: var(--background);
+  border: 1px solid var(--border);
   padding: 6px 9px;
 }
 .equipmentControl select {
@@ -121,7 +107,7 @@
   height: calc(100svh - 135px);
   min-height: 660px;
   max-height: 1000px;
-  background: #183333;
+  background: oklch(0.24 0.012 60);
 }
 .world {
   position: absolute;
@@ -134,7 +120,7 @@
   left: 50%;
   bottom: 2.2%;
   z-index: 4;
-  color: #c9d0cb80;
+  color: color-mix(in oklab, var(--foreground) 50%, transparent);
   font-size: 8px;
   letter-spacing: 0.16em;
   transform: translateX(-50%);
@@ -148,21 +134,21 @@
   display: grid;
   justify-items: center;
   width: 104px;
-  color: #f9eed6;
+  color: var(--foreground);
   text-align: center;
   text-shadow: 0 2px 7px #000;
   transform: translateX(-50%);
   pointer-events: none;
 }
 .questionTimer small {
-  color: #dac397;
+  color: var(--gold);
   font-size: 8px;
   font-weight: 700;
   letter-spacing: 0.18em;
 }
 .questionTimer strong {
   font:
-    46px/1 Georgia,
+    46px/1 var(--font-serif),
     serif;
   font-variant-numeric: tabular-nums;
 }
@@ -177,15 +163,15 @@
 .questionTimer > span i {
   display: block;
   height: 100%;
-  background: #e7ca8e;
+  background: var(--gold);
   transition: width 180ms linear;
 }
 .questionTimer[data-low='true'] strong {
-  color: #ff907d;
+  color: var(--shu);
   animation: timerPulse 500ms ease-in-out infinite alternate;
 }
 .questionTimer[data-low='true'] > span i {
-  background: #ff7768;
+  background: var(--shu);
 }
 .questionTimer[data-locked='true'] {
   opacity: 0.48;
@@ -198,14 +184,14 @@
   display: grid;
   justify-items: center;
   width: 132px;
-  color: #fff1d0;
+  color: var(--foreground);
   text-align: center;
   text-shadow: 0 2px 8px #000;
   transform: translateX(-50%);
   pointer-events: none;
 }
 .decisionTimer small {
-  color: #f0c274;
+  color: var(--gold);
   font-size: 8px;
   font-weight: 800;
   letter-spacing: 0.24em;
@@ -213,7 +199,7 @@
 .decisionTimer strong {
   margin-top: 2px;
   font:
-    42px/1 Georgia,
+    42px/1 var(--font-serif),
     serif;
   font-variant-numeric: tabular-nums;
 }
@@ -228,11 +214,11 @@
 .decisionTimer > span i {
   display: block;
   height: 100%;
-  background: linear-gradient(90deg, #ee735e, #f5d18c);
+  background: linear-gradient(90deg, var(--shu), var(--gold));
   transition: width 90ms linear;
 }
 .decisionTimer[data-low='true'] strong {
-  color: #ff7869;
+  color: var(--shu);
   animation: timerPulse 240ms ease-in-out infinite alternate;
 }
 .backdrop {
@@ -241,17 +227,30 @@
   z-index: -4;
   overflow: hidden;
   background:
-    linear-gradient(90deg, transparent 49.7%, #d7b77724 49.8% 50.2%, transparent 50.3%),
-    linear-gradient(#1b3038 0 57%, #0b171d 57% 100%);
+    linear-gradient(
+      90deg,
+      transparent 49.7%,
+      color-mix(in oklab, var(--gold) 14%, transparent) 49.8% 50.2%,
+      transparent 50.3%
+    ),
+    linear-gradient(oklch(0.3 0.025 55) 0 57%, oklch(0.2 0.015 55) 57% 100%);
 }
 .backdrop::after {
   content: '';
   position: absolute;
   inset: 57% 0 0;
   background-image:
-    repeating-linear-gradient(0deg, #91a4a214 0 1px, transparent 1px 44px),
-    repeating-linear-gradient(90deg, #91a4a214 0 1px, transparent 1px 66px);
-  border-top: 2px solid #d7b77729;
+    repeating-linear-gradient(
+      0deg,
+      color-mix(in oklab, var(--foreground) 6%, transparent) 0 1px,
+      transparent 1px 44px
+    ),
+    repeating-linear-gradient(
+      90deg,
+      color-mix(in oklab, var(--foreground) 6%, transparent) 0 1px,
+      transparent 1px 66px
+    );
+  border-top: 2px solid color-mix(in oklab, var(--gold) 16%, transparent);
 }
 .atmosphere {
   position: absolute;
@@ -259,14 +258,26 @@
   z-index: -3;
   pointer-events: none;
   background:
-    linear-gradient(90deg, #061e25bd, transparent 55%),
-    linear-gradient(0deg, #0b1925f5, #11282d28 40%, #14292e30 75%, #1020289c);
+    linear-gradient(90deg, oklch(0.17 0.0116 0.01 60 / 0.74), transparent 55%),
+    linear-gradient(
+      0deg,
+      oklch(0.17 0.01 60 / 0.96),
+      oklch(0.2 0.01 60 / 0.16) 40%,
+      oklch(0.2 0.01 60 / 0.19) 75%,
+      oklch(0.18 0.01 60 / 0.61)
+    );
 }
 .arena[data-standoff='true'] .atmosphere {
   background:
     radial-gradient(circle at 53% 57%, #d4845524, transparent 19%),
-    linear-gradient(90deg, #061e25d9, transparent 45% 60%, #1f1113a8),
-    linear-gradient(0deg, #0b1925f5, #11282d28 40%, #14292e30 75%, #1020289c);
+    linear-gradient(90deg, oklch(0.16 0.01 60 / 0.85), transparent 45% 60%, #1f1113a8),
+    linear-gradient(
+      0deg,
+      oklch(0.17 0.01 60 / 0.96),
+      oklch(0.2 0.01 60 / 0.16) 40%,
+      oklch(0.2 0.01 60 / 0.19) 75%,
+      oklch(0.18 0.01 60 / 0.61)
+    );
   animation: standoffPulse 850ms ease-in-out infinite alternate;
 }
 .arena::after {
@@ -275,7 +286,7 @@
   inset: 0;
   z-index: 1;
   pointer-events: none;
-  box-shadow: inset 0 0 160px #0e252a78;
+  box-shadow: inset 0 0 160px oklch(0.15 0.01 60 / 0.47);
 }
 
 .enemyHud {
@@ -298,13 +309,13 @@
 .enemyHud h3 {
   margin: 6px 0 12px;
   font:
-    24px Georgia,
+    24px var(--font-serif),
     serif;
 }
 .hpTrack {
   height: 5px;
-  background: #09171cbf;
-  border: 1px solid #efd8b342;
+  background: oklch(0.17 0.01 60 / 0.75);
+  border: 1px solid color-mix(in oklab, var(--gold) 26%, transparent);
   transform: skewX(-20deg);
   overflow: hidden;
 }
@@ -318,7 +329,7 @@
 .enemyHud > small {
   display: block;
   margin-top: 7px;
-  color: #ddd8cb;
+  color: var(--foreground);
   font-size: 10px;
   letter-spacing: 0.08em;
 }
@@ -541,7 +552,7 @@
   right: 5%;
   height: 7%;
   border-radius: 50%;
-  background: #00171bd9;
+  background: oklch(0.12 0.01 60 / 0.85);
   filter: blur(10px);
   transform: rotate(-6deg);
 }
@@ -693,7 +704,7 @@
   top: 35%;
   color: #ffbba4;
   font:
-    46px Georgia,
+    46px var(--font-serif),
     serif;
   text-shadow: 0 0 20px #ce4b45;
   opacity: 0.7;
@@ -728,9 +739,9 @@
   gap: 13px;
   width: 100%;
   padding: 9px 15px;
-  border: 1px solid #cdb47a55;
-  color: var(--paper);
-  background: #10242bd9;
+  border: 1px solid color-mix(in oklab, var(--gold) 33%, transparent);
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--card) 85%, transparent);
   text-align: left;
   transition:
     background 120ms,
@@ -738,8 +749,8 @@
 }
 .commandFan button.commandSelected:not(:disabled),
 .commandFan button:hover:not(:disabled) {
-  color: var(--paper);
-  background: #21383d;
+  color: var(--foreground);
+  background: var(--accent);
   border-color: var(--gold);
 }
 .commandFan button:focus-visible {
@@ -754,7 +765,7 @@
   border: 1px solid currentColor;
   border-radius: 50%;
   font:
-    12px Georgia,
+    12px var(--font-serif),
     serif;
 }
 .commandFan button > svg {
@@ -766,7 +777,7 @@
 .commandFan strong {
   display: block;
   font:
-    normal 23px Georgia,
+    normal 23px var(--font-serif),
     serif;
   white-space: nowrap;
 }
@@ -792,25 +803,25 @@
 .commandDescription {
   padding: 14px 0 0 13px;
   margin-top: 7px;
-  border-left: 1px solid #e5c48b66;
+  border-left: 1px solid color-mix(in oklab, var(--gold) 40%, transparent);
   text-shadow: 0 1px 6px #000;
 }
 .commandDescription p {
   font:
-    italic 14px/1.4 Georgia,
+    italic 14px/1.4 var(--font-serif),
     serif;
   margin: 0 0 6px;
-  color: #fff2d6;
+  color: var(--foreground);
 }
 .commandDescription small {
-  color: #c9cfc2;
+  color: var(--muted-foreground);
   font-size: 10px;
 }
 .controlHint {
   display: flex;
   align-items: center;
   gap: 4px;
-  color: #c5c6b7;
+  color: var(--muted-foreground);
   font-size: 8px;
   margin: 17px 0 0 4px;
 }
@@ -819,12 +830,12 @@
   opacity: 0.5;
 }
 .controlHint kbd {
-  border-bottom: 1px solid #cfc6a988;
+  border-bottom: 1px solid var(--border);
   min-width: 13px;
   padding: 3px;
   text-align: center;
   font:
-    9px Georgia,
+    9px var(--font-serif),
     serif;
 }
 
@@ -844,7 +855,7 @@
 }
 .playerHud h3 {
   font:
-    21px Georgia,
+    21px var(--font-serif),
     serif;
   margin: 5px 0 10px;
 }
@@ -855,15 +866,15 @@
   display: flex;
   justify-content: space-between;
   align-items: baseline;
-  color: #c4ccc5;
+  color: var(--muted-foreground);
   font-size: 9px;
   margin-top: 5px;
 }
 .playerHud small b {
   font:
-    23px Georgia,
+    23px var(--font-serif),
     serif;
-  color: var(--paper);
+  color: var(--foreground);
   margin-right: 3px;
 }
 .playerHud small em {
@@ -882,9 +893,9 @@
   width: 34%;
   margin: 0;
   z-index: 4;
-  color: #d6d6c7;
+  color: var(--muted-foreground);
   font:
-    italic 11px/1.5 Georgia,
+    italic 11px/1.5 var(--font-serif),
     serif;
   text-align: right;
 }
@@ -894,15 +905,15 @@
   justify-content: space-between;
   min-height: 39px;
   padding: 0 3.5%;
-  background: #101d22;
-  border-top: 1px solid #e5c48b20;
-  color: #90a4a4;
+  background: var(--card);
+  border-top: 1px solid var(--border);
+  color: var(--muted-foreground);
   font-size: 8px;
   letter-spacing: 0.1em;
 }
 .footer p {
   font:
-    italic 11px Georgia,
+    italic 11px var(--font-serif),
     serif;
   letter-spacing: 0;
   margin: 0;
@@ -920,8 +931,8 @@
   overflow-y: auto;
   z-index: 8;
   padding: 23px 27px;
-  background: #10252aed;
-  border: 1px solid #dfc69570;
+  background: color-mix(in oklab, var(--card) 94%, transparent);
+  border: 1px solid color-mix(in oklab, var(--foreground) 45%, transparent);
   box-shadow: 0 16px 38px #0006;
 }
 .questionPanel::before {
@@ -947,18 +958,18 @@
 .questionHeader h2 {
   margin: 0;
   font:
-    28px Georgia,
+    28px var(--font-serif),
     serif;
 }
 .questionHeader > span {
   font:
-    28px Georgia,
+    28px var(--font-serif),
     serif;
   color: var(--gold);
 }
 .questionHeader > span small {
   font-size: 13px;
-  color: #a8b7b4;
+  color: var(--muted-foreground);
 }
 .questionPanel fieldset {
   border: 0;
@@ -966,7 +977,7 @@
   margin: 0;
 }
 .questionPanel legend {
-  color: var(--paper);
+  color: var(--foreground);
   margin-bottom: 14px;
   font-size: 14px;
   line-height: 1.5;
@@ -982,8 +993,8 @@
   gap: 13px;
   min-height: 41px;
   padding: 8px 14px;
-  border: 1px solid #bfc7b42c;
-  background: #f4dcac04;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--foreground) 2%, transparent);
   cursor: pointer;
   transition:
     background 140ms,
@@ -1004,11 +1015,11 @@
   place-items: center;
   width: 23px;
   height: 23px;
-  border: 1px solid #d9bd7e88;
+  border: 1px solid color-mix(in oklab, var(--gold) 55%, transparent);
   color: var(--gold);
   border-radius: 50%;
   font:
-    11px Georgia,
+    11px var(--font-serif),
     serif;
 }
 .options label > b {
@@ -1018,7 +1029,7 @@
 }
 .options .optionSelected,
 .options label:hover {
-  background: #e5c48b15;
+  background: var(--accent);
   border-color: var(--gold);
 }
 .options svg {
@@ -1027,14 +1038,14 @@
 .typedInput {
   width: 100%;
   padding: 13px;
-  background: #07171d90;
-  border: 1px solid #e5c48b66;
-  color: var(--paper);
+  background: var(--background);
+  border: 1px solid var(--input);
+  color: var(--foreground);
   border-radius: 0;
   font-size: 15px !important;
 }
 .typedInput::placeholder {
-  color: #9faeaa;
+  color: var(--muted-foreground);
 }
 .questionActions {
   display: flex;
@@ -1047,14 +1058,14 @@
   max-width: 260px;
   font-size: 10px;
   line-height: 1.5;
-  color: #b2c1bc;
+  color: var(--muted-foreground);
 }
 .autoAdvance {
   flex: none;
   padding: 8px 11px;
   color: var(--gold);
-  border: 1px solid #e5c48b45;
-  background: #07171d75;
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--background) 60%, transparent);
   font-size: 9px;
   font-weight: 700;
   letter-spacing: 0.11em;
@@ -1066,22 +1077,22 @@
   gap: 12px;
   min-height: 42px;
   padding: 10px 17px;
-  color: #13252a;
-  background: #e5c48b;
-  border: 1px solid #f6dfb7;
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border: 1px solid var(--primary);
   font-size: 11px !important;
   font-weight: 700 !important;
   white-space: nowrap;
 }
 .primaryButton:hover:not(:disabled) {
-  background: #f8e2b5;
+  background: color-mix(in oklab, var(--primary) 88%, white);
 }
 .primaryButton:disabled {
   opacity: 0.4;
 }
 .primaryButton kbd {
   font-size: 9px;
-  border: 1px solid #13252a80;
+  border: 1px solid color-mix(in oklab, var(--primary-foreground) 50%, transparent);
   padding: 3px;
 }
 .feedbackCorrect,
@@ -1092,7 +1103,7 @@
   background: #9bded60b;
 }
 .feedbackWrong {
-  border-color: var(--red);
+  border-color: var(--shu);
   background: #ef86750a;
 }
 .feedbackCorrect strong,
@@ -1102,7 +1113,7 @@
   font-size: 11px;
 }
 .feedbackWrong strong {
-  color: var(--red);
+  color: var(--shu);
 }
 .feedbackCorrect span,
 .feedbackWrong span {
@@ -1110,7 +1121,7 @@
   margin-top: 5px;
   font-size: 10px;
   line-height: 1.5;
-  color: #bac8c2;
+  color: var(--muted-foreground);
 }
 .chargeMeter {
   display: flex;
@@ -1143,30 +1154,35 @@
   z-index: 8;
   padding: 20px;
   text-align: center;
-  background: radial-gradient(ellipse, #09242ae8, #0d252add 65%, transparent);
+  background: radial-gradient(
+    ellipse,
+    oklch(0.2 0.01 60 / 0.91),
+    oklch(0.22 0.01 60 / 0.87) 65%,
+    transparent
+  );
 }
 .reactivePanel h2 {
   font:
-    28px Georgia,
+    28px var(--font-serif),
     serif;
   margin: 0 0 7px;
 }
 .reactivePanel > p:not(.eyebrow) {
   font:
-    italic 12px/1.5 Georgia,
+    italic 12px/1.5 var(--font-serif),
     serif;
-  color: #d4d9cf;
+  color: var(--foreground);
   margin: 5px 0;
 }
 .reactivePanel .eyebrow {
-  color: var(--red);
+  color: var(--shu);
   margin-bottom: 8px;
 }
 .reactivePanel > small {
   display: block;
   font-size: 9px;
   line-height: 1.5;
-  color: #c1cbbf;
+  color: var(--muted-foreground);
   margin-top: 10px;
 }
 .timingStage {
@@ -1176,14 +1192,17 @@
   width: 170px;
   height: 170px;
   margin: 5px auto 10px;
-  background: repeating-conic-gradient(#d1b88c33 0deg 1deg, transparent 1deg 30deg);
-  border: 1px solid #e5c48b40;
+  background: repeating-conic-gradient(
+    color-mix(in oklab, var(--gold) 20%, transparent) 0deg 1deg,
+    transparent 1deg 30deg
+  );
+  border: 1px solid color-mix(in oklab, var(--gold) 25%, transparent);
   border-radius: 50%;
 }
 .timingRing {
   position: absolute;
   inset: 0;
-  border: 3px solid var(--red);
+  border: 3px solid var(--shu);
   border-radius: 50%;
   animation: converge var(--windup) linear forwards;
 }
@@ -1192,8 +1211,8 @@
   place-items: center;
   width: 65px;
   height: 65px;
-  background: #13252b;
-  border: 1px solid #e5c48b88;
+  background: var(--card);
+  border: 1px solid color-mix(in oklab, var(--gold) 53%, transparent);
   border-radius: 50%;
   font-size: 10px;
   font-weight: bold;
@@ -1201,7 +1220,7 @@
 }
 .reactivePanel[data-phase='impact'] .timingCore {
   background: var(--gold);
-  color: var(--ink);
+  color: var(--background);
   box-shadow: 0 0 45px #e5c48b70;
 }
 .reactivePanel[data-phase='impact'] .timingRing {
@@ -1209,11 +1228,11 @@
 }
 .reactivePanel[data-phase='success'] .timingCore {
   background: var(--teal);
-  color: var(--ink);
+  color: var(--background);
 }
 .reactivePanel[data-phase='miss'] .timingCore {
   background: #833c34;
-  color: var(--paper);
+  color: var(--foreground);
 }
 .result {
   position: absolute;
@@ -1224,27 +1243,27 @@
   justify-content: center;
   align-items: center;
   text-align: center;
-  background: #061e26bd;
+  background: oklch(0.16 0.01 60 / 0.74);
   backdrop-filter: blur(8px);
   padding: 24px;
 }
 .result > span {
   color: var(--gold);
   font:
-    100px Georgia,
+    100px var(--font-serif),
     serif;
   margin-bottom: 12px;
 }
 .result h2 {
   font:
-    52px Georgia,
+    52px var(--font-serif),
     serif;
   margin: 0 0 10px;
 }
 .result > p:not(.eyebrow) {
-  color: #d0d9cc;
+  color: var(--foreground);
   font:
-    italic 16px/1.6 Georgia,
+    italic 16px/1.6 var(--font-serif),
     serif;
   max-width: 450px;
 }
@@ -1325,7 +1344,7 @@
   left: 44%;
   color: white;
   font:
-    italic 44px Georgia,
+    italic 44px var(--font-serif),
     serif;
   text-shadow: 0 2px 4px #000;
   animation: damageFloat 650ms var(--hit-delay) both;
@@ -1421,7 +1440,7 @@
   top: 29%;
   color: #efffff;
   font:
-    italic 70px Georgia,
+    italic 70px var(--font-serif),
     serif;
   text-shadow: 0 0 20px #87fbec;
   animation: damageFloat 650ms 1050ms both;
@@ -2382,10 +2401,16 @@
   .backdrop {
     background:
       radial-gradient(circle at 76% 13%, #b9554c 0 4%, transparent 4.2%),
-      linear-gradient(#182b35 0 43%, #0b171d 43% 100%);
+      linear-gradient(oklch(0.3 0.025 55) 0 43%, oklch(0.2 0.015 55) 43% 100%);
   }
   .atmosphere {
-    background: linear-gradient(0deg, #0b1925 7%, #0b1925c9 45%, #14292e10 80%, #1020289c);
+    background: linear-gradient(
+      0deg,
+      oklch(0.17 0.01 60) 7%,
+      oklch(0.17 0.01 60 / 0.79) 45%,
+      oklch(0.2 0.01 60 / 0.06) 80%,
+      oklch(0.18 0.01 60 / 0.61)
+    );
   }
   .enemyHud {
     top: 16%;
