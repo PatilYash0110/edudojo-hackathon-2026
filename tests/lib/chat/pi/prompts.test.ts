@@ -136,6 +136,24 @@ describe('Pi director prompt closure routing', () => {
     expect(prompt).toContain('Runtime automatically attaches the pending scene evidence');
   });
 
+  it('applies the stage language directive to learner-facing cue text', () => {
+    const languageDirective = 'Teach only in English.';
+    const body = makeBody({
+      storeState: {
+        stage: { id: 'stage-1', name: 'City Cooling', languageDirective },
+        scenes: [],
+        currentSceneId: null,
+        mode: 'autonomous',
+        whiteboardOpen: false,
+      } as never,
+    });
+
+    const prompt = buildDirectorPrompt(body, agents, 4);
+
+    expect(prompt).toContain(`# Language (CRITICAL)\n${languageDirective}`);
+    expect(prompt).toContain('cue_user prompt and options');
+  });
+
   it('keeps scene-to-outline identity stable after scene orders are rebalanced', () => {
     const body = makeBody({
       storeState: {
