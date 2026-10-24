@@ -1266,12 +1266,10 @@ export function Roundtable({
         {/* Left: Teacher identity */}
         <div
           className={cn(
-            'w-[90px] shrink-0 flex flex-col border-r border-border/50 bg-white/40 dark:bg-muted/40 overflow-visible relative transition-opacity duration-300',
+            'w-[90px] shrink-0 flex flex-col border-r border-border/50 bg-card/40 overflow-visible relative transition-opacity duration-300',
             isPresenting && !controlsVisible && 'opacity-0 pointer-events-none',
           )}
         >
-          {/* Decorative Element (Top) */}
-          <div className="absolute top-0 inset-x-0 h-16 bg-gradient-to-b from-primary/50 to-transparent pointer-events-none" />
           <div className="absolute top-3 inset-x-0 flex flex-col items-center justify-center gap-1 opacity-10 pointer-events-none">
             <BookOpen size={20} className="text-primary" />
             <div className="w-8 h-0.5 bg-primary rounded-full" />
