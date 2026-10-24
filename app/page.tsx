@@ -724,7 +724,10 @@ function HomePage() {
   };
 
   return (
-    <div style={stageVars} className="relative isolate min-h-[100dvh] w-full flex flex-col items-center p-4 pt-16 md:p-8 md:pt-16 pl-[calc(var(--stage-l)+1rem)] pr-[calc(var(--stage-r)+1rem)] md:pl-[calc(var(--stage-l)+2rem)] md:pr-[calc(var(--stage-r)+12rem)] lg:pr-[calc(var(--stage-r)+15rem)] xl:pr-[calc(var(--stage-r)+17rem)] 2xl:pr-[calc(var(--stage-r)+18rem)] overflow-x-hidden">
+    <div
+      style={stageVars}
+      className="relative isolate min-h-[100dvh] w-full flex flex-col items-center p-4 pt-16 md:p-8 md:pt-16 pl-[calc(var(--stage-l)+1rem)] pr-[calc(var(--stage-r)+1rem)] md:pl-[calc(var(--stage-l)+2rem)] md:pr-[calc(var(--stage-r)+12rem)] lg:pr-[calc(var(--stage-r)+15rem)] xl:pr-[calc(var(--stage-r)+17rem)] 2xl:pr-[calc(var(--stage-r)+18rem)] overflow-x-hidden"
+    >
       <input
         ref={fileInputRef}
         type="file"
@@ -772,8 +775,7 @@ function HomePage() {
                 }}
                 className={cn(
                   'w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2',
-                  theme === 'light' &&
-                    'bg-accent text-primary',
+                  theme === 'light' && 'bg-accent text-primary',
                 )}
               >
                 <Sun className="w-4 h-4" />
@@ -786,8 +788,7 @@ function HomePage() {
                 }}
                 className={cn(
                   'w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2',
-                  theme === 'dark' &&
-                    'bg-accent text-primary',
+                  theme === 'dark' && 'bg-accent text-primary',
                 )}
               >
                 <Moon className="w-4 h-4" />
@@ -800,8 +801,7 @@ function HomePage() {
                 }}
                 className={cn(
                   'w-full px-4 py-2 text-left text-sm hover:bg-accent transition-colors flex items-center gap-2',
-                  theme === 'system' &&
-                    'bg-accent text-primary',
+                  theme === 'system' && 'bg-accent text-primary',
                 )}
               >
                 <Monitor className="w-4 h-4" />
@@ -935,10 +935,7 @@ function HomePage() {
             </span>
           </div>
           {workbenchEntryEnabled ? (
-            <div
-              className="absolute left-full top-1 ml-2 md:top-3 md:ml-3"
-              data-pro-morph="badge"
-            >
+            <div className="absolute left-full top-1 ml-2 md:top-3 md:ml-3" data-pro-morph="badge">
               <ProBadge active={false} onToggle={enterWorkbench} />
             </div>
           ) : null}
@@ -957,10 +954,7 @@ function HomePage() {
 
         {/* ── Unified input area ── */}
         <div className={cn('w-full', heroEnter('fade-in zoom-in-97 duration-300 delay-350'))}>
-          <div
-            data-pro-morph="composer"
-            className="w-full rounded-sm bg-card dojo-frame"
-          >
+          <div data-pro-morph="composer" className="w-full rounded-sm bg-card dojo-frame">
             {/* ── Greeting + Profile + Agents ── */}
             <div className="relative z-20 flex items-start justify-between">
               <GreetingBar />
@@ -1070,10 +1064,10 @@ function HomePage() {
                   )}
                 >
                   <span className="rounded-full bg-cyan-100 px-1.5 py-0.5 text-[10px] font-semibold uppercase tracking-normal text-cyan-700 dark:bg-cyan-900/45 dark:text-cyan-300">
-                    测试功能
+                    Beta
                   </span>
                   <Sparkles className="size-3.5" />
-                  <span>职教任务</span>
+                  <span>Vocational task</span>
                   <span
                     className={cn(
                       'relative h-3.5 w-6 rounded-full transition-colors',
@@ -1090,7 +1084,7 @@ function HomePage() {
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom" className="text-xs">
-                从当前输入框提交职教实操训练测试
+                Submit the current prompt as a vocational hands-on training test
               </TooltipContent>
             </Tooltip>
           </motion.div>
@@ -1147,10 +1141,7 @@ function HomePage() {
                   {currentFolder ? currentFolderClassrooms.length : classrooms.length}
                 </span>
               ) : (
-                <span
-                  aria-hidden
-                  className="h-3 w-4 rounded-sm bg-muted animate-pulse"
-                />
+                <span aria-hidden className="h-3 w-4 rounded-sm bg-muted animate-pulse" />
               )}
               <motion.div
                 animate={{ rotate: recentOpen ? 180 : 0 }}
@@ -1474,9 +1465,7 @@ function HomePage() {
       />
 
       {/* Footer — flows with content, at the very end */}
-      <div className="mt-auto pt-12 pb-4 text-center text-sm text-muted-foreground">
-        EduDojo
-      </div>
+      <div className="mt-auto pt-12 pb-4 text-center text-sm text-muted-foreground">EduDojo</div>
     </div>
   );
 }
@@ -2104,7 +2093,8 @@ function LevelPanel() {
                   active
                     ? 'border-primary bg-accent text-foreground'
                     : 'border-transparent hover:border-border hover:bg-accent/60',
-                  locked && 'cursor-not-allowed opacity-45 hover:border-transparent hover:bg-transparent',
+                  locked &&
+                    'cursor-not-allowed opacity-45 hover:border-transparent hover:bg-transparent',
                 )}
               >
                 <span
@@ -2115,9 +2105,7 @@ function LevelPanel() {
                   <span className="block font-serif text-base font-semibold leading-tight">
                     Lv.{lvl.level} {lvl.kanji}
                   </span>
-                  <span className="block truncate text-xs text-muted-foreground">
-                    {lvl.romaji}
-                  </span>
+                  <span className="block truncate text-xs text-muted-foreground">{lvl.romaji}</span>
                 </span>
                 {locked && <Lock className="size-3.5 shrink-0 text-muted-foreground" />}
               </button>

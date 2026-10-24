@@ -1689,7 +1689,7 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
       <div
         ref={stageRef}
         className={cn(
-          'flex-1 flex overflow-hidden bg-gray-50 dark:bg-gray-900',
+          'flex-1 flex overflow-hidden bg-background',
           isPresenting && !controlsVisible && 'cursor-none',
         )}
       >
@@ -2066,36 +2066,36 @@ export const PlaybackChromeRoot = forwardRef<PlaybackChromeRootHandle, PlaybackC
         >
           <AlertDialogContent
             container={isPresenting ? stageRef.current : undefined}
-            className="max-w-sm rounded-2xl p-0 overflow-hidden border-0 shadow-[0_25px_60px_-12px_rgba(0,0,0,0.15)] dark:shadow-[0_25px_60px_-12px_rgba(0,0,0,0.5)]"
+            className="max-w-sm rounded-sm p-0 overflow-hidden border border-border shadow-[0_24px_60px_-18px_rgba(0,0,0,0.45)]"
           >
             <VisuallyHidden.Root>
               <AlertDialogTitle>{t('stage.confirmSwitchTitle')}</AlertDialogTitle>
             </VisuallyHidden.Root>
             {/* Top accent bar */}
-            <div className="h-1 bg-gradient-to-r from-amber-400 via-orange-400 to-red-400" />
+            <div className="dojo-rule h-1 rounded-none" />
 
             <div className="px-6 pt-5 pb-2 flex flex-col items-center text-center">
               {/* Icon */}
-              <div className="w-12 h-12 rounded-full bg-amber-50 dark:bg-amber-900/20 flex items-center justify-center mb-4 ring-1 ring-amber-200/50 dark:ring-amber-700/30">
-                <AlertTriangle className="w-6 h-6 text-amber-500 dark:text-amber-400" />
+              <div className="w-12 h-12 rounded-sm bg-[color-mix(in_oklab,var(--gold)_18%,var(--card))] flex items-center justify-center mb-4 ring-1 ring-[var(--gold)]/40">
+                <AlertTriangle className="w-6 h-6 text-[var(--wood)]" />
               </div>
               {/* Title */}
-              <h3 className="text-base font-bold text-gray-900 dark:text-gray-100 mb-1.5">
+              <h3 className="dojo-heading text-base font-bold text-foreground mb-1.5">
                 {t('stage.confirmSwitchTitle')}
               </h3>
               {/* Description */}
-              <p className="text-sm text-gray-500 dark:text-gray-400 leading-relaxed">
+              <p className="text-sm text-muted-foreground leading-relaxed">
                 {t('stage.confirmSwitchMessage')}
               </p>
             </div>
 
             <AlertDialogFooter className="px-6 pb-5 pt-3 flex-row gap-3">
-              <AlertDialogCancel onClick={cancelSceneSwitch} className="flex-1 rounded-xl">
+              <AlertDialogCancel onClick={cancelSceneSwitch} className="flex-1 rounded-sm">
                 {t('common.cancel')}
               </AlertDialogCancel>
               <AlertDialogAction
                 onClick={confirmSceneSwitch}
-                className="flex-1 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white border-0 shadow-md shadow-amber-200/50 dark:shadow-amber-900/30"
+                className="flex-1 rounded-sm bg-primary text-primary-foreground hover:bg-primary/90 border-0 shadow-sm"
               >
                 {t('common.confirm')}
               </AlertDialogAction>

@@ -271,7 +271,9 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
           transition: isDragging ? 'none' : 'width 0.3s ease',
         }}
         className={cn(
-          'bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl border-l border-gray-100 dark:border-gray-800 shadow-[-2px_0_24px_rgba(0,0,0,0.02)] flex flex-col shrink-0 z-20 relative overflow-visible',
+          'bg-card/85 backdrop-blur-sm border-l border-border flex flex-col shrink-0 z-20 relative overflow-visible',
+          // Below md the panel floats over the stage rather than shrinking it.
+          'max-md:absolute max-md:inset-y-0 max-md:right-0 max-md:z-40 max-md:shadow-xl',
           className,
         )}
       >
@@ -279,9 +281,9 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
         {!collapsed && (
           <div
             onMouseDown={handleDragStart}
-            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group hover:bg-purple-400/30 dark:hover:bg-purple-600/30 active:bg-purple-500/40 dark:active:bg-purple-500/40 transition-colors"
+            className="absolute left-0 top-0 bottom-0 w-1.5 cursor-col-resize z-50 group hover:bg-primary/30 dark:hover:bg-primary/30 active:bg-primary/40 dark:active:bg-primary/40 transition-colors"
           >
-            <div className="absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-gray-300 dark:bg-gray-600 group-hover:bg-purple-400 dark:group-hover:bg-purple-500 transition-colors" />
+            <div className="absolute left-0.5 top-1/2 -translate-y-1/2 w-0.5 h-8 rounded-full bg-muted group-hover:bg-primary dark:group-hover:bg-primary transition-colors" />
           </div>
         )}
 
@@ -304,8 +306,8 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
                   {/* Amber pulse dot when there's an active chat session and user is on Notes tab */}
                   {hasActiveChatSession && activeTab === 'lecture' && (
                     <span className="absolute -top-0.5 -right-0.5 flex h-2 w-2">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-amber-500" />
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--gold)] opacity-75" />
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[var(--gold)]" />
                     </span>
                   )}
                 </TabsTrigger>
@@ -314,7 +316,7 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
               {onCollapseChange && (
                 <button
                   onClick={() => onCollapseChange(true)}
-                  className="w-7 h-7 shrink-0 rounded-lg flex items-center justify-center bg-gray-100/80 dark:bg-gray-800/80 text-gray-500 dark:text-gray-400 ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:bg-gray-200/90 dark:hover:bg-gray-700/90 hover:text-gray-700 dark:hover:text-gray-200 active:scale-90 transition-all duration-200"
+                  className="w-7 h-7 shrink-0 rounded-sm flex items-center justify-center bg-muted/80 text-muted-foreground ring-1 ring-black/[0.04] dark:ring-white/[0.06] hover:bg-muted/90 dark:hover:bg-muted/90 hover:text-foreground active:scale-90 transition-all duration-200"
                 >
                   <PanelRightClose className="w-4 h-4" />
                 </button>
@@ -337,13 +339,13 @@ export const ChatArea = forwardRef<ChatAreaRef, ChatAreaProps>(
               <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 space-y-2 scrollbar-hide">
                 {chatSessions.length === 0 ? (
                   <div className="h-full flex flex-col items-center justify-center text-center p-6 opacity-50">
-                    <div className="w-12 h-12 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-3 text-gray-300 dark:text-gray-600">
+                    <div className="w-12 h-12 bg-muted rounded-full flex items-center justify-center mb-3 text-muted-foreground/50">
                       <MessageSquare className="w-6 h-6" />
                     </div>
-                    <p className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                    <p className="text-xs font-medium text-muted-foreground">
                       {t('chat.noConversations')}
                     </p>
-                    <p className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                    <p className="text-[10px] text-muted-foreground mt-1">
                       {t('chat.startConversation')}
                     </p>
                   </div>
