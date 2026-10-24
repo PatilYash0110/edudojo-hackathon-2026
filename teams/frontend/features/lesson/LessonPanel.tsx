@@ -83,15 +83,20 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   }
 
   return (
-    <section className={styles.lessonPage} aria-busy={!ready}>
+    <section
+      className={floor.lesson ? `${styles.lessonPage} ${styles.lessonFull}` : styles.lessonPage}
+      aria-busy={!ready}
+    >
       <p className={styles.eyebrow}>
         DOJO LESSON · FLOOR {floor.order} OF {dojo.floors.length}
       </p>
       <h1>{floor.title}</h1>
-      <p>
-        Study this section with the Sensei and your classmates. Finishing the lesson opens the
-        floor&apos;s battle; winning brings you back for the next lesson.
-      </p>
+      {!floor.lesson && (
+        <p>
+          Study this section with the Sensei and your classmates. Finishing the lesson opens the
+          floor&apos;s battle; winning brings you back for the next lesson.
+        </p>
+      )}
 
       {floor.lesson && (
         <div className={styles.lessonPlayer}>
@@ -99,11 +104,13 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
         </div>
       )}
       {floor.lesson && current && progress.stage === 'lesson' && (
-        <div className={styles.lessonActions}>
-          <button className={styles.primaryAction} onClick={completeLesson} type="button">
-            I finished this section · enter the room <Swords size={15} />
-          </button>
-        </div>
+        <button
+          className={`${styles.primaryAction} ${styles.finishLesson}`}
+          onClick={completeLesson}
+          type="button"
+        >
+          I finished this section · enter the room <Swords size={20} />
+        </button>
       )}
 
       {!floor.lesson && current && progress.stage === 'lesson' && (
