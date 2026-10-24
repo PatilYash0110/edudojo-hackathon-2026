@@ -1,2 +1,2 @@
-// FRONTEND TEAM. Wiring only: build the page in teams/frontend/features/dojo-map/DojoListPage.tsx
-export { default } from '@/teams/frontend/features/dojo-map/DojoListPage';
+// Temporary playable handoff from Game Team. Frontend can replace this wiring with the final dojo list.
+export { default } from '@/teams/frontend/features/battle/PrototypeBattle';

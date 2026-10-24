@@ -1,0 +1,1723 @@
+/* Scoped to the temporary battle prototype; the other teams' pages keep their layout. */
+:global(.dojo-root):has(.shell) {
+  background: #111e22;
+}
+:global(.dojo-root):has(.shell) > main {
+  max-width: none;
+  padding: 0;
+}
+:global(.dojo-root):has(.shell) > nav {
+  min-height: 34px;
+  padding: 7px 24px;
+  gap: 18px;
+  border-color: #ffffff0e;
+  color: #a2b0ad;
+  background: #101b20;
+  font-size: 10px;
+}
+:global(.dojo-root):has(.shell) > nav a:hover {
+  color: #eed29a;
+}
+
+.shell {
+  --gold: #e5c48b;
+  --paper: #faf1dc;
+  --muted: #bbc5c0;
+  --ink: #142429;
+  --teal: #8cdbcf;
+  --red: #ef8675;
+  color: var(--paper);
+  background: var(--ink);
+  font-family: Arial, Helvetica, sans-serif;
+}
+.shell button,
+.shell input,
+.shell select {
+  font: inherit;
+}
+.shell button {
+  cursor: pointer;
+}
+.shell button:disabled {
+  cursor: not-allowed;
+}
+.shell button:focus-visible,
+.shell input:focus-visible,
+.shell select:focus-visible {
+  outline: 2px solid var(--paper);
+  outline-offset: 5px;
+}
+.header {
+  height: 62px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3.5%;
+  border-bottom: 1px solid #e5c48b26;
+  background: #122127;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 17px;
+  letter-spacing: 0.08em;
+}
+.header h1 small {
+  margin-left: 14px;
+  font-size: 10px;
+  font-weight: 400;
+  letter-spacing: 0;
+  color: var(--muted);
+}
+.header > span {
+  font-size: 11px;
+  color: var(--muted);
+}
+.resetButton {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: #c4cec6;
+  background: transparent;
+  border: 1px solid #e5c48b30;
+  padding: 10px 16px;
+  font-size: 11px !important;
+}
+.resetButton:hover {
+  color: var(--paper);
+  border-color: var(--gold);
+}
+.motionControl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 11px;
+}
+.devControl {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.devControl select {
+  color: var(--paper);
+  background: #0e1a1f;
+  border: 1px solid #e5c48b38;
+  padding: 6px 9px;
+}
+
+.arena {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  height: calc(100svh - 135px);
+  min-height: 660px;
+  max-height: 1000px;
+  background: #183333;
+  transform: translateZ(0);
+  cursor: grab;
+  touch-action: pan-y;
+}
+.arena[data-orbiting='true'] {
+  cursor: grabbing;
+}
+.world {
+  position: absolute;
+  inset: -5%;
+  z-index: 0;
+  pointer-events: none;
+  transform: perspective(1400px) rotateY(var(--camera-yaw)) scale(1.08);
+  transform-origin: 50% 56%;
+  transform-style: preserve-3d;
+  transition: transform 120ms ease-out;
+  will-change: transform;
+}
+.arena[data-orbiting='true'] .world {
+  transition: none;
+}
+.orbitHint {
+  position: absolute;
+  left: 50%;
+  bottom: 2.2%;
+  z-index: 4;
+  color: #c9d0cb80;
+  font-size: 8px;
+  letter-spacing: 0.16em;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+.backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  overflow: hidden;
+  background: linear-gradient(#182b35 0 48%, #0b171d 48% 100%);
+}
+.backdrop::after {
+  content: '';
+  position: absolute;
+  inset: 42% -12% -32%;
+  background-image:
+    linear-gradient(#91a4a21d 1px, transparent 1px),
+    linear-gradient(90deg, #91a4a21d 1px, transparent 1px);
+  background-size: 66px 42px;
+  transform: perspective(420px) rotateX(58deg);
+  transform-origin: top;
+}
+.atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background:
+    linear-gradient(90deg, #061e25bd, transparent 55%),
+    linear-gradient(0deg, #0b1925f5, #11282d28 40%, #14292e30 75%, #1020289c);
+}
+.arena::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  box-shadow: inset 0 0 160px #0e252a78;
+}
+
+.enemyHud {
+  position: absolute;
+  top: 22%;
+  left: 66.5%;
+  width: 24%;
+  max-width: 340px;
+  text-align: center;
+  z-index: 5;
+  text-shadow: 0 2px 8px #000;
+}
+.enemyHud > span,
+.playerHud span {
+  font-size: 8px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+}
+.enemyHud h3 {
+  margin: 6px 0 12px;
+  font:
+    24px Georgia,
+    serif;
+}
+.hpTrack {
+  height: 5px;
+  background: #09171cbf;
+  border: 1px solid #efd8b342;
+  transform: skewX(-20deg);
+  overflow: hidden;
+}
+.hpTrack i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #e25e5c, #f4b49c);
+  transition: width 260ms ease-out;
+  box-shadow: 0 0 15px #ea9d73;
+}
+.enemyHud > small {
+  display: block;
+  margin-top: 7px;
+  color: #ddd8cb;
+  font-size: 10px;
+  letter-spacing: 0.08em;
+}
+.enemyHud small b {
+  color: white;
+  font-weight: 400;
+}
+
+.playerActor,
+.enemyActor {
+  position: absolute;
+  pointer-events: none;
+  will-change: transform;
+  z-index: 2;
+}
+.playerActor {
+  width: 15%;
+  height: 47%;
+  left: 26%;
+  bottom: 19%;
+  --direction: 1;
+}
+.enemyActor {
+  width: 10%;
+  height: 31%;
+  left: 71%;
+  bottom: 29%;
+  --direction: -1;
+}
+.playerModel,
+.enemyModel {
+  position: absolute;
+  left: 26%;
+  bottom: 8%;
+  width: 48%;
+  height: 70%;
+  border-radius: 999px;
+  background: linear-gradient(125deg, #ffb768 4%, #e88136 48%, #b94726 100%);
+  border: 2px solid #ffc786;
+  box-shadow:
+    inset -12px -12px 18px #9f361f70,
+    0 8px 18px #050e14a8;
+}
+.playerModel::before,
+.enemyModel::before {
+  content: '';
+  position: absolute;
+  left: 18%;
+  top: 9%;
+  width: 21%;
+  height: 42%;
+  border-radius: 50%;
+  background: #fff7dc99;
+  filter: blur(4px);
+}
+.enemyModel {
+  background: linear-gradient(125deg, #b9aaff 4%, #7b6bd8 48%, #44347c 100%);
+  border-color: #cbbfff;
+  box-shadow:
+    inset -9px -12px 18px #38276c88,
+    0 8px 18px #050e14a8;
+}
+.actorSword {
+  position: absolute;
+  left: 69%;
+  top: -34%;
+  width: 7px;
+  height: 92%;
+  border-radius: 7px 7px 2px 2px;
+  background: #eef7f4;
+  border: 1px solid #8eaaa8;
+  transform: rotate(34deg);
+  transform-origin: bottom;
+}
+.enemyModel .actorSword {
+  left: 12%;
+  top: -25%;
+  transform: rotate(-38deg);
+}
+.playerActor[data-motion='idle'] .playerModel,
+.enemyActor[data-motion='idle'] .enemyModel {
+  animation: idleBreath 2.5s ease-in-out infinite;
+}
+.playerActor[data-motion='idle'] .groundShadow,
+.enemyActor[data-motion='idle'] .groundShadow {
+  animation: idleShadow 2.5s ease-in-out infinite;
+}
+.enemyActor[data-motion='idle'] .enemyModel,
+.enemyActor[data-motion='idle'] .groundShadow {
+  animation-delay: -0.75s;
+}
+.groundShadow {
+  position: absolute;
+  bottom: -2%;
+  left: 5%;
+  right: 5%;
+  height: 7%;
+  border-radius: 50%;
+  background: #00171bd9;
+  filter: blur(10px);
+  transform: rotate(-6deg);
+}
+.playerActor[data-motion='lunge'] {
+  animation: playerLunge 1.2s cubic-bezier(0.17, 0.8, 0.25, 1) both;
+  z-index: 3;
+}
+.playerActor[data-motion='lunge'] .actorSword {
+  animation: playerSwordSwing 1.2s cubic-bezier(0.2, 0.72, 0.24, 1) both;
+}
+.playerActor[data-motion='lunge'][data-kind='combo'] {
+  animation-name: comboLunge;
+}
+.playerActor[data-motion='lunge'][data-kind='combo'] .actorSword {
+  animation: comboSword 180ms 270ms ease-in-out var(--hits) alternate both;
+}
+.enemyActor[data-motion='lunge'] {
+  animation: enemyLunge 1.2s ease both;
+}
+.enemyActor[data-motion='lunge'] .actorSword {
+  animation: enemySwordSwing 1.2s cubic-bezier(0.2, 0.72, 0.24, 1) both;
+}
+.playerActor[data-motion='hurt'],
+.enemyActor[data-motion='hurt'] {
+  animation: recoil 180ms var(--first-impact) ease-out var(--hits) both;
+}
+.playerActor[data-motion='evade'] {
+  animation: evade 1.8s ease both;
+}
+.playerActor[data-motion='charge'] .playerModel {
+  animation: chargeBody 2.6s ease both;
+}
+.enemyActor[data-motion='windup'] {
+  transform: rotate(-4deg) translateX(-2%);
+  transition: transform 2.5s ease;
+}
+.enemyActor[data-motion='windup'] .enemyModel {
+  animation-duration: 12s;
+  filter: drop-shadow(0 0 25px #d24d4144);
+}
+
+.enemyTelegraph {
+  position: absolute;
+  left: 56%;
+  top: 26%;
+  width: 31%;
+  height: 40%;
+  z-index: 3;
+  pointer-events: none;
+}
+.enemyTelegraph span {
+  position: absolute;
+  width: 85%;
+  height: 140%;
+  left: 5%;
+  top: -12%;
+  border-left: 3px solid #ffc6a5;
+  border-radius: 50%;
+  transform: rotate(42deg);
+  box-shadow: -8px 0 28px #ed57474d;
+  animation: suspendedBlade 7s ease-in-out infinite;
+}
+.enemyTelegraph b {
+  position: absolute;
+  right: 4%;
+  top: 35%;
+  color: #ffbba4;
+  font:
+    46px Georgia,
+    serif;
+  text-shadow: 0 0 20px #ce4b45;
+  opacity: 0.7;
+}
+
+.eyebrow {
+  margin: 0 0 15px;
+  color: var(--gold);
+  font-size: 9px;
+  font-weight: bold;
+  letter-spacing: 0.18em;
+  line-height: 1.5;
+}
+.commandArea {
+  position: absolute;
+  left: 8%;
+  bottom: 16%;
+  z-index: 5;
+  width: 354px;
+}
+.commandFan {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  padding: 2px 14px 14px 0;
+}
+.commandFan button {
+  position: relative;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 9px 15px;
+  border: 1px solid #cdb47a55;
+  color: var(--paper);
+  background: #10242bd9;
+  text-align: left;
+  transition:
+    background 120ms,
+    border-color 120ms;
+}
+.commandFan button.commandSelected:not(:disabled),
+.commandFan button:hover:not(:disabled) {
+  color: var(--paper);
+  background: #21383d;
+  border-color: var(--gold);
+}
+.commandFan button:focus-visible {
+  outline-offset: 4px;
+}
+.commandFan kbd {
+  flex: 0 0 26px;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  font:
+    12px Georgia,
+    serif;
+}
+.commandFan button > svg {
+  flex-shrink: 0;
+}
+.commandFan button > span {
+  flex: 1;
+}
+.commandFan strong {
+  display: block;
+  font:
+    normal 23px Georgia,
+    serif;
+  white-space: nowrap;
+}
+.commandFan small {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 7px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+}
+.commandFan button:disabled {
+  opacity: 0.45;
+}
+.commandFan button:disabled small {
+  color: #ffb19a;
+}
+.commandArrow {
+  opacity: 0;
+}
+.commandSelected .commandArrow {
+  opacity: 1;
+}
+.commandDescription {
+  padding: 14px 0 0 13px;
+  margin-top: 7px;
+  border-left: 1px solid #e5c48b66;
+  text-shadow: 0 1px 6px #000;
+}
+.commandDescription p {
+  font:
+    italic 14px/1.4 Georgia,
+    serif;
+  margin: 0 0 6px;
+  color: #fff2d6;
+}
+.commandDescription small {
+  color: #c9cfc2;
+  font-size: 10px;
+}
+.controlHint {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  color: #c5c6b7;
+  font-size: 8px;
+  margin: 17px 0 0 4px;
+}
+.controlHint span {
+  padding: 0 5px;
+  opacity: 0.5;
+}
+.controlHint kbd {
+  border-bottom: 1px solid #cfc6a988;
+  min-width: 13px;
+  padding: 3px;
+  text-align: center;
+  font:
+    9px Georgia,
+    serif;
+}
+
+.playerHud {
+  position: absolute;
+  right: 4.5%;
+  bottom: 13%;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  width: 280px;
+  text-shadow: 0 1px 6px #000;
+}
+.playerHud > div:last-child {
+  flex: 1;
+}
+.playerHud h3 {
+  font:
+    21px Georgia,
+    serif;
+  margin: 5px 0 10px;
+}
+.playerHud .hpTrack i {
+  background: linear-gradient(90deg, #509b99, #a5f6de);
+}
+.playerHud small {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  color: #c4ccc5;
+  font-size: 9px;
+  margin-top: 5px;
+}
+.playerHud small b {
+  font:
+    23px Georgia,
+    serif;
+  color: var(--paper);
+  margin-right: 3px;
+}
+.playerHud small em {
+  font-style: normal;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 8px;
+  color: var(--teal);
+  margin-left: auto;
+}
+.battleLog {
+  position: absolute;
+  right: 4.5%;
+  bottom: 7%;
+  width: 34%;
+  margin: 0;
+  z-index: 4;
+  color: #d6d6c7;
+  font:
+    italic 11px/1.5 Georgia,
+    serif;
+  text-align: right;
+}
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 39px;
+  padding: 0 3.5%;
+  background: #101d22;
+  border-top: 1px solid #e5c48b20;
+  color: #90a4a4;
+  font-size: 8px;
+  letter-spacing: 0.1em;
+}
+.footer p {
+  font:
+    italic 11px Georgia,
+    serif;
+  letter-spacing: 0;
+  margin: 0;
+}
+.footer > span:first-child {
+  color: var(--gold);
+}
+
+.questionPanel {
+  position: absolute;
+  bottom: 11%;
+  left: 8%;
+  width: min(610px, 55%);
+  max-height: 74%;
+  overflow-y: auto;
+  z-index: 8;
+  padding: 23px 27px;
+  background: #10252aed;
+  border: 1px solid #dfc69570;
+  box-shadow: 0 16px 38px #0006;
+}
+.questionPanel::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 80px;
+  height: 3px;
+  background: var(--gold);
+}
+.questionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 17px;
+  gap: 20px;
+}
+.questionHeader .eyebrow {
+  margin-bottom: 6px;
+  font-size: 8px;
+}
+.questionHeader h2 {
+  margin: 0;
+  font:
+    28px Georgia,
+    serif;
+}
+.questionHeader > span {
+  font:
+    28px Georgia,
+    serif;
+  color: var(--gold);
+}
+.questionHeader > span small {
+  font-size: 13px;
+  color: #a8b7b4;
+}
+.questionPanel fieldset {
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+.questionPanel legend {
+  color: var(--paper);
+  margin-bottom: 14px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.options {
+  display: grid;
+  gap: 7px;
+}
+.options label {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-height: 41px;
+  padding: 8px 14px;
+  border: 1px solid #bfc7b42c;
+  background: #f4dcac04;
+  cursor: pointer;
+  transition:
+    background 140ms,
+    border-color 140ms;
+}
+.options input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+}
+.options label:has(input:focus-visible) {
+  outline: 2px solid white;
+  outline-offset: 2px;
+}
+.options label > span {
+  display: grid;
+  place-items: center;
+  width: 23px;
+  height: 23px;
+  border: 1px solid #d9bd7e88;
+  color: var(--gold);
+  border-radius: 50%;
+  font:
+    11px Georgia,
+    serif;
+}
+.options label > b {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 400;
+}
+.options .optionSelected,
+.options label:hover {
+  background: #e5c48b15;
+  border-color: var(--gold);
+}
+.options svg {
+  color: var(--gold);
+}
+.typedInput {
+  width: 100%;
+  padding: 13px;
+  background: #07171d90;
+  border: 1px solid #e5c48b66;
+  color: var(--paper);
+  border-radius: 0;
+  font-size: 15px !important;
+}
+.typedInput::placeholder {
+  color: #9faeaa;
+}
+.questionActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-top: 19px;
+}
+.questionActions > small {
+  max-width: 260px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #b2c1bc;
+}
+.primaryButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 42px;
+  padding: 10px 17px;
+  color: #13252a;
+  background: #e5c48b;
+  border: 1px solid #f6dfb7;
+  font-size: 11px !important;
+  font-weight: 700 !important;
+  white-space: nowrap;
+}
+.primaryButton:hover:not(:disabled) {
+  background: #f8e2b5;
+}
+.primaryButton:disabled {
+  opacity: 0.4;
+}
+.primaryButton kbd {
+  font-size: 9px;
+  border: 1px solid #13252a80;
+  padding: 3px;
+}
+.feedbackCorrect,
+.feedbackWrong {
+  margin-top: 12px;
+  padding: 9px 12px;
+  border-left: 2px solid var(--teal);
+  background: #9bded60b;
+}
+.feedbackWrong {
+  border-color: var(--red);
+  background: #ef86750a;
+}
+.feedbackCorrect strong,
+.feedbackWrong strong {
+  display: block;
+  color: var(--teal);
+  font-size: 11px;
+}
+.feedbackWrong strong {
+  color: var(--red);
+}
+.feedbackCorrect span,
+.feedbackWrong span {
+  display: block;
+  margin-top: 5px;
+  font-size: 10px;
+  line-height: 1.5;
+  color: #bac8c2;
+}
+.chargeMeter {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  margin: -3px 0 15px;
+}
+.chargeMeter i {
+  flex: 1;
+  height: 5px;
+  transform: skewX(-25deg);
+  background: #63878635;
+}
+.chargeMeter i[data-charged='true'] {
+  background: #8cdbcf;
+  box-shadow: 0 0 8px #8cdbcf55;
+}
+.chargeMeter small {
+  font-size: 8px;
+  letter-spacing: 0.1em;
+  margin-left: 8px;
+  color: var(--teal);
+}
+
+.reactivePanel {
+  position: absolute;
+  left: 11%;
+  bottom: 12%;
+  width: 310px;
+  z-index: 8;
+  padding: 20px;
+  text-align: center;
+  background: radial-gradient(ellipse, #09242ae8, #0d252add 65%, transparent);
+}
+.reactivePanel h2 {
+  font:
+    28px Georgia,
+    serif;
+  margin: 0 0 7px;
+}
+.reactivePanel > p:not(.eyebrow) {
+  font:
+    italic 12px/1.5 Georgia,
+    serif;
+  color: #d4d9cf;
+  margin: 5px 0;
+}
+.reactivePanel .eyebrow {
+  color: var(--red);
+  margin-bottom: 8px;
+}
+.reactivePanel > small {
+  display: block;
+  font-size: 9px;
+  line-height: 1.5;
+  color: #c1cbbf;
+  margin-top: 10px;
+}
+.timingStage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 170px;
+  height: 170px;
+  margin: 5px auto 10px;
+  background: repeating-conic-gradient(#d1b88c33 0deg 1deg, transparent 1deg 30deg);
+  border: 1px solid #e5c48b40;
+  border-radius: 50%;
+}
+.timingRing {
+  position: absolute;
+  inset: 0;
+  border: 3px solid var(--red);
+  border-radius: 50%;
+  animation: converge var(--windup) linear forwards;
+}
+.timingCore {
+  display: grid;
+  place-items: center;
+  width: 65px;
+  height: 65px;
+  background: #13252b;
+  border: 1px solid #e5c48b88;
+  border-radius: 50%;
+  font-size: 10px;
+  font-weight: bold;
+  letter-spacing: 0.08em;
+}
+.reactivePanel[data-phase='impact'] .timingCore {
+  background: var(--gold);
+  color: var(--ink);
+  box-shadow: 0 0 45px #e5c48b70;
+}
+.reactivePanel[data-phase='impact'] .timingRing {
+  border-color: var(--gold);
+}
+.reactivePanel[data-phase='success'] .timingCore {
+  background: var(--teal);
+  color: var(--ink);
+}
+.reactivePanel[data-phase='miss'] .timingCore {
+  background: #833c34;
+  color: var(--paper);
+}
+.result {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background: #061e26bd;
+  backdrop-filter: blur(8px);
+  padding: 24px;
+}
+.result > span {
+  color: var(--gold);
+  font:
+    100px Georgia,
+    serif;
+  margin-bottom: 12px;
+}
+.result h2 {
+  font:
+    52px Georgia,
+    serif;
+  margin: 0 0 10px;
+}
+.result > p:not(.eyebrow) {
+  color: #d0d9cc;
+  font:
+    italic 16px/1.6 Georgia,
+    serif;
+  max-width: 450px;
+}
+.result button {
+  margin-top: 20px;
+}
+
+.effects {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  --fx-color: #fff0c2;
+  --cut-left: 65%;
+  --cut-top: 29%;
+}
+.effects[data-target='player'] {
+  --cut-left: 23%;
+  --cut-top: 36%;
+  --fx-color: #ffad92;
+}
+.effects[data-target='player'] .cut {
+  transform: scaleX(-1);
+}
+.effects[data-kind='combo'],
+.effects[data-kind='counter'] {
+  --fx-color: #aaf9f2;
+}
+.arena[data-fx='heavy']:not([data-failed='true']),
+.arena[data-fx='counter'],
+.arena[data-fx='hit'] {
+  animation: stageHit 130ms var(--impact) steps(2, end) both;
+}
+.arena[data-fx='combo']:not([data-failed='true']) {
+  animation: stageHit 180ms 360ms steps(2, end) var(--stage-hits) both;
+}
+.cut {
+  position: absolute;
+  left: var(--cut-left);
+  top: var(--cut-top);
+  width: 26%;
+  height: 49%;
+}
+.swordTrail {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  color: var(--fx-color);
+  transform: rotate(var(--cut-angle));
+  transform-origin: 10% 88%;
+  opacity: 0;
+  animation: swordCut 420ms var(--cut-delay) cubic-bezier(0.16, 0.72, 0.24, 1) both;
+}
+.trailReveal {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: revealTrail 245ms var(--cut-delay) cubic-bezier(0.15, 0.75, 0.2, 1) both;
+}
+.slashHead {
+  stroke-dasharray: 0.1 1;
+  stroke-dashoffset: 1;
+  filter: drop-shadow(0 0 3px #fff);
+  animation: sweepHead 275ms var(--cut-delay) cubic-bezier(0.15, 0.75, 0.2, 1) both;
+}
+.effects[data-kind='combo'] .swordTrail {
+  animation-duration: 300ms;
+}
+.effects[data-kind='combo'] .trailReveal {
+  animation-duration: 170ms;
+}
+.effects[data-kind='combo'] .slashHead {
+  animation-duration: 185ms;
+}
+.hitNumber {
+  position: absolute;
+  top: 19%;
+  left: 44%;
+  color: white;
+  font:
+    italic 44px Georgia,
+    serif;
+  text-shadow: 0 2px 4px #000;
+  animation: damageFloat 650ms var(--hit-delay) both;
+  opacity: 0;
+}
+.chargeOrb {
+  position: absolute;
+  left: 43%;
+  top: 52%;
+  width: 90px;
+  height: 90px;
+  border-radius: 50%;
+  background: radial-gradient(circle, white 4%, #cefff4 20%, #72f4ef 40%, #5cc7ec00 70%);
+  box-shadow: 0 0 22px #4fe3ee;
+  animation: chargeOrb 1.5s ease both;
+}
+.energyBeam {
+  position: absolute;
+  top: 44%;
+  left: 44%;
+  width: 37%;
+  height: 75px;
+  border-radius: 10% 50% 50% 10%;
+  background: linear-gradient(0deg, transparent, #64e7f9, #fff 40% 60%, #64e7f9, transparent);
+  box-shadow: 0 0 16px #8bfff3;
+  transform-origin: left;
+  animation: beam 900ms 1250ms both;
+  opacity: 0;
+}
+.energyNumber {
+  position: absolute;
+  left: 75%;
+  top: 29%;
+  color: #efffff;
+  font:
+    italic 70px Georgia,
+    serif;
+  text-shadow: 0 0 20px #87fbec;
+  animation: damageFloat 1000ms 1400ms both;
+  opacity: 0;
+}
+.effects[data-failed='true'] .chargeOrb {
+  filter: hue-rotate(170deg);
+}
+.effects[data-failed='true'] .energyNumber {
+  left: 38%;
+  top: 36%;
+  color: #ffab8b;
+}
+.backlashBurst {
+  position: absolute;
+  left: 30%;
+  top: 43%;
+  width: 25%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff1c4, #f15f4444 30%, transparent 70%);
+  animation: impactBurst 900ms 1250ms both;
+  opacity: 0;
+}
+.guardSeal {
+  position: absolute;
+  left: 41%;
+  top: 44%;
+  width: 130px;
+  height: 130px;
+  display: grid;
+  place-items: center;
+  color: #e5d8af;
+  border: 2px solid #e5d8af;
+  border-radius: 50%;
+  background: radial-gradient(circle, #e5c48b33, transparent);
+  box-shadow: 0 0 18px #e5c48b55;
+  animation: guard 1600ms both;
+}
+.dodgeTrail {
+  position: absolute;
+  left: 20%;
+  top: 40%;
+  width: 35%;
+  height: 40%;
+  border-left: 4px solid #cefcf7;
+  filter: blur(5px);
+  transform: skew(-25deg);
+  animation: dodgeAfterimage 1.6s both;
+}
+@keyframes playerLunge {
+  0%,
+  10% {
+    transform: translateX(0) rotate(0deg);
+  }
+  18% {
+    transform: translateX(-8%) rotate(-6deg);
+  }
+  32% {
+    transform: translateX(190%) rotate(4deg);
+  }
+  38%,
+  44% {
+    transform: translateX(250%) rotate(7deg);
+  }
+  56% {
+    transform: translateX(238%) rotate(9deg);
+  }
+  78%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes enemyLunge {
+  0%,
+  12% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(7%) rotate(5deg);
+  }
+  34% {
+    transform: translateX(-300%) rotate(-4deg);
+  }
+  38%,
+  44% {
+    transform: translateX(-360%) rotate(-9deg);
+  }
+  56% {
+    transform: translateX(-350%) rotate(-10deg);
+  }
+  78%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes comboLunge {
+  0%,
+  10% {
+    transform: translateX(0) rotate(0deg);
+  }
+  18% {
+    transform: translateX(-6%) rotate(-5deg);
+  }
+  30%,
+  68% {
+    transform: translateX(250%) rotate(7deg);
+  }
+  80%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes playerSwordSwing {
+  0%,
+  12% {
+    transform: rotate(34deg);
+  }
+  18% {
+    transform: rotate(-52deg);
+  }
+  38%,
+  44% {
+    transform: rotate(88deg);
+  }
+  58% {
+    transform: rotate(112deg);
+  }
+  100% {
+    transform: rotate(34deg);
+  }
+}
+@keyframes comboSword {
+  from {
+    transform: rotate(-42deg);
+  }
+  50%,
+  58% {
+    transform: rotate(86deg);
+  }
+  to {
+    transform: rotate(102deg);
+  }
+}
+@keyframes enemySwordSwing {
+  0%,
+  12% {
+    transform: rotate(-38deg);
+  }
+  20% {
+    transform: rotate(50deg);
+  }
+  38%,
+  44% {
+    transform: rotate(-92deg);
+  }
+  58% {
+    transform: rotate(-116deg);
+  }
+  100% {
+    transform: rotate(-38deg);
+  }
+}
+@keyframes idleBreath {
+  0%,
+  100% {
+    transform: translateY(0) scale(1.025, 0.975);
+  }
+  10% {
+    transform: translateY(0) scale(1.04, 0.96);
+  }
+  44%,
+  56% {
+    transform: translateY(-8px) scale(0.99, 1.015);
+  }
+  88% {
+    transform: translateY(0) scale(1.015, 0.985);
+  }
+}
+@keyframes idleShadow {
+  0%,
+  10%,
+  88%,
+  100% {
+    opacity: 0.9;
+    transform: rotate(-6deg) scaleX(1);
+  }
+  44%,
+  56% {
+    opacity: 0.55;
+    transform: rotate(-6deg) scaleX(0.78);
+  }
+}
+@keyframes recoil {
+  0% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(calc(var(--direction) * -6%)) rotate(calc(var(--direction) * -5deg));
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes evade {
+  0%,
+  10% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  30%,
+  50% {
+    transform: translateX(-22%) skewX(8deg);
+    opacity: 0.35;
+  }
+  80%,
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes chargeBody {
+  0%,
+  100% {
+    filter: none;
+  }
+  35%,
+  65% {
+    filter: drop-shadow(0 0 18px #8be5d9);
+  }
+}
+@keyframes suspendedBlade {
+  0%,
+  100% {
+    transform: rotate(36deg) translateY(-3%);
+    opacity: 0.25;
+  }
+  60% {
+    transform: rotate(44deg) translateY(8%);
+    opacity: 0.8;
+  }
+}
+@keyframes converge {
+  from {
+    inset: 0;
+  }
+  to {
+    inset: 51px;
+  }
+}
+@keyframes swordCut {
+  0% {
+    opacity: 0;
+    transform: rotate(calc(var(--cut-angle) - 6deg)) scale(0.94);
+  }
+  12%,
+  58% {
+    opacity: 1;
+  }
+  72% {
+    opacity: 0.45;
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(calc(var(--cut-angle) + 2deg)) scale(1.02);
+  }
+}
+@keyframes revealTrail {
+  from {
+    stroke-dashoffset: 1;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes sweepHead {
+  0% {
+    opacity: 0;
+    stroke-dashoffset: 1;
+  }
+  10%,
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes stageHit {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  25% {
+    transform: translate(-2px, 1px);
+  }
+  50% {
+    transform: translate(2px, -1px);
+  }
+  75% {
+    transform: translate(-1px, -1px);
+  }
+}
+@keyframes impactBurst {
+  0% {
+    opacity: 0;
+    scale: 0.1;
+  }
+  15% {
+    opacity: 0.8;
+  }
+  100% {
+    opacity: 0;
+    scale: 2.1;
+  }
+}
+@keyframes damageFloat {
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  15%,
+  65% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-24px);
+  }
+}
+@keyframes chargeOrb {
+  0% {
+    opacity: 0;
+    scale: 0.1;
+  }
+  30% {
+    opacity: 1;
+    scale: 0.4;
+  }
+  85% {
+    opacity: 1;
+    scale: 1.4;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.8;
+  }
+}
+@keyframes beam {
+  0% {
+    opacity: 0;
+    transform: rotate(-14deg) scaleX(0.01);
+  }
+  18%,
+  45% {
+    opacity: 1;
+    transform: rotate(-14deg) scaleX(1);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(-14deg) scaleX(1.1) scaleY(0.1);
+  }
+}
+@keyframes guard {
+  0%,
+  10% {
+    opacity: 0;
+    scale: 0.5;
+  }
+  30%,
+  60% {
+    opacity: 1;
+    scale: 1;
+  }
+  100% {
+    opacity: 0;
+    scale: 1.2;
+  }
+}
+@keyframes dodgeAfterimage {
+  0% {
+    opacity: 0;
+    translate: 0 0;
+  }
+  30% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 0;
+    translate: -120px 0;
+  }
+}
+
+@media (min-width: 1600px) {
+  .commandArea {
+    left: 10%;
+    bottom: 18%;
+    width: 380px;
+  }
+  .commandFan button {
+    min-height: 73px;
+  }
+  .commandFan strong {
+    font-size: 26px;
+  }
+  .enemyHud {
+    top: 20%;
+  }
+}
+@media (max-width: 1100px) {
+  .commandArea {
+    left: 9%;
+    width: 300px;
+  }
+  .commandFan strong {
+    font-size: 20px;
+  }
+  .commandFan button {
+    gap: 8px;
+    min-height: 60px;
+  }
+  .commandDescription p {
+    font-size: 13px;
+  }
+  .playerHud {
+    width: 250px;
+    right: 4%;
+  }
+  .playerActor {
+    left: 24%;
+    width: 17%;
+  }
+  .enemyActor {
+    left: 70%;
+    width: 11%;
+  }
+  .enemyHud {
+    left: 66%;
+    width: 28%;
+  }
+  .questionPanel {
+    width: 58%;
+    left: 7%;
+  }
+}
+@media (max-width: 700px) {
+  :global(.dojo-root):has(.shell) > nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    white-space: nowrap;
+    padding-inline: 14px;
+  }
+  .header {
+    height: 66px;
+    padding: 0 16px;
+  }
+  .header > span,
+  .header h1 small {
+    display: none;
+  }
+  .motionControl {
+    display: none;
+  }
+  .resetButton {
+    font-size: 9px !important;
+    padding: 8px;
+    gap: 5px;
+  }
+  .arena {
+    height: 850px;
+    min-height: 850px;
+    max-height: none;
+  }
+  .backdrop {
+    background:
+      radial-gradient(circle at 76% 13%, #b9554c 0 4%, transparent 4.2%),
+      linear-gradient(#182b35 0 43%, #0b171d 43% 100%);
+  }
+  .atmosphere {
+    background: linear-gradient(0deg, #0b1925 7%, #0b1925c9 45%, #14292e10 80%, #1020289c);
+  }
+  .enemyHud {
+    top: 16%;
+    left: 55%;
+    width: 39%;
+  }
+  .enemyHud h3 {
+    font-size: 20px;
+  }
+  .enemyHud > span {
+    font-size: 7px;
+  }
+  .playerActor {
+    left: 10%;
+    bottom: 49%;
+    height: 27%;
+    width: 24%;
+  }
+  .enemyActor {
+    left: 69%;
+    bottom: 58%;
+    height: 19%;
+    width: 16%;
+  }
+  .enemyTelegraph {
+    top: 21%;
+    height: 24%;
+    left: 50%;
+    width: 43%;
+  }
+  .commandArea {
+    left: 9%;
+    bottom: 19%;
+    width: min(310px, 78%);
+  }
+  .commandFan button {
+    min-height: 56px;
+  }
+  .commandFan strong {
+    font-size: 21px;
+  }
+  .commandFan small {
+    font-size: 7px;
+  }
+  .commandArea > .eyebrow {
+    font-size: 8px;
+    margin-bottom: 12px;
+  }
+  .commandDescription {
+    margin-top: 0;
+    padding-top: 8px;
+  }
+  .controlHint {
+    display: none;
+  }
+  .playerHud {
+    right: 6%;
+    bottom: 8.5%;
+    width: 220px;
+  }
+  .playerHud h3 {
+    font-size: 18px;
+  }
+  .playerHud small b {
+    font-size: 19px;
+  }
+  .battleLog {
+    bottom: 5%;
+    left: 7%;
+    right: 7%;
+    width: auto;
+    font-size: 10px;
+  }
+  .footer {
+    gap: 15px;
+    padding: 10px 16px;
+  }
+  .footer > span {
+    font-size: 6px;
+  }
+  .footer p {
+    font-size: 9px;
+  }
+  .footer > span:last-child {
+    display: none;
+  }
+  .questionPanel {
+    left: 5%;
+    bottom: 19%;
+    width: 90%;
+    max-height: 51%;
+    padding: 20px;
+  }
+  .questionHeader h2 {
+    font-size: 25px;
+  }
+  .questionPanel legend {
+    font-size: 13px;
+  }
+  .questionActions {
+    gap: 10px;
+  }
+  .questionActions > small {
+    font-size: 9px;
+  }
+  .primaryButton {
+    padding: 9px 12px;
+    font-size: 10px !important;
+    gap: 6px;
+  }
+  .reactivePanel {
+    left: calc(50% - 155px);
+    bottom: 19%;
+  }
+  .effects {
+    --cut-left: 57%;
+    --cut-top: 21%;
+  }
+  .effects[data-target='player'] {
+    --cut-left: 17%;
+    --cut-top: 29%;
+  }
+  .cut {
+    width: 39%;
+    height: 29%;
+  }
+  .hitNumber {
+    font-size: 42px;
+  }
+  .chargeOrb {
+    left: 37%;
+    top: 37%;
+    width: 50px;
+    height: 50px;
+  }
+  .energyBeam {
+    top: 31%;
+    left: 40%;
+    height: 40px;
+  }
+  .energyNumber {
+    top: 23%;
+    font-size: 47px;
+  }
+  .effects[data-failed='true'] .energyNumber {
+    left: 28%;
+    top: 30%;
+  }
+  .backlashBurst {
+    top: 33%;
+    left: 20%;
+    width: 43%;
+  }
+  .guardSeal {
+    top: 29%;
+    left: 35%;
+    width: 90px;
+    height: 90px;
+  }
+  .dodgeTrail {
+    top: 25%;
+    height: 25%;
+  }
+  .result h2 {
+    font-size: 36px;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .shell:not([data-full-motion='true']) *,
+  .shell:not([data-full-motion='true']) *::before,
+  .shell:not([data-full-motion='true']) *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .shell:not([data-full-motion='true']) .hitNumber,
+  .shell:not([data-full-motion='true']) .energyNumber {
+    opacity: 1;
+  }
+  .shell:not([data-full-motion='true']) .swordTrail {
+    opacity: 0.75;
+  }
+  .shell:not([data-full-motion='true']) .chargeOrb {
+    opacity: 0.5;
+  }
+  .shell:not([data-full-motion='true']) .reactivePanel[data-phase='impact'] .timingRing {
+    inset: 51px;
+  }
+}
