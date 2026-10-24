@@ -2,19 +2,21 @@
 
 import { useCallback, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
+import type { Dojo } from '@/teams/shared/contracts/dojo';
 import { FINAL_BOSS } from '@/teams/game/boss/boss-phases';
-import { DEMO_DOJO } from '@/teams/game/content/demo-dojo';
+import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
 import PrototypeBattle from '@/teams/frontend/features/battle/PrototypeBattle';
 import { FloorEncounter } from '@/teams/frontend/features/battle/FloorEncounter';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import styles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 
 export function BossIntro() {
-  const params = useParams<{ dojoId: string }>();
-  const dojoId = params.dojoId ?? DEMO_DOJO.id;
-  const { progress, ready, advance } = useDojoProgress(dojoId, DEMO_DOJO.floors.length);
+  return <DojoGate>{(dojo, dojoId) => <BossIntroView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
+}
+
+function BossIntroView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
+  const { progress, ready, advance } = useDojoProgress(dojoId, dojo.floors.length);
   const [roomEntered, setRoomEntered] = useState(false);
 
   const winBoss = useCallback(() => {
@@ -29,7 +31,7 @@ export function BossIntro() {
         <p className={styles.eyebrow}>
           <Check size={13} /> TOPIC MASTERED
         </p>
-        <h1>{DEMO_DOJO.title} complete.</h1>
+        <h1>{dojo.title} complete.</h1>
         <p>
           The learner cleared every subtopic and defeated the Sensei using questions drawn from the
           full input.

@@ -4,16 +4,20 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, BookOpen, Swords } from 'lucide-react';
-import { DEMO_DOJO } from '@/teams/game/content/demo-dojo';
+import type { Dojo } from '@/teams/shared/contracts/dojo';
+import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import styles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 
 export function LessonPanel() {
-  const params = useParams<{ dojoId: string; floorId: string }>();
+  return <DojoGate>{(dojo, dojoId) => <LessonPanelView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
+}
+
+function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
+  const params = useParams<{ floorId: string }>();
   const router = useRouter();
-  const dojoId = params.dojoId ?? DEMO_DOJO.id;
-  const floor = DEMO_DOJO.floors.find((item) => item.id === params.floorId);
-  const { progress, ready, advance } = useDojoProgress(dojoId, DEMO_DOJO.floors.length);
+  const floor = dojo.floors.find((item) => item.id === params.floorId);
+  const { progress, ready, advance } = useDojoProgress(dojoId, dojo.floors.length);
   const [sceneIndex, setSceneIndex] = useState(0);
 
   if (!floor) {
@@ -66,7 +70,7 @@ export function LessonPanel() {
   return (
     <section className={styles.lessonPage} aria-busy={!ready}>
       <p className={styles.eyebrow}>
-        DOJO LESSON · FLOOR {floor.order} OF {DEMO_DOJO.floors.length}
+        DOJO LESSON · FLOOR {floor.order} OF {dojo.floors.length}
       </p>
       <h1>{floor.title}</h1>
       <p>

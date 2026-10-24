@@ -1,7 +1,7 @@
 'use client';
 
 import { type CSSProperties, useCallback, useEffect, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import {
   Check,
   ChevronDown,
@@ -11,18 +11,21 @@ import {
   LockKeyhole,
   RotateCcw,
 } from 'lucide-react';
-import { DEMO_DOJO } from '@/teams/game/content/demo-dojo';
+import type { Dojo } from '@/teams/shared/contracts/dojo';
+import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
 import { useDojoProgress } from './useDojoProgress';
 import styles from './DojoFlow.module.css';
 
 export function DojoMap() {
-  const params = useParams<{ dojoId: string }>();
+  return <DojoGate>{(dojo, dojoId) => <DojoMapView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
+}
+
+function DojoMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   const router = useRouter();
-  const dojoId = params.dojoId ?? DEMO_DOJO.id;
-  const { progress, ready, reset } = useDojoProgress(dojoId, DEMO_DOJO.floors.length);
-  const floors = [...DEMO_DOJO.floors].reverse();
+  const { progress, ready, reset } = useDojoProgress(dojoId, dojo.floors.length);
+  const floors = [...dojo.floors].reverse();
   const bossUnlocked = progress.stage === 'boss' || progress.stage === 'complete';
-  const bossLevel = DEMO_DOJO.floors.length + 1;
+  const bossLevel = dojo.floors.length + 1;
   const highestLevel = bossLevel;
   const [selectedLevel, setSelectedLevel] = useState(progress.currentFloor);
   const [playerX, setPlayerX] = useState(18);
@@ -59,7 +62,7 @@ export function DojoMap() {
       return;
     }
     if (selectedLevel > progress.currentFloor) return;
-    const selectedFloor = DEMO_DOJO.floors[selectedLevel - 1];
+    const selectedFloor = dojo.floors[selectedLevel - 1];
     const destination =
       selectedLevel === progress.currentFloor && progress.stage === 'battle'
         ? `/dojo/${dojoId}/floor/${selectedFloor.id}/battle`
@@ -69,6 +72,7 @@ export function DojoMap() {
   }, [
     bossLevel,
     bossUnlocked,
+    dojo.floors,
     dojoId,
     progress.currentFloor,
     progress.stage,
@@ -124,8 +128,8 @@ export function DojoMap() {
       <header className={styles.intro}>
         <div>
           <p className={styles.eyebrow}>TOPIC TOWER</p>
-          <h1>{DEMO_DOJO.title}</h1>
-          <p>{DEMO_DOJO.topic}</p>
+          <h1>{dojo.title}</h1>
+          <p>{dojo.topic}</p>
         </div>
         <button
           className={styles.reset}
@@ -172,7 +176,7 @@ export function DojoMap() {
             <div className={styles.floorNumber}>頂</div>
             <div>
               <p>FINAL FLOOR · ALL SUBTOPICS</p>
-              <h2>{DEMO_DOJO.boss.name}</h2>
+              <h2>{dojo.boss.name}</h2>
               <small>Recall → Application → Synthesis</small>
             </div>
             {progress.stage === 'complete' ? (
@@ -241,19 +245,19 @@ export function DojoMap() {
           <p className={styles.eyebrow}>CURRENT OBJECTIVE</p>
           <strong>{nextAction}</strong>
           <span>
-            {Math.min(progress.currentFloor - 1, DEMO_DOJO.floors.length)} /{' '}
-            {DEMO_DOJO.floors.length} floors cleared
+            {Math.min(progress.currentFloor - 1, dojo.floors.length)} / {dojo.floors.length} floors
+            cleared
           </span>
           <div className={styles.progressTrack}>
             <i
               style={{
                 width: `${
                   ((progress.stage === 'complete'
-                    ? DEMO_DOJO.floors.length + 1
+                    ? dojo.floors.length + 1
                     : progress.stage === 'boss'
-                      ? DEMO_DOJO.floors.length
+                      ? dojo.floors.length
                       : progress.currentFloor - 1) /
-                    (DEMO_DOJO.floors.length + 1)) *
+                    (dojo.floors.length + 1)) *
                   100
                 }%`,
               }}

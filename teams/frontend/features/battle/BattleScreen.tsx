@@ -4,19 +4,23 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
-import { DEMO_DOJO } from '@/teams/game/content/demo-dojo';
+import type { Dojo } from '@/teams/shared/contracts/dojo';
+import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import flowStyles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 import { FloorEncounter } from './FloorEncounter';
 import PrototypeBattle from './PrototypeBattle';
 
 export function BattleScreen() {
-  const params = useParams<{ dojoId: string; floorId: string }>();
+  return <DojoGate>{(dojo, dojoId) => <BattleScreenView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
+}
+
+function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
+  const params = useParams<{ floorId: string }>();
   const router = useRouter();
-  const dojoId = params.dojoId ?? DEMO_DOJO.id;
-  const floor = DEMO_DOJO.floors.find((item) => item.id === params.floorId);
-  const nextFloor = floor ? DEMO_DOJO.floors[floor.order] : undefined;
-  const { progress, ready, advance } = useDojoProgress(dojoId, DEMO_DOJO.floors.length);
+  const floor = dojo.floors.find((item) => item.id === params.floorId);
+  const nextFloor = floor ? dojo.floors[floor.order] : undefined;
+  const { progress, ready, advance } = useDojoProgress(dojoId, dojo.floors.length);
   const [resolved, setResolved] = useState(false);
   const [roomEntered, setRoomEntered] = useState(false);
 
@@ -47,7 +51,7 @@ export function BattleScreen() {
   }
 
   if (resolved) {
-    const finalUnlocked = floor.order === DEMO_DOJO.floors.length;
+    const finalUnlocked = floor.order === dojo.floors.length;
     return (
       <section className={flowStyles.completion}>
         <p className={flowStyles.eyebrow}>
