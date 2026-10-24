@@ -30,6 +30,7 @@ export interface MasteryRecord {
   status: MasteryStatus;
 }
 
+/** @deprecated Battle grading uses `GradeResult` from ./battle. Kept until Backend migrates. */
 export interface GradeResult {
   correct: boolean;
   score: number;

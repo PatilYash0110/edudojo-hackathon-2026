@@ -2,46 +2,68 @@
  * Dojo = one topic/document; Floor = one section; Boss on the top floor.
  *
  * OWNER: SHARED (all teams)
- * STATUS: placeholder, not implemented.
- *
- * TODO: finalize fields on day 1, then convert to zod schemas
+ * STATUS: locked for Milestone 1. Additive changes only; tell every team.
  */
-import type { Challenge } from './challenge';
+import { z } from 'zod';
+import { ChallengeSchema } from './challenge';
 
-export interface OpenMaicLessonReference {
+export const OpenMaicLessonReferenceSchema = z.object({
   /** Runtime generated and served by the Backend Team's OpenMAIC integration. */
-  runtimeId: string;
-  sceneIds: string[];
-}
+  runtimeId: z.string().min(1),
+  sceneIds: z.array(z.string().min(1)),
+});
+export type OpenMaicLessonReference = z.infer<typeof OpenMaicLessonReferenceSchema>;
 
-export interface LearningObjective {
-  id: string;
-  title: string;
-  // TODO: description, bloom level
-}
+export const LearningObjectiveSchema = z.object({
+  id: z.string().min(1),
+  title: z.string().min(1),
+});
+export type LearningObjective = z.infer<typeof LearningObjectiveSchema>;
 
-export interface Floor {
-  id: string;
-  order: number;
-  title: string;
-  objectives: LearningObjective[];
-  challenges: Challenge[];
+export const FloorSchema = z.object({
+  id: z.string().min(1),
+  /** 1-based position in the tower. */
+  order: z.number().int().positive(),
+  title: z.string().min(1),
+  objectives: z.array(LearningObjectiveSchema).min(1),
+  challenges: z.array(ChallengeSchema),
   /** Embedded lesson runtime from the Backend Team; never an external navigation target. */
-  lesson?: OpenMaicLessonReference;
-  // TODO: enemy, theme
-}
+  lesson: OpenMaicLessonReferenceSchema.optional(),
+});
+export type Floor = z.infer<typeof FloorSchema>;
 
-export interface Boss {
-  id: string;
-  name: string;
-  // TODO: phases, challenge pool
-}
+export const BossSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(1),
+});
+export type Boss = z.infer<typeof BossSchema>;
 
-export interface Dojo {
-  id: string;
-  title: string;
-  topic: string;
-  floors: Floor[];
-  boss: Boss;
-  // TODO: language, createdBy, source (topic | OpenMAIC stage)
-}
+export const DojoSchema = z
+  .object({
+    id: z.string().min(1),
+    title: z.string().min(1),
+    topic: z.string().min(1),
+    floors: z.array(FloorSchema).min(1),
+    boss: BossSchema,
+  })
+  .superRefine((dojo, ctx) => {
+    dojo.floors.forEach((floor, index) => {
+      if (floor.order !== index + 1) {
+        ctx.addIssue({
+          code: 'custom',
+          path: ['floors', index, 'order'],
+          message: `Floors must be ordered 1..n; expected ${index + 1}, got ${floor.order}.`,
+        });
+      }
+    });
+    const objectiveIds = dojo.floors.flatMap((floor) => floor.objectives.map((o) => o.id));
+    if (new Set(objectiveIds).size !== objectiveIds.length) {
+      ctx.addIssue({ code: 'custom', path: ['floors'], message: 'Objective ids must be unique.' });
+    }
+  });
+export type Dojo = z.infer<typeof DojoSchema>;
+
+export const CreateDojoInputSchema = z.object({
+  topic: z.string().trim().min(1).max(2000),
+});
+export type CreateDojoInput = z.infer<typeof CreateDojoInputSchema>;
