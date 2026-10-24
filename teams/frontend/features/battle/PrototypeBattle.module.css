@@ -1349,6 +1349,10 @@
 .effects[data-target='player'] .cut {
   transform: scaleX(-1);
 }
+/* The cut is mirrored for hits on the player; un-mirror the damage number so it stays readable. */
+.effects[data-target='player'] .hitNumber {
+  scale: -1 1;
+}
 .effects[data-kind='combo'],
 .effects[data-kind='counter'] {
   --fx-color: #aaf9f2;
@@ -1475,11 +1479,11 @@
   position: absolute;
   left: 43%;
   top: 52%;
-  width: 90px;
-  height: 90px;
+  width: 104px;
+  height: 104px;
   border-radius: 50%;
   background: radial-gradient(circle, white 4%, #cefff4 20%, #72f4ef 40%, #5cc7ec00 70%);
-  box-shadow: 0 0 22px #4fe3ee;
+  box-shadow: 0 0 34px #4fe3ee;
   animation: chargeOrb 1.1s ease both;
 }
 .energyBeam {
@@ -1487,10 +1491,12 @@
   top: 44%;
   left: 44%;
   width: 37%;
-  height: 75px;
+  height: 104px;
   border-radius: 10% 50% 50% 10%;
-  background: linear-gradient(0deg, transparent, #64e7f9, #fff 40% 60%, #64e7f9, transparent);
-  box-shadow: 0 0 16px #8bfff3;
+  background: linear-gradient(0deg, transparent, #64e7f9, #fff 38% 62%, #64e7f9, transparent);
+  box-shadow:
+    0 0 26px #8bfff3,
+    0 0 60px #4fe3ee;
   transform-origin: left;
   animation: beam 650ms 850ms both;
   opacity: 0;
@@ -2678,9 +2684,9 @@
 .arena {
   container-type: size;
   --ground: 15cqh;
-  --fighter-h: 56cqh;
-  --actor-w: min(30cqh, 17cqw);
-  --gap: min(3cqh, 2cqw);
+  --fighter-h: 48cqh;
+  --actor-w: min(26cqh, 15cqw);
+  --gap: min(15cqh, 9.5cqw);
   --panel-w: clamp(280px, 27cqw, 410px);
   --zone-left: calc(3cqw + var(--panel-w) + 2cqw);
   --mid: calc((var(--zone-left) + 97cqw) / 2);
@@ -2696,6 +2702,8 @@
   height: var(--fighter-h);
   --faceoff-shift: 0%;
   --recoil-shift: -10%;
+  /* A lunge covers 60% of the distance between the two fighters, whatever the spacing. */
+  --dash-reach: calc((2 * var(--gap) + var(--actor-w)) * 0.6);
 }
 .playerActor {
   left: calc(var(--player-x) - var(--actor-w) / 2);
@@ -2775,8 +2783,8 @@
   height: calc(var(--fighter-h) * 0.8);
 }
 .chargeOrb {
-  left: calc(var(--player-x) + var(--actor-w) * 0.35 - 45px);
-  top: calc(var(--chest-y) - 45px);
+  left: calc(var(--player-x) + var(--actor-w) * 0.35 - 52px);
+  top: calc(var(--chest-y) - 52px);
 }
 .chargeRings,
 .energyMotes {
@@ -2785,7 +2793,7 @@
 }
 .energyBeam {
   left: calc(var(--player-x) + var(--actor-w) * 0.35);
-  top: calc(var(--chest-y) - 37px);
+  top: calc(var(--chest-y) - 52px);
   width: calc(var(--enemy-x) - var(--player-x) - var(--actor-w) * 0.35);
 }
 .energyNumber {
@@ -2820,8 +2828,8 @@
     max-height: 980px;
     --ground: 47cqh;
     --fighter-h: min(33cqh, 60cqw);
-    --actor-w: min(19cqh, 34cqw);
-    --gap: 2cqw;
+    --actor-w: min(19cqh, 31cqw);
+    --gap: 8.5cqw;
     --zone-left: 3cqw;
     --mid: 50cqw;
   }
@@ -3091,11 +3099,11 @@
     transform: translateX(0);
   }
   16% {
-    transform: translateX(-7%);
+    transform: translateX(-10%);
   }
   30%,
   48% {
-    transform: translateX(55%);
+    transform: translateX(var(--dash-reach));
   }
   100% {
     transform: translateX(0);
@@ -3107,11 +3115,11 @@
     transform: translateX(0);
   }
   14% {
-    transform: translateX(-6%);
+    transform: translateX(-9%);
   }
   24%,
   76% {
-    transform: translateX(55%);
+    transform: translateX(var(--dash-reach));
   }
   100% {
     transform: translateX(0);
@@ -3123,11 +3131,11 @@
     transform: translateX(0);
   }
   16% {
-    transform: translateX(7%);
+    transform: translateX(10%);
   }
   30%,
   48% {
-    transform: translateX(-55%);
+    transform: translateX(calc(var(--dash-reach) * -1));
   }
   100% {
     transform: translateX(0);

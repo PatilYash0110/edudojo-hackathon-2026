@@ -1,19 +1,34 @@
 'use client';
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
-import type { Dojo } from '@/teams/shared/contracts/dojo';
+import type { Dojo, Floor } from '@/teams/shared/contracts/dojo';
+import type { GradeResult } from '@/teams/shared/contracts/battle';
+import {
+  byRetention,
+  floorRetention,
+  rematchEnemyHp,
+  type ReviewAnswer,
+} from '@/teams/game/mastery/decay';
 import { DojoGate, DojoLoading } from '@/teams/frontend/app-shell/DojoGate';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
+import { readDojoMemory, recordReview } from '@/teams/frontend/features/dojo-map/useDojoMemory';
 import flowStyles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 import { FloorEncounter } from './FloorEncounter';
 import PrototypeBattle from './PrototypeBattle';
 import { levelForOrder } from './fighter-roster';
 
+/** A decay rematch, worked out once when the page opens. */
+type Rematch = { enemyHp: number; priority: string[]; retention: number };
+
 export function BattleScreen() {
   return <DojoGate>{(dojo, dojoId) => <BattleScreenView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
+}
+
+function objectiveIds(floor: Floor) {
+  return floor.objectives.map((objective) => objective.id);
 }
 
 function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
@@ -22,22 +37,67 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   const floor = dojo.floors.find((item) => item.id === params.floorId);
   const nextFloor = floor ? dojo.floors[floor.order] : undefined;
   const { progress, ready, advance } = useDojoProgress(dojoId, dojo.floors.length);
-  const [resolved, setResolved] = useState(false);
+  const [resolved, setResolved] = useState<'cleared' | 'repaired' | null>(null);
   const [roomEntered, setRoomEntered] = useState(false);
-
-  const winFloor = useCallback(() => {
-    advance('BATTLE_WON');
-    setResolved(true);
-  }, [advance]);
+  /** `?review=1` asks for a rematch; read after hydration like the tower's `?floor=`. */
+  const [mode, setMode] = useState<'pending' | 'normal' | 'review'>('pending');
+  const [rematch, setRematch] = useState<Rematch | null>(null);
+  const answers = useRef<ReviewAnswer[]>([]);
 
   useEffect(() => {
-    if (!resolved) return;
-    const destination = nextFloor ? `/dojo/${dojoId}/floor/${nextFloor.id}` : `/dojo/${dojoId}`;
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      const review = new URLSearchParams(window.location.search).get('review') === '1';
+      if (review && floor) {
+        const now = Date.now();
+        const ids = objectiveIds(floor);
+        const memory = readDojoMemory(dojoId);
+        const retention = floorRetention(ids, memory, now) ?? 1;
+        setRematch({
+          enemyHp: rematchEnemyHp(retention),
+          priority: byRetention(ids, memory, now),
+          retention,
+        });
+      }
+      setMode(review ? 'review' : 'normal');
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [dojoId, floor]);
+
+  const onGraded = useCallback((result: GradeResult) => {
+    answers.current.push({ objectiveId: result.objectiveId, correct: result.correct });
+  }, []);
+  const onRestart = useCallback(() => {
+    answers.current = [];
+  }, []);
+
+  const winFloor = useCallback(() => {
+    if (!floor) return;
+    recordReview(dojoId, objectiveIds(floor), answers.current);
+    if (mode === 'review') {
+      setResolved('repaired');
+      return;
+    }
+    advance('BATTLE_WON');
+    setResolved('cleared');
+  }, [advance, dojoId, floor, mode]);
+
+  useEffect(() => {
+    if (!resolved || !floor) return;
+    const destination =
+      resolved === 'repaired'
+        ? `/dojo/${dojoId}?floor=${floor.id}`
+        : nextFloor
+          ? `/dojo/${dojoId}/floor/${nextFloor.id}`
+          : `/dojo/${dojoId}`;
     const timer = setTimeout(() => router.push(destination), 900);
     return () => clearTimeout(timer);
-  }, [dojoId, nextFloor, resolved, router]);
+  }, [dojoId, floor, nextFloor, resolved, router]);
 
-  if (!ready) return <DojoLoading />;
+  if (!ready || mode === 'pending') return <DojoLoading />;
 
   if (!floor) {
     return (
@@ -51,7 +111,20 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     );
   }
 
-  if (resolved) {
+  if (resolved === 'repaired') {
+    return (
+      <section className={flowStyles.completion}>
+        <p className={flowStyles.eyebrow}>
+          <Check size={13} /> FLOOR {floor.order} REPAIRED
+        </p>
+        <h1>{floor.title} restored.</h1>
+        <p>You remembered it again. This time it will hold longer.</p>
+        <span className={flowStyles.clearedBadge}>Returning to the tower…</span>
+      </section>
+    );
+  }
+
+  if (resolved === 'cleared') {
     const finalUnlocked = floor.order === dojo.floors.length;
     return (
       <section className={flowStyles.completion}>
@@ -69,7 +142,13 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     );
   }
 
-  const canBattle = floor.order === progress.currentFloor && progress.stage === 'battle';
+  const cleared =
+    floor.order < progress.currentFloor ||
+    progress.stage === 'boss' ||
+    progress.stage === 'complete';
+  const isRematch = mode === 'review' && cleared && rematch !== null;
+  const canBattle =
+    isRematch || (floor.order === progress.currentFloor && progress.stage === 'battle');
   if (!canBattle) {
     return (
       <section className={flowStyles.gate}>
@@ -83,13 +162,18 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     );
   }
 
+  const level = levelForOrder(floor.order);
+  const floorLabel = isRematch
+    ? `Rematch · Floor ${floor.order} · ${Math.round((rematch?.retention ?? 1) * 100)}% remembered`
+    : `Floor ${floor.order} · ${floor.title}`;
+
   if (!roomEntered) {
     return (
       <FloorEncounter
-        floorLabel={`Floor ${floor.order} · ${floor.title}`}
-        opponent={levelForOrder(floor.order).villain.name}
-        opponentFighter={levelForOrder(floor.order).villain}
-        arena={levelForOrder(floor.order).arena}
+        floorLabel={floorLabel}
+        opponent={level.villain.name}
+        opponentFighter={level.villain}
+        arena={level.arena}
         onReady={() => setRoomEntered(true)}
       />
     );
@@ -99,11 +183,18 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     <PrototypeBattle
       dojoId={dojoId}
       floorId={floor.id}
-      topicLabel={`Floor ${floor.order} · ${floor.title}`}
-      opponentName={levelForOrder(floor.order).villain.name}
-      opponentRole={`FLOOR ${floor.order} GUARDIAN`}
-      opponentFighter={levelForOrder(floor.order).villain}
-      arena={levelForOrder(floor.order).arena}
+      topicLabel={isRematch ? `${floorLabel} · ${floor.title}` : floorLabel}
+      opponentName={level.villain.name}
+      opponentRole={
+        isRematch ? `FLOOR ${floor.order} · RECOVERED` : `FLOOR ${floor.order} GUARDIAN`
+      }
+      opponentFighter={level.villain}
+      arena={level.arena}
+      review={isRematch}
+      enemyHp={isRematch ? rematch?.enemyHp : undefined}
+      objectivePriority={isRematch ? rematch?.priority : undefined}
+      onGraded={onGraded}
+      onRestart={onRestart}
       onVictory={winFloor}
     />
   );

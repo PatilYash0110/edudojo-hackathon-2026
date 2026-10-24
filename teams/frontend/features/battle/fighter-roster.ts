@@ -1,8 +1,12 @@
 /**
- * Fighters and arenas from the team's Frontend-design repo
- * ("Dojo_Animationen_Teil_1-3" sprites and "Maps"). Every fighter has six
- * clips packed as horizontal WebP strips in public/dojo/fighters/<id>/<clip>.webp,
- * 300px square frames facing right.
+ * Fighters and arenas from the team's Frontend-design repo: the rig-based
+ * "character_animation" v2 sprites (branch character-animations-v2) and "Maps".
+ * Every fighter has six clips packed as horizontal WebP strips in
+ * public/dojo/fighters/<id>/<clip>.webp. Frames are 640×480, facing right, and all frames of a
+ * fighter share one canvas, scale and ground line; the feet sit on the anchor (250, 462).
+ * The frames carry their own impact effects (impact star, short beam, guard arc, hit flash).
+ * Source → id: Magician_m → monk (hero), Street_m → brawler, Ninja_f → ninja, Suit_f → valkyrie,
+ * Magician_f → storm, Smash_m → colossus (boss).
  */
 export type FighterId = 'monk' | 'brawler' | 'ninja' | 'valkyrie' | 'storm' | 'colossus';
 export type ClipName = 'idle' | 'jab' | 'heavy' | 'special' | 'hurt' | 'block';
@@ -15,43 +19,55 @@ export interface ClipSpec {
   contact: number;
 }
 
+/** From the v2 manifest (`impactFrame` → `contact`); identical for every fighter. */
 export const CLIPS: Record<ClipName, ClipSpec> = {
   idle: { frames: 12, fps: 10, loop: true, contact: 0 },
-  jab: { frames: 8, fps: 18, loop: false, contact: 3 },
-  heavy: { frames: 10, fps: 15, loop: false, contact: 5 },
-  special: { frames: 12, fps: 12, loop: false, contact: 8 },
-  hurt: { frames: 6, fps: 14, loop: false, contact: 0 },
-  block: { frames: 8, fps: 16, loop: false, contact: 3 },
+  jab: { frames: 8, fps: 14, loop: false, contact: 3 },
+  heavy: { frames: 10, fps: 12, loop: false, contact: 4 },
+  special: { frames: 12, fps: 12, loop: false, contact: 6 },
+  hurt: { frames: 6, fps: 12, loop: false, contact: 0 },
+  block: { frames: 8, fps: 12, loop: false, contact: 3 },
 };
+
+/** Shared v2 canvas: 640×480 with the feet at (250, 462). */
+const FRAME_ASPECT = 640 / 480;
+const ANCHOR_X = 250 / 640;
+const FEET_Y = 462 / 480;
 
 export interface FighterArt {
   id: FighterId;
   name: string;
   /** Element colour for auras, bursts and the attack trail. */
   element: string;
-  /** Relative size; 1 is a normal fighter. */
+  /**
+   * Frame height relative to a normal fighter slot. The v2 figure fills ~72% of its frame, so
+   * these are larger than 1; each keeps the figure at the size the old art had on screen.
+   */
   scale: number;
   /** Where the feet sit, as a fraction of the frame height from the top. */
   feetY: number;
+  /** Frame width / height. */
+  frameAspect: number;
+  /** Where the feet sit, as a fraction of the frame width from the left (facing right). */
+  anchorX: number;
+}
+
+function v2(id: FighterId, name: string, element: string, scale: number): FighterArt {
+  return { id, name, element, scale, feetY: FEET_Y, frameAspect: FRAME_ASPECT, anchorX: ANCHOR_X };
 }
 
 export function clipUrl(fighter: FighterArt, clip: ClipName) {
   return `/dojo/fighters/${fighter.id}/${clip}.webp`;
 }
 
+/** Scales = old on-screen figure height ÷ v2 figure height share, so sizes stay as they were. */
 export const FIGHTERS: Record<FighterId, FighterArt> = {
-  monk: { id: 'monk', name: 'Apprentice', element: '#7fd4ff', scale: 1, feetY: 0.977 },
-  brawler: { id: 'brawler', name: 'Ember Fist', element: '#ff8a3d', scale: 1, feetY: 0.97 },
-  ninja: { id: 'ninja', name: 'Kasumi', element: '#5fe3c8', scale: 1, feetY: 0.977 },
-  valkyrie: { id: 'valkyrie', name: 'Void Valkyrie', element: '#c58cff', scale: 1, feetY: 0.967 },
-  storm: { id: 'storm', name: 'Raikō', element: '#9db8ff', scale: 1, feetY: 0.977 },
-  colossus: {
-    id: 'colossus',
-    name: 'Stone Colossus',
-    element: '#ff5a4f',
-    scale: 1.16,
-    feetY: 0.97,
-  },
+  monk: v2('monk', 'Apprentice', '#7fd4ff', 1.26),
+  brawler: v2('brawler', 'Ember Fist', '#ff8a3d', 1.28),
+  ninja: v2('ninja', 'Kasumi', '#5fe3c8', 1.27),
+  valkyrie: v2('valkyrie', 'Void Valkyrie', '#c58cff', 1.27),
+  storm: v2('storm', 'Raikō', '#9db8ff', 1.28),
+  colossus: v2('colossus', 'Stone Colossus', '#ff5a4f', 1.47),
 };
 
 export const HERO = FIGHTERS.monk;

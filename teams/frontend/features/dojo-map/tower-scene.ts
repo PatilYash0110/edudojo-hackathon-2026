@@ -28,6 +28,10 @@ export interface TowerSprite {
   fps: number;
   scale: number;
   feetY: number;
+  /** Frame width / height (1 when omitted). */
+  aspect?: number;
+  /** Feet position across the frame, facing right (0.5 when omitted). */
+  anchorX?: number;
 }
 
 export interface TowerFloorSpec {
@@ -49,6 +53,11 @@ export interface TowerSceneOptions {
 
 export interface TowerScene {
   setStates: (states: FloorState[]) => void;
+  /**
+   * Share forgotten per floor (0 = fresh, 1 = gone; null = no memory). Cleared floors dim and
+   * crack, and their beaten guardian gets back up as the value grows.
+   */
+  setDecay: (forgotten: (number | null)[]) => void;
   /** Fly the camera to a floor, or back to the whole tower with null. */
   focus: (index: number | null) => void;
   /** Pixels at the bottom of the canvas covered by HUD; the tower is framed above them. */
@@ -82,8 +91,15 @@ interface FloorRuntime {
   trim: THREE.MeshStandardMaterial;
   panel: THREE.MeshBasicMaterial;
   seal: THREE.Group;
+  /** Cracks over the opening; opacity follows how much of the floor is forgotten. */
+  crack: THREE.MeshBasicMaterial;
   villain: Fighter;
+  /** Translucent spirit of a beaten guardian, standing up out of it as the floor is forgotten. */
+  ghost: Fighter;
+  halo: THREE.MeshBasicMaterial;
+  ghostOpacity: number;
   state: FloorState;
+  forgotten: number;
   /** Camera target: centre of the opening. */
   cy: number;
   cz: number;
@@ -247,10 +263,17 @@ function buildTower(
       alphaTest: 0.1,
     });
     const size = FIGHTER_SIZE * sprite.scale;
-    const body = new THREE.Mesh(new THREE.PlaneGeometry(size, size), material);
+    const aspect = sprite.aspect ?? 1;
+    const anchorX = sprite.anchorX ?? 0.5;
+    const width = size * aspect;
+    const body = new THREE.Mesh(new THREE.PlaneGeometry(width, size), material);
     body.position.y = size / 2 - (1 - sprite.feetY) * size;
+    // Put the feet on the pivot; a mirrored (flipped) frame has its feet on the other side.
+    body.position.x = (flip ? anchorX - 0.5 : 0.5 - anchorX) * width;
+    // v2 frames leave room around the figure: size the shadow by the figure, not the frame.
+    const figure = aspect === 1 ? size : size * 0.78;
     const shadow = new THREE.Mesh(
-      new THREE.PlaneGeometry(size * 0.55, size * 0.18),
+      new THREE.PlaneGeometry(figure * 0.55, figure * 0.18),
       new THREE.MeshBasicMaterial({
         map: kit.glowTexture,
         color: 0x000000,
@@ -365,9 +388,38 @@ function buildTower(
     }
     room.add(seal);
 
+    // Cracks over the opening for a floor that is being forgotten (hidden until it fades).
+    const crack = new THREE.MeshBasicMaterial({
+      map: crackTexture(17 + i * 31),
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+    room.add(plane(sw, sh, crack, 0, cyO, front + 0.12));
+
     const villain = fighter(spec.villain, true);
     villain.pivot.position.set(FIGHTER_X, 0.1, FIGHTER_Z);
     room.add(villain.pivot);
+
+    // The guardian's spirit: same sprite, standing, pale and see-through, with a soft glow behind
+    // it so it reads against bright rooms too. No shadow.
+    const ghost = fighter(spec.villain, true);
+    Object.assign(ghost.material, { depthWrite: false, alphaTest: 0.01, opacity: 0 });
+    ghost.material.color.setHex(0xa6dcff);
+    ghost.pivot.children[0].visible = false;
+    const halo = new THREE.MeshBasicMaterial({
+      map: kit.glowTexture,
+      color: 0x5fd0ff,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const haloSize = FIGHTER_SIZE * spec.villain.scale * 1.15;
+    ghost.pivot.add(plane(haloSize, haloSize, halo, 0, haloSize * 0.42, -0.05));
+    ghost.pivot.position.set(FIGHTER_X, 0.1, FIGHTER_Z - 0.02);
+    ghost.pivot.visible = false;
+    room.add(ghost.pivot);
 
     /* roof */
     const roofGroup = new THREE.Group();
@@ -412,8 +464,13 @@ function buildTower(
       trim,
       panel,
       seal,
+      crack,
       villain,
+      ghost,
+      halo,
+      ghostOpacity: 0,
       state: 'locked' as FloorState,
+      forgotten: 0,
       cy: y0 + cyO,
       cz: front + 0.08,
       sw,
@@ -606,8 +663,18 @@ function buildTower(
     const pulse = reducedMotion ? 0.5 : 0.5 + 0.5 * Math.sin(t * 2.4);
     runtimes.forEach((floor, i) => {
       const highlighted = i === hovered || i === focused;
+      const fade = floor.state === 'cleared' ? floor.forgotten : 0;
+      // A fading floor dims, and once badly forgotten its light starts to stutter.
+      const flicker =
+        fade > 0.4 && !reducedMotion
+          ? 0.82 + 0.18 * Math.sin(t * 7.3 + i * 1.7) * Math.sin(t * 3.1)
+          : 1;
       const lit =
-        floor.state === 'locked' ? 0.18 : floor.state === 'current' ? 1 + 0.18 * pulse : 1;
+        floor.state === 'locked'
+          ? 0.18
+          : floor.state === 'current'
+            ? 1 + 0.18 * pulse
+            : (1 - 0.62 * fade) * flicker;
       const lightTarget = floor.baseIntensity * lit * (highlighted ? 1.5 : 1);
       floor.light.intensity += (lightTarget - floor.light.intensity) * 0.15;
       const trimTarget = highlighted
@@ -615,11 +682,24 @@ function buildTower(
         : floor.state === 'current'
           ? 0.45 + 0.6 * pulse
           : floor.state === 'cleared'
-            ? 0.7
+            ? 0.7 * (1 - 0.7 * fade)
             : 0.2;
       floor.trim.emissiveIntensity += (trimTarget - floor.trim.emissiveIntensity) * 0.15;
       floor.fx.update(dt, t, speed);
-      animateFighter(floor.villain, floor.state === 'cleared' || reducedMotion);
+      // A beaten guardian lies still; one that has got back up breathes again.
+      animateFighter(
+        floor.villain,
+        (floor.state === 'cleared' && guardianStage(fade) !== 'up') || reducedMotion,
+      );
+      if (floor.ghost.pivot.visible) {
+        // The spirit hovers and breathes over the body.
+        animateFighter(floor.ghost, reducedMotion);
+        floor.ghost.pivot.position.y =
+          0.1 + (reducedMotion ? 0.04 : 0.04 + 0.05 * Math.sin(t * 1.7 + i));
+        floor.ghost.material.opacity =
+          floor.ghostOpacity * (reducedMotion ? 1 : 0.85 + 0.15 * Math.sin(t * 2.3 + i * 1.3));
+        floor.halo.opacity = floor.ghost.material.opacity * 0.75;
+      }
     });
     animateFighter(hero, reducedMotion);
     leaves.update(dt, t, speed);
@@ -628,23 +708,50 @@ function buildTower(
   }
   frameRequest = requestAnimationFrame(frame);
 
+  /** Room look from its state and how much of it is forgotten. */
+  function applyFloor(floor: FloorRuntime) {
+    const locked = floor.state === 'locked';
+    const cleared = floor.state === 'cleared';
+    const fade = cleared ? floor.forgotten : 0;
+    const stage = cleared ? guardianStage(fade) : 'up';
+    floor.seal.visible = locked;
+    floor.fx.dim = locked ? 0.2 : 1 - 0.55 * fade;
+    if (locked) floor.panel.color.setHex(0x2b2833);
+    else floor.panel.color.setScalar(1 - 0.55 * fade);
+    if (locked) floor.villain.material.color.setHex(0x000000);
+    else floor.villain.material.color.setScalar(cleared && stage !== 'up' ? 0.55 : 1);
+    // Only two body poses, never a half-tilted sprite: a beaten guardian lies on the floor, toppled
+    // away from the hero, until the floor is mostly forgotten; then it stands again. In between,
+    // its spirit rises out of the body and grows stronger.
+    const lying = cleared && stage !== 'up';
+    floor.villain.pivot.rotation.z = lying ? -1.38 : 0;
+    floor.villain.pivot.position.x = lying ? 0.15 : FIGHTER_X;
+    floor.ghost.pivot.visible = stage === 'spirit';
+    floor.ghostOpacity =
+      stage === 'spirit'
+        ? 0.4 + 0.45 * Math.min(1, (fade - SPIRIT_FROM) / (STANDS_AT - SPIRIT_FROM))
+        : 0;
+    floor.ghost.material.opacity = floor.ghostOpacity;
+    floor.halo.opacity = floor.ghostOpacity * 0.75;
+    floor.crack.opacity = cleared ? Math.min(0.92, Math.max(0, (fade - 0.12) / 0.5)) : 0;
+  }
+
   return {
     setStates(states) {
       runtimes.forEach((floor, i) => {
-        const state = states[i] ?? 'locked';
-        const locked = state === 'locked';
-        const cleared = state === 'cleared';
-        floor.state = state;
-        floor.seal.visible = locked;
-        floor.fx.dim = locked ? 0.2 : 1;
-        floor.panel.color.setHex(locked ? 0x2b2833 : 0xffffff);
-        floor.villain.material.color.setHex(locked ? 0x000000 : cleared ? 0x8c8c8c : 0xffffff);
-        // A beaten guardian lies on the floor, toppled away from the hero.
-        floor.villain.pivot.rotation.z = cleared ? -1.38 : 0;
-        floor.villain.pivot.position.x = cleared ? 0.15 : FIGHTER_X;
+        floor.state = states[i] ?? 'locked';
+        applyFloor(floor);
       });
       const current = states.indexOf('current');
       runtimes[current >= 0 ? current : runtimes.length - 1].room.add(hero.pivot);
+    },
+    setDecay(forgotten) {
+      runtimes.forEach((floor, i) => {
+        const value = forgotten[i];
+        floor.forgotten =
+          value === null || value === undefined ? 0 : Math.min(1, Math.max(0, value));
+        applyFloor(floor);
+      });
     },
     focus(index) {
       focused = index ?? -1;
@@ -667,6 +774,99 @@ function buildTower(
       restore();
     },
   };
+}
+
+/** 0 while a floor is fresh, easing to 1 (guardian fully back up) as it is forgotten. */
+/** Forgotten share where the spirit appears: the floor's repair threshold (retention 0.8). */
+const SPIRIT_FROM = 0.2;
+/** Forgotten share where the guardian has fully recovered and stands again. */
+const STANDS_AT = 0.75;
+
+/** Beaten and still; its spirit rising; or back on its feet. */
+function guardianStage(forgotten: number): 'down' | 'spirit' | 'up' {
+  if (forgotten >= STANDS_AT) return 'up';
+  return forgotten > SPIRIT_FROM ? 'spirit' : 'down';
+}
+
+/** Straight, splintering cracks radiating from an impact point (cracked glass), transparent canvas. */
+function crackTexture(seed: number) {
+  return canvasTexture(512, 384, (g, w, h) => {
+    const random = rng(seed);
+    g.clearRect(0, 0, w, h);
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    const branch = (
+      x: number,
+      y: number,
+      angle: number,
+      length: number,
+      width: number,
+      depth: number,
+    ) => {
+      const points: [number, number][] = [[x, y]];
+      let cx = x;
+      let cy = y;
+      let heading = angle;
+      // Few long, nearly straight segments with sharp kinks: glass, not twigs.
+      const steps = 3 + Math.floor(random() * 3);
+      for (let s = 0; s < steps; s++) {
+        heading += (random() - 0.5) * 0.35;
+        cx += (Math.cos(heading) * length) / steps;
+        cy += (Math.sin(heading) * length) / steps;
+        points.push([cx, cy]);
+        if (depth < 1 && random() < 0.35) {
+          branch(
+            cx,
+            cy,
+            heading + (random() < 0.5 ? -1 : 1) * (0.5 + random() * 0.4),
+            length * 0.4,
+            width * 0.6,
+            depth + 1,
+          );
+        }
+      }
+      const stroke = (style: string, lineWidth: number, dx: number, dy: number) => {
+        g.strokeStyle = style;
+        g.lineWidth = lineWidth;
+        g.beginPath();
+        points.forEach(([px, py], index) =>
+          index ? g.lineTo(px + dx, py + dy) : g.moveTo(px + dx, py + dy),
+        );
+        g.stroke();
+      };
+      stroke('rgba(10, 8, 12, 0.85)', width, 0, 0);
+      stroke('rgba(235, 245, 255, 0.75)', Math.max(1, width * 0.4), 1.2, -1.2);
+    };
+    const ix = w * (0.35 + random() * 0.3);
+    const iy = h * (0.3 + random() * 0.35);
+    const rays = 8;
+    const angles = Array.from(
+      { length: rays },
+      (_, k) => (k / rays) * Math.PI * 2 + (random() - 0.5) * 0.5,
+    );
+    for (const angle of angles) branch(ix, iy, angle, 140 + random() * 150, 3, 0);
+    // Spider-web rings between neighbouring rays, like a struck pane.
+    for (const radius of [26, 58]) {
+      g.beginPath();
+      angles.forEach((angle, k) => {
+        if (random() < 0.25) return;
+        const next = angles[(k + 1) % rays];
+        const r1 = radius * (0.85 + random() * 0.3);
+        const r2 = radius * (0.85 + random() * 0.3);
+        g.moveTo(ix + Math.cos(angle) * r1, iy + Math.sin(angle) * r1);
+        g.lineTo(ix + Math.cos(next) * r2, iy + Math.sin(next) * r2);
+      });
+      g.strokeStyle = 'rgba(10, 8, 12, 0.8)';
+      g.lineWidth = 2;
+      g.stroke();
+    }
+    // A bright chip at the point of impact.
+    const chip = g.createRadialGradient(ix, iy, 0, ix, iy, 16);
+    chip.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+    chip.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    g.fillStyle = chip;
+    g.fillRect(ix - 16, iy - 16, 32, 32);
+  });
 }
 
 function disposeScene(scene: THREE.Scene) {

@@ -212,6 +212,26 @@
 .floorChip[data-state='cleared'] > svg {
   color: #8fbea4;
 }
+/* A cleared floor that is being forgotten: dimmer, amber, and it asks to be repaired. */
+.floorChip[data-state='cleared'][data-fading='true'] {
+  background: #241c12e0;
+  border-color: #d9984a66;
+  filter: saturate(0.75);
+}
+.floorChip[data-state='cleared'][data-fading='true'] > svg {
+  color: #e8a95a;
+  animation: fadingPulse 2.4s ease-in-out infinite;
+}
+@keyframes fadingPulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floorChip[data-state='cleared'][data-fading='true'] > svg {
+    animation: none;
+  }
+}
 .floorChip:hover,
 .floorChip[data-hovered='true'] {
   opacity: 1;
@@ -277,6 +297,9 @@
 }
 .stateTag[data-state='cleared'] {
   color: #8fbea4;
+}
+.stateTag[data-state='fading'] {
+  color: #e8a95a;
 }
 .count {
   color: #9daba7;

@@ -35,12 +35,18 @@ export type BattleEvent =
       total: number;
     };
 
-export function createBattleState(): BattleState {
+export interface BattleSetup {
+  /** Guardian HP; a decay rematch passes the forgotten share. Defaults to the balance value. */
+  enemyHp?: number;
+}
+
+export function createBattleState(setup: BattleSetup = {}): BattleState {
+  const enemyHp = Math.max(1, Math.round(setup.enemyHp ?? BATTLE_BALANCE.enemyHp));
   return {
     playerHp: BATTLE_BALANCE.playerHp,
     playerMaxHp: BATTLE_BALANCE.playerHp,
-    enemyHp: BATTLE_BALANCE.enemyHp,
-    enemyMaxHp: BATTLE_BALANCE.enemyHp,
+    enemyHp,
+    enemyMaxHp: enemyHp,
     turn: 'player',
     round: 1,
     combo: 0,
@@ -89,6 +95,13 @@ function resolveAttack(
     quiz: Math.max(0, state.cooldowns.quiz - 1),
   };
   cooldowns[technique] = ATTACK_COOLDOWNS[technique];
+  // Cooldowns only tick when another attack is used, so Blast → Heavy → Combo leaves all three
+  // waiting with nothing left to tick them. Never lock the player out: shorten them all until
+  // at least one technique is ready.
+  const soonest = Math.min(cooldowns.heavy, cooldowns.combo, cooldowns.quiz);
+  if (soonest > 0) {
+    for (const key of Object.keys(cooldowns) as AttackTechnique[]) cooldowns[key] -= soonest;
+  }
   const labels: Record<AttackTechnique, string> = {
     heavy: 'Heavy Strike',
     combo: 'Three-Hit Combo',
@@ -120,7 +133,8 @@ function resolveDefense(
   if (state.turn !== 'enemy') return state;
 
   const success = clampScore(correct, total) === Math.max(1, Math.floor(total));
-  let incomingDamage = BATTLE_BALANCE.enemyDamage;
+  // `number`, not the `as const` literal 24: block, dodge and counter lower it.
+  let incomingDamage: number = BATTLE_BALANCE.enemyDamage;
   let counterDamage = 0;
 
   if (success && technique === 'block') {
@@ -159,7 +173,8 @@ function resolveDefense(
 export function battleReducer(state: BattleState, event: BattleEvent): BattleState {
   switch (event.type) {
     case 'RESET':
-      return createBattleState();
+      // A restart keeps the battle's setup (a rematch guardian stays at its reduced HP).
+      return createBattleState({ enemyHp: state.enemyMaxHp });
     case 'ATTACK_RESOLVED':
       return resolveAttack(state, event.technique, event.correct, event.total);
     case 'DEFENSE_RESOLVED':
