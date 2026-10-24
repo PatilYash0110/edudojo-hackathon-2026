@@ -2,21 +2,25 @@
 
 import { useCallback, useState } from 'react';
 import Link from 'next/link';
-import { ArrowLeft, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
 import type { Dojo } from '@/teams/shared/contracts/dojo';
 import { FINAL_BOSS } from '@/teams/game/boss/boss-phases';
 import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
 import PrototypeBattle from '@/teams/frontend/features/battle/PrototypeBattle';
+import { BOSS, levelFor } from '@/teams/frontend/features/battle/fighter-roster';
 import { FloorEncounter } from '@/teams/frontend/features/battle/FloorEncounter';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import styles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
+import { TowerConquered } from './TowerConquered';
 
 export function BossIntro() {
   return <DojoGate>{(dojo, dojoId) => <BossIntroView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
 }
 
 function BossIntroView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
-  const { progress, ready, advance } = useDojoProgress(dojoId, dojo.floors.length);
+  const router = useRouter();
+  const { progress, ready, advance, reset } = useDojoProgress(dojoId, dojo.floors.length);
   const [roomEntered, setRoomEntered] = useState(false);
 
   const winBoss = useCallback(() => {
@@ -27,19 +31,14 @@ function BossIntroView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
 
   if (progress.stage === 'complete') {
     return (
-      <section className={styles.completion}>
-        <p className={styles.eyebrow}>
-          <Check size={13} /> TOPIC MASTERED
-        </p>
-        <h1>{dojo.title} complete.</h1>
-        <p>
-          The learner cleared every subtopic and defeated the Sensei using questions drawn from the
-          full input.
-        </p>
-        <Link className={styles.primaryAction} href={`/dojo/${dojoId}`}>
-          View completed tower
-        </Link>
-      </section>
+      <TowerConquered
+        dojo={dojo}
+        dojoId={dojoId}
+        onReplay={() => {
+          reset();
+          router.push(`/dojo/${dojoId}`);
+        }}
+      />
     );
   }
 
@@ -62,6 +61,7 @@ function BossIntroView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
         boss
         floorLabel="Final Floor · All input knowledge"
         opponent={FINAL_BOSS.name}
+        opponentFighter={BOSS}
         onReady={() => setRoomEntered(true)}
       />
     );
@@ -73,6 +73,8 @@ function BossIntroView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       topicLabel="All English subtopics"
       opponentName={FINAL_BOSS.name}
       opponentRole="FINAL BOSS · SENSEI"
+      opponentFighter={BOSS}
+      arena={levelFor('boss').arena}
       onVictory={winBoss}
     />
   );
