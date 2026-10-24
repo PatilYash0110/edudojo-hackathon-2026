@@ -32,6 +32,11 @@ export const StudentJoinBody = z.object({
   nickname: z.string().trim().min(1).max(30),
 });
 
+/** Solo play: a student without a class. The AI classmates are the class. */
+export const GuestBody = z.object({
+  nickname: z.string().trim().min(1).max(30).optional(),
+});
+
 export type UserRole = 'teacher' | 'student';
 
 /** `GET /me`, and the `user` field of every auth response. */
