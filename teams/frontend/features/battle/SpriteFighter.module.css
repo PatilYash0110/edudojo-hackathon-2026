@@ -1,0 +1,45 @@
+.fighter {
+  position: absolute;
+  bottom: 0;
+  aspect-ratio: 1;
+  transform: translateX(-50%) scaleX(var(--sprite-flip, 1));
+  pointer-events: none;
+}
+
+.body,
+.ghost {
+  position: absolute;
+  inset: 0;
+  background-repeat: no-repeat;
+  transform-origin: 50% 100%;
+  will-change: transform, filter;
+}
+
+.ghost {
+  opacity: 0;
+  filter: brightness(1.5) drop-shadow(0 0 8px var(--element));
+  mix-blend-mode: screen;
+}
+
+/* Elemental burst at the leading fist on contact. */
+.burst {
+  position: absolute;
+  left: 82%;
+  top: 38%;
+  width: 64%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  opacity: 0;
+  background: radial-gradient(circle, #ffffff 0 14%, var(--element) 34%, transparent 70%);
+  box-shadow:
+    0 0 60px 18px var(--element),
+    0 0 120px 30px color-mix(in oklab, var(--element) 45%, transparent);
+  mix-blend-mode: screen;
+  transform: translate(-50%, -50%) scale(0.4);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ghost {
+    display: none;
+  }
+}

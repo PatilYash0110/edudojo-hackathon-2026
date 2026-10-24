@@ -19,6 +19,13 @@ export const ATTACK_COOLDOWNS = {
   quiz: 3,
 } as const;
 
+/** Per-answer timer and mastery change reported with each grade. */
+export const QUESTION_RULES = {
+  answerTimeoutMs: 60000,
+  masteryDeltaCorrect: 0.1,
+  masteryDeltaWrong: -0.05,
+} as const;
+
 export const REACTIVE_TIMINGS = {
   block: { windupMs: 650, windowMs: 850 },
   dodge: { windupMs: 800, windowMs: 700 },

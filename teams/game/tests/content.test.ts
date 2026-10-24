@@ -1,26 +1,39 @@
 import { describe, expect, it } from 'vitest';
-import {
-  ENGLISH_ATTACK_CHALLENGES,
-  ENGLISH_DEFENSE_CHALLENGES,
-  isPrototypeAnswerCorrect,
-} from '../content/prototype-battle';
+import { TECHNIQUE_QUESTIONS } from '../battle/question-draw';
+import { DEMO_DOJO } from '../content/demo-dojo';
+import { DEMO_QUESTION_BANK, isDemoAnswerCorrect } from '../content/demo-question-bank';
 
-describe('English development question set', () => {
-  it('matches each battle technique and grades every answer key as correct', () => {
-    expect(Object.keys(ENGLISH_ATTACK_CHALLENGES)).toEqual(['heavy', 'combo', 'quiz']);
-    expect(Object.keys(ENGLISH_DEFENSE_CHALLENGES)).toEqual(['block', 'counter', 'dodge']);
-    expect(ENGLISH_ATTACK_CHALLENGES.heavy.questions).toHaveLength(1);
-    expect(ENGLISH_ATTACK_CHALLENGES.combo.questions).toHaveLength(3);
-    expect(ENGLISH_ATTACK_CHALLENGES.quiz.questions).toHaveLength(5);
+describe('demo question bank', () => {
+  it('has unique ids and grades every answer key as correct', () => {
+    const ids = DEMO_QUESTION_BANK.map((question) => question.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const question of DEMO_QUESTION_BANK) {
+      expect(isDemoAnswerCorrect(question, question.answer), question.id).toBe(true);
+      if (question.answerType === 'multiple-choice') {
+        expect(question.options, question.id).toContain(question.answer);
+      }
+    }
+  });
 
-    const questions = [
-      ...Object.values(ENGLISH_ATTACK_CHALLENGES),
-      ...Object.values(ENGLISH_DEFENSE_CHALLENGES),
-    ].flatMap((challenge) => challenge.questions);
+  it('only uses objectives that exist in the demo dojo', () => {
+    const objectives = new Set(
+      DEMO_DOJO.floors.flatMap((floor) => floor.objectives.map((o) => o.id)),
+    );
+    for (const question of DEMO_QUESTION_BANK) {
+      expect(objectives.has(question.objectiveId), question.id).toBe(true);
+    }
+  });
 
-    expect(new Set(questions.map((question) => question.id)).size).toBe(questions.length);
-    for (const question of questions) {
-      expect(isPrototypeAnswerCorrect(question, question.answer), question.id).toBe(true);
+  it('gives every floor enough questions for its largest technique', () => {
+    const largest = Math.max(...Object.values(TECHNIQUE_QUESTIONS).map((rule) => rule.count));
+    for (const floor of DEMO_DOJO.floors) {
+      const objectives = new Set(floor.objectives.map((o) => o.id));
+      const pool = DEMO_QUESTION_BANK.filter((question) => objectives.has(question.objectiveId));
+      expect(pool.length, floor.title).toBeGreaterThanOrEqual(largest);
+      expect(
+        pool.some((question) => question.answerType === 'typed'),
+        floor.title,
+      ).toBe(true);
     }
   });
 });

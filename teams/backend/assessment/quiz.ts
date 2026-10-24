@@ -185,8 +185,25 @@ export async function answerQuestion(
         score,
       ],
     );
-    if (!inserted.rowCount)
-      throw new DojoError('CONFLICT', 'Diese Frage hast du schon beantwortet.');
+    if (!inserted.rowCount) {
+      // A repeat (battles reuse questions): grade it as practice, no second XP or mastery change.
+      await client.query('ROLLBACK');
+      const { rows: xpRows } = await client.query<{ xp: number }>(
+        'SELECT xp FROM dojo_users WHERE id = $1',
+        [user.id],
+      );
+      const totalXp = xpRows[0]?.xp ?? 0;
+      return {
+        correct,
+        score,
+        feedback,
+        explanation: question.explanation,
+        xpGained: 0,
+        totalXp,
+        level: levelForXp(totalXp),
+        mastery: [],
+      };
+    }
     const before = (
       await client.query<{ mastery: number; attempts: number }>(
         'SELECT mastery, attempts FROM dojo_mastery WHERE user_id = $1 AND classroom_id = $2 AND objective_id = $3 FOR UPDATE',

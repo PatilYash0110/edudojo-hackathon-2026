@@ -7,6 +7,7 @@ export const DOJO_API = {
   teacherSignup: '/api/dojo/auth/teacher/signup', // POST TeacherSignupBody → { user: Me }
   teacherLogin: '/api/dojo/auth/teacher/login', // POST TeacherLoginBody → { user: Me }
   join: '/api/dojo/auth/join', // POST StudentJoinBody → { user: Me }
+  guest: '/api/dojo/auth/guest', // POST GuestBody → 201 { user: Me } (solo student, no class)
   logout: '/api/dojo/auth/logout', // POST → {}
   me: '/api/dojo/me', // GET → { user: Me | null }
 
@@ -21,7 +22,7 @@ export const DOJO_API = {
   classroom: (id: string) => `/api/dojo/classrooms/${id}`, // GET → { classroom: Classroom } (poll every 5 s while generating)
   chat: (id: string) => `/api/dojo/classrooms/${id}/chat`, // GET → { messages: ChatMessage[] }; POST ChatBody → SSE
   quizzes: (id: string) => `/api/dojo/classrooms/${id}/quizzes`, // POST StartQuizBody → { quiz: Quiz }
-  answer: (quizId: string) => `/api/dojo/quizzes/${quizId}/answers`, // POST AnswerBody → { result: AnswerResult }
+  answer: (quizId: string) => `/api/dojo/quizzes/${quizId}/answers`, // POST AnswerBody → { result: AnswerResult }; a repeat is practice: xpGained 0, mastery []
 
   // Dashboards
   studentAnalytics: (classroomId: string) =>

@@ -66,8 +66,9 @@
   color: var(--foreground);
   background: transparent;
   border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 10px 16px;
-  font-size: 11px !important;
+  font-size: 13px !important;
 }
 .resetButton:hover {
   color: var(--foreground);
@@ -1080,8 +1081,9 @@
   color: var(--primary-foreground);
   background: var(--primary);
   border: 1px solid var(--primary);
-  font-size: 11px !important;
-  font-weight: 700 !important;
+  border-radius: var(--radius);
+  font-size: 13px !important;
+  font-weight: 600 !important;
   white-space: nowrap;
 }
 .primaryButton:hover:not(:disabled) {
@@ -1269,6 +1271,65 @@
 }
 .result button {
   margin-top: 20px;
+}
+/* Missed answers, so the learner leaves the duel knowing what to revisit. */
+.result:has(.review) {
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+.result:has(.review) > span {
+  font-size: 64px;
+  margin-bottom: 4px;
+}
+.result:has(.review) h2 {
+  font-size: 36px;
+}
+.review {
+  width: min(640px, 100%);
+  margin-top: 14px;
+  text-align: left;
+}
+.review h3 {
+  margin: 0 0 10px;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+.review ol {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.review li {
+  padding: 12px 14px;
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.review strong {
+  display: block;
+  color: var(--foreground);
+  font-size: 15px;
+  line-height: 1.4;
+}
+.review span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.review em {
+  color: var(--destructive);
+  font-style: normal;
+}
+.review p {
+  margin: 6px 0 0;
+  color: var(--foreground);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .effects {
@@ -2599,3 +2660,703 @@
     inset: 51px;
   }
 }
+
+/* ==========================================================================
+   Side-by-side 2D layout (Frontend). Both fighters share one ground line and
+   stand at close range in the free zone next to the command panel, like a
+   2D fighting game. Every position below comes from the variables on .arena,
+   so fighters, lunges and hit effects stay aligned at any size. Kept as one
+   block at the end so it overrides the older per-breakpoint positions.
+   ========================================================================== */
+.header {
+  height: auto;
+  min-height: 62px;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding-block: 8px;
+}
+.arena {
+  container-type: size;
+  --ground: 15cqh;
+  --fighter-h: 56cqh;
+  --actor-w: min(30cqh, 17cqw);
+  --gap: min(3cqh, 2cqw);
+  --panel-w: clamp(280px, 27cqw, 410px);
+  --zone-left: calc(3cqw + var(--panel-w) + 2cqw);
+  --mid: calc((var(--zone-left) + 97cqw) / 2);
+  --player-x: calc(var(--mid) - var(--gap) - var(--actor-w) / 2);
+  --enemy-x: calc(var(--mid) + var(--gap) + var(--actor-w) / 2);
+  --chest-y: calc(100cqh - var(--ground) - var(--fighter-h) * 0.62);
+}
+
+.playerActor,
+.enemyActor {
+  bottom: var(--ground);
+  width: var(--actor-w);
+  height: var(--fighter-h);
+  --faceoff-shift: 0%;
+  --recoil-shift: -10%;
+}
+.playerActor {
+  left: calc(var(--player-x) - var(--actor-w) / 2);
+}
+.enemyActor {
+  left: calc(var(--enemy-x) - var(--actor-w) / 2);
+  --recoil-shift: 10%;
+}
+.playerSprite,
+.enemySprite {
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+/* Panels on the left, HUDs along the top, timers over the fighting zone. */
+.commandArea,
+.questionPanel,
+.reactivePanel {
+  left: 3cqw;
+  right: auto;
+  bottom: var(--ground);
+  width: var(--panel-w);
+  max-height: calc(100cqh - var(--ground) - 4cqh);
+  overflow-y: auto;
+}
+.reactivePanel {
+  background: #0b2228ee;
+  border: 1px solid #dfc69540;
+}
+.playerHud,
+.enemyHud {
+  top: 4cqh;
+  bottom: auto;
+  width: clamp(190px, 24cqw, 320px);
+}
+.playerHud {
+  left: var(--zone-left);
+  right: auto;
+}
+.enemyHud {
+  left: auto;
+  right: 3cqw;
+}
+.questionTimer,
+.decisionTimer {
+  left: var(--mid);
+  top: 17cqh;
+}
+.stageHint {
+  left: var(--mid);
+}
+.battleLog {
+  left: var(--zone-left);
+  right: 3cqw;
+  bottom: 3cqh;
+  width: auto;
+}
+
+/* Effects follow the fighters instead of fixed screen spots. */
+.effects {
+  --cut-left: calc(var(--enemy-x) - 13cqw);
+  --cut-top: calc(var(--chest-y) - 24cqh);
+}
+.effects[data-target='player'] {
+  --cut-left: calc(var(--player-x) - 13cqw);
+}
+.cut {
+  width: 26cqw;
+  height: 49cqh;
+}
+.enemyTelegraph {
+  left: calc(var(--enemy-x) - var(--actor-w));
+  top: calc(100cqh - var(--ground) - var(--fighter-h) * 0.95);
+  width: calc(var(--actor-w) * 2);
+  height: calc(var(--fighter-h) * 0.8);
+}
+.chargeOrb {
+  left: calc(var(--player-x) + var(--actor-w) * 0.35 - 45px);
+  top: calc(var(--chest-y) - 45px);
+}
+.chargeRings,
+.energyMotes {
+  left: calc(var(--player-x) + var(--actor-w) * 0.35 - 73px);
+  top: calc(var(--chest-y) - 73px);
+}
+.energyBeam {
+  left: calc(var(--player-x) + var(--actor-w) * 0.35);
+  top: calc(var(--chest-y) - 37px);
+  width: calc(var(--enemy-x) - var(--player-x) - var(--actor-w) * 0.35);
+}
+.energyNumber {
+  left: calc(var(--enemy-x) - 30px);
+  top: calc(var(--chest-y) - 20cqh);
+}
+.effects[data-failed='true'] .energyNumber {
+  left: calc(var(--player-x) - 30px);
+  top: calc(var(--chest-y) - 20cqh);
+}
+.backlashBurst {
+  left: calc(var(--player-x) - var(--fighter-h) * 0.3);
+  top: calc(var(--chest-y) - var(--fighter-h) * 0.3);
+  width: calc(var(--fighter-h) * 0.6);
+}
+.guardSeal {
+  left: calc(var(--player-x) + var(--actor-w) * 0.4 - 65px);
+  top: calc(var(--chest-y) - 65px);
+}
+.dodgeTrail {
+  left: calc(var(--player-x) - var(--actor-w));
+  top: calc(var(--chest-y) - 8cqh);
+  width: calc(var(--actor-w) * 1.2);
+  height: calc(var(--fighter-h) * 0.5);
+}
+
+/* Narrow screens: fighters across the top half, panels docked below them. */
+@media (max-width: 1100px) {
+  .arena {
+    height: calc(100svh - 120px);
+    min-height: 620px;
+    max-height: 980px;
+    --ground: 47cqh;
+    --fighter-h: min(33cqh, 60cqw);
+    --actor-w: min(19cqh, 34cqw);
+    --gap: 2cqw;
+    --zone-left: 3cqw;
+    --mid: 50cqw;
+  }
+  .commandArea,
+  .questionPanel,
+  .reactivePanel {
+    left: 4cqw;
+    right: 4cqw;
+    bottom: 3cqh;
+    width: auto;
+    max-height: calc(var(--ground) - 6cqh);
+  }
+  .playerHud,
+  .enemyHud {
+    top: 3cqh;
+    width: calc(47cqw - 66px);
+  }
+  .playerHud {
+    left: 3cqw;
+  }
+  .questionTimer,
+  .decisionTimer {
+    top: 3cqh;
+  }
+  .battleLog,
+  .stageHint {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  .playerHud h3,
+  .enemyHud h3 {
+    font-size: 16px;
+    margin: 3px 0 6px;
+  }
+  .questionTimer strong,
+  .decisionTimer strong {
+    font-size: 32px;
+  }
+}
+
+/* Close-range lunges: about half a body width, mirrored for the enemy. */
+@keyframes playerLunge {
+  0%,
+  10% {
+    transform: translateX(0) rotate(0deg);
+  }
+  18% {
+    transform: translateX(-8%) rotate(-6deg);
+  }
+  32% {
+    transform: translateX(36%) rotate(4deg);
+  }
+  38%,
+  44% {
+    transform: translateX(50%) rotate(7deg);
+  }
+  56% {
+    transform: translateX(46%) rotate(9deg);
+  }
+  78%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes enemyLunge {
+  0%,
+  12% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(8%) rotate(5deg);
+  }
+  34% {
+    transform: translateX(-36%) rotate(-4deg);
+  }
+  38%,
+  44% {
+    transform: translateX(-50%) rotate(-9deg);
+  }
+  56% {
+    transform: translateX(-46%) rotate(-10deg);
+  }
+  78%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes comboLunge {
+  0%,
+  10% {
+    transform: translateX(0) rotate(0deg);
+  }
+  18% {
+    transform: translateX(14%) rotate(-5deg);
+  }
+  30%,
+  68% {
+    transform: translateX(48%) rotate(7deg);
+  }
+  80%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes playerReverseLunge {
+  0%,
+  12% {
+    transform: translateX(0) rotate(0);
+  }
+  22% {
+    transform: translateX(14%) rotate(9deg);
+  }
+  39%,
+  54% {
+    transform: translateX(48%) rotate(-8deg);
+  }
+  78%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes playerSpinLunge {
+  0%,
+  10% {
+    transform: translateX(0) rotate(0);
+  }
+  24% {
+    transform: translateX(18%) rotate(-24deg);
+  }
+  42%,
+  58% {
+    transform: translateX(50%) rotate(16deg) scale(1.06, 0.94);
+  }
+  80%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes comboLowLunge {
+  0%,
+  10% {
+    transform: translateX(0) translateY(0);
+  }
+  28%,
+  68% {
+    transform: translateX(48%) translateY(8%) skewX(-7deg);
+  }
+  82%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+}
+@keyframes enemyHighLunge {
+  0%,
+  12% {
+    transform: translateX(0);
+  }
+  24% {
+    transform: translateX(10%) rotate(-12deg);
+  }
+  42%,
+  57% {
+    transform: translateX(-50%) rotate(8deg);
+  }
+  80%,
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes enemyLowLunge {
+  0%,
+  12% {
+    transform: translateX(0) translateY(0);
+  }
+  38%,
+  58% {
+    transform: translateX(-48%) translateY(8%) skewX(7deg);
+  }
+  80%,
+  100% {
+    transform: translateX(0) translateY(0);
+  }
+}
+@keyframes evade {
+  0%,
+  10% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  30%,
+  50% {
+    transform: translateX(-55%) skewX(8deg);
+    opacity: 0.35;
+  }
+  80%,
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+@keyframes chargeStepBack {
+  0% {
+    transform: translateX(0);
+  }
+  24%,
+  82% {
+    transform: translateX(-22%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes playerFaceoffEnter {
+  0% {
+    transform: translateX(-45%) scale(0.98);
+  }
+  68% {
+    transform: translateX(6%) scale(1.03, 0.97);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+  }
+}
+@keyframes enemyFaceoffEnter {
+  0% {
+    transform: translateX(45%) scale(0.98);
+  }
+  68% {
+    transform: translateX(-6%) scale(1.03, 0.97);
+  }
+  100% {
+    transform: translateX(0) scale(1);
+  }
+}
+
+/* Painted fighters: the stance aura becomes a ring on the ground under the feet. */
+.actorAura {
+  left: 6%;
+  bottom: -6%;
+  width: 88%;
+  height: 16%;
+}
+
+/* ═══ Fighting-game presentation for the painted fighters ═══════════════════════════════════
+   The rules above were written for the capsule placeholders: bobbing, tilting and jittering
+   guard stances and lunges that rotate the whole body. On painted sprites that reads as
+   hopping. Here fighters stay planted (the sprite's own idle clip does the breathing), dash
+   in flat, and hits land with a hard shake and a flash. `!important` only on `animation`,
+   because the old per-variant lunge rules carry four-attribute selectors. */
+.shell .playerActor .playerSprite,
+.shell .enemyActor .enemySprite {
+  animation: none !important;
+}
+.shell .playerActor[data-motion='lunge'] {
+  animation: sfDashPlayer 950ms cubic-bezier(0.2, 0.85, 0.25, 1) both !important;
+}
+.shell .playerActor[data-motion='lunge'][data-kind='combo'] {
+  animation: sfComboPlayer 1150ms cubic-bezier(0.2, 0.85, 0.25, 1) both !important;
+}
+.shell .enemyActor[data-motion='lunge'] {
+  animation: sfDashEnemy 950ms cubic-bezier(0.2, 0.85, 0.25, 1) both !important;
+}
+@keyframes sfDashPlayer {
+  0%,
+  8% {
+    transform: translateX(0);
+  }
+  16% {
+    transform: translateX(-7%);
+  }
+  30%,
+  48% {
+    transform: translateX(55%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes sfComboPlayer {
+  0%,
+  6% {
+    transform: translateX(0);
+  }
+  14% {
+    transform: translateX(-6%);
+  }
+  24%,
+  76% {
+    transform: translateX(55%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+@keyframes sfDashEnemy {
+  0%,
+  8% {
+    transform: translateX(0);
+  }
+  16% {
+    transform: translateX(7%);
+  }
+  30%,
+  48% {
+    transform: translateX(-55%);
+  }
+  100% {
+    transform: translateX(0);
+  }
+}
+
+/* Impact: the whole stage jolts, a white flash pops at the moment of contact. */
+.shell .arena[data-fx='heavy']:not([data-failed='true']) .world,
+.shell .arena[data-fx='counter'] .world,
+.shell .arena[data-fx='hit'] .world {
+  animation: sfShake 260ms var(--impact) both;
+}
+.shell .arena[data-fx='combo']:not([data-failed='true']) .world {
+  animation: sfShake 170ms 300ms var(--stage-hits) both;
+}
+.shell .arena[data-fx='heavy']:not([data-failed='true']) .world::after,
+.shell .arena[data-fx='counter'] .world::after,
+.shell .arena[data-fx='hit'] .world::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  background: radial-gradient(circle at 55% 45%, #fff8e0cc, transparent 60%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  pointer-events: none;
+  animation: sfFlash 180ms var(--impact) ease-out both;
+}
+@keyframes sfShake {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  15% {
+    transform: translate(-9px, 4px);
+  }
+  30% {
+    transform: translate(8px, -5px);
+  }
+  45% {
+    transform: translate(-6px, 3px);
+  }
+  60% {
+    transform: translate(5px, -2px);
+  }
+  80% {
+    transform: translate(-2px, 1px);
+  }
+}
+@keyframes sfFlash {
+  0% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+/* Knowledge Blast is the super move: the camera pushes in and the room dims while it charges. */
+.shell .arena[data-fx='quiz'] .world {
+  transform-origin: 50% 70%;
+  animation: sfSuperZoom 1700ms cubic-bezier(0.3, 0.7, 0.2, 1) both;
+}
+.shell .arena[data-fx='quiz'] .world > :first-child {
+  animation: sfSuperDim 1700ms ease both;
+}
+@keyframes sfSuperZoom {
+  0% {
+    transform: scale(1);
+  }
+  45%,
+  62% {
+    transform: scale(1.09);
+  }
+  66% {
+    transform: scale(1.09) translate(-6px, 3px);
+  }
+  70% {
+    transform: scale(1.09) translate(6px, -3px);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes sfSuperDim {
+  0%,
+  100% {
+    filter: none;
+  }
+  35%,
+  62% {
+    filter: brightness(0.45) saturate(1.3);
+  }
+}
+
+/* Where the learner is pointing: techniques and the typed answer glow gold on hover, keyboard
+   focus and selection. */
+.shell .commandFan button,
+.shell .typedInput {
+  border-radius: var(--radius);
+  transition:
+    background 140ms,
+    border-color 140ms,
+    box-shadow 160ms;
+}
+.shell .commandFan button.commandSelected:not(:disabled),
+.shell .commandFan button:hover:not(:disabled),
+.shell .typedInput:focus {
+  border-color: var(--gold);
+  outline: none;
+  box-shadow:
+    0 0 0 1px var(--gold),
+    0 0 18px 2px color-mix(in oklab, var(--gold) 55%, transparent),
+    inset 0 0 14px color-mix(in oklab, var(--gold) 16%, transparent);
+}
+
+/* Answers are calligraphy ink strokes, not boxes: a ragged brush stroke behind each option.
+   Hover and keyboard focus make the stroke glow gold (the glow sits on the label, because a
+   drop-shadow on the masked stroke itself would be masked away); the chosen answer turns to
+   vermilion, like a seal. */
+.shell .options {
+  gap: 10px;
+}
+.shell .options label {
+  isolation: isolate;
+  min-height: 50px;
+  padding: 10px 24px;
+  background: none;
+  border: 0;
+  transition: filter 160ms;
+}
+.shell .options label::before {
+  content: '';
+  position: absolute;
+  inset: -2px -8px;
+  z-index: -1;
+  background: oklch(0.14 0.012 60 / 0.92);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cpath d='M4 25 L15 18 L32 14 L74 11 L132 9 L201 11 L268 8 L331 10 L371 12 L389 15 L397 21 L391 27 L398 33 L390 39 L395 46 L368 50 L301 52 L231 50 L161 53 L92 51 L41 50 L17 47 L8 43 L13 37 L3 32 L10 29 Z'/%3E%3Cpath d='M318 5 L393 8 L393 10.5 L318 8 Z'/%3E%3Cpath d='M286 54 L382 55 L381 57.5 L286 56.5 Z'/%3E%3Cpath d='M24 7 L96 6 L96 8 L24 9 Z'/%3E%3C/svg%3E")
+    center / 100% 100% no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 60' preserveAspectRatio='none'%3E%3Cpath d='M4 25 L15 18 L32 14 L74 11 L132 9 L201 11 L268 8 L331 10 L371 12 L389 15 L397 21 L391 27 L398 33 L390 39 L395 46 L368 50 L301 52 L231 50 L161 53 L92 51 L41 50 L17 47 L8 43 L13 37 L3 32 L10 29 Z'/%3E%3Cpath d='M318 5 L393 8 L393 10.5 L318 8 Z'/%3E%3Cpath d='M286 54 L382 55 L381 57.5 L286 56.5 Z'/%3E%3Cpath d='M24 7 L96 6 L96 8 L24 9 Z'/%3E%3C/svg%3E")
+    center / 100% 100% no-repeat;
+  transition:
+    background 160ms,
+    transform 160ms;
+}
+.shell .options label > b {
+  font-size: 14px;
+  font-weight: 500;
+}
+.shell .options label:hover,
+.shell .options label:has(input:focus-visible),
+.shell .options .optionSelected {
+  background: none;
+  outline: none;
+  filter: drop-shadow(0 0 5px var(--gold))
+    drop-shadow(0 0 14px color-mix(in oklab, var(--gold) 60%, transparent));
+}
+.shell .options label:hover::before,
+.shell .options label:has(input:focus-visible)::before {
+  background: oklch(0.2 0.02 60 / 0.96);
+  transform: scaleX(1.02);
+}
+.shell .options .optionSelected::before {
+  background: color-mix(in oklab, var(--shu) 88%, black);
+}
+.shell .options .optionSelected > span {
+  border-color: currentColor;
+  color: var(--foreground);
+}
+
+/* After grading, the chosen answer (or the typed one) glows green when right, red when wrong. */
+.shell .questionPanel[data-feedback='correct'] .optionSelected {
+  filter: drop-shadow(0 0 6px #4ade80) drop-shadow(0 0 16px #22c55e99);
+}
+.shell .questionPanel[data-feedback='correct'] .optionSelected::before {
+  background: #15803d;
+}
+.shell .questionPanel[data-feedback='wrong'] .optionSelected {
+  filter: drop-shadow(0 0 6px #f87171) drop-shadow(0 0 16px #ef444499);
+}
+.shell .questionPanel[data-feedback='wrong'] .optionSelected::before {
+  background: #b91c1c;
+}
+.shell .questionPanel[data-feedback='correct'] .typedInput {
+  border-color: #4ade80;
+  box-shadow:
+    0 0 0 1px #4ade80,
+    0 0 18px 2px #22c55e88;
+}
+.shell .questionPanel[data-feedback='wrong'] .typedInput {
+  border-color: #f87171;
+  box-shadow:
+    0 0 0 1px #f87171,
+    0 0 18px 2px #ef444488;
+}
+
+/* Timers: big, glowing, between the fighters' heads. */
+.shell .questionTimer,
+.shell .decisionTimer {
+  top: 8cqh;
+  width: 150px;
+}
+.shell .questionTimer strong,
+.shell .decisionTimer strong {
+  color: #fff4d6;
+  font-size: 72px;
+  text-shadow:
+    0 0 10px var(--gold),
+    0 0 26px color-mix(in oklab, var(--gold) 75%, transparent),
+    0 0 48px color-mix(in oklab, var(--gold) 40%, transparent),
+    0 3px 8px #000;
+}
+.shell .questionTimer small,
+.shell .decisionTimer small {
+  font-size: 10px;
+  text-shadow: 0 0 8px var(--gold);
+}
+.shell .questionTimer > span,
+.shell .decisionTimer > span {
+  height: 5px;
+  box-shadow: 0 0 10px color-mix(in oklab, var(--gold) 60%, transparent);
+}
+.shell .questionTimer[data-low='true'] strong,
+.shell .decisionTimer[data-low='true'] strong {
+  color: #ffd2c4;
+  text-shadow:
+    0 0 10px var(--shu),
+    0 0 28px var(--shu),
+    0 0 52px color-mix(in oklab, var(--shu) 60%, transparent),
+    0 3px 8px #000;
+}
+/* Reduced motion is handled above for the whole shell, unless the learner keeps Full motion on. */

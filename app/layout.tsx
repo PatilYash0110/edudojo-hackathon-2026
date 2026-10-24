@@ -41,12 +41,12 @@ import '@fontsource/shippori-mincho/700.css';
 
 /**
  * Applies the dark theme before the first paint. `ThemeProvider` resolves the
- * theme (the `theme` key in localStorage, else the system preference) only
- * once the page's scripts run, so a server-rendered page would otherwise be
- * painted light and flip to dark afterwards. Keep in step with
- * `lib/hooks/use-theme.tsx`.
+ * theme (the `theme` key in localStorage, else dark: EduDojo is a night dojo,
+ * so the home page matches the tower and arenas) only once the page's scripts
+ * run, so a server-rendered page would otherwise be painted light and flip to
+ * dark afterwards. Keep in step with `lib/hooks/use-theme.tsx`.
  */
-const THEME_INIT_SCRIPT = `try{var t=localStorage.getItem('theme');if(t==='dark'||(t!=='light'&&matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`;
+const THEME_INIT_SCRIPT = `try{var t=localStorage.getItem('theme');if(t!=='light'&&(t!=='system'||matchMedia('(prefers-color-scheme: dark)').matches))document.documentElement.classList.add('dark')}catch(e){}`;
 
 export const metadata: Metadata = {
   title: 'EduDojo',

@@ -2,42 +2,43 @@
 
 import { useCallback, useState } from 'react';
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
-import { ArrowLeft, Check } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { ArrowLeft } from 'lucide-react';
+import type { Dojo } from '@/teams/shared/contracts/dojo';
 import { FINAL_BOSS } from '@/teams/game/boss/boss-phases';
-import { DEMO_DOJO } from '@/teams/game/content/demo-dojo';
+import { DojoGate, DojoLoading } from '@/teams/frontend/app-shell/DojoGate';
 import PrototypeBattle from '@/teams/frontend/features/battle/PrototypeBattle';
+import { BOSS, levelFor } from '@/teams/frontend/features/battle/fighter-roster';
 import { FloorEncounter } from '@/teams/frontend/features/battle/FloorEncounter';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import styles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
+import { TowerConquered } from './TowerConquered';
 
 export function BossIntro() {
-  const params = useParams<{ dojoId: string }>();
-  const dojoId = params.dojoId ?? DEMO_DOJO.id;
-  const { progress, ready, advance } = useDojoProgress(dojoId, DEMO_DOJO.floors.length);
+  return <DojoGate>{(dojo, dojoId) => <BossIntroView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
+}
+
+function BossIntroView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
+  const router = useRouter();
+  const { progress, ready, advance, reset } = useDojoProgress(dojoId, dojo.floors.length);
   const [roomEntered, setRoomEntered] = useState(false);
 
   const winBoss = useCallback(() => {
     advance('BOSS_DEFEATED');
   }, [advance]);
 
-  if (!ready) return null;
+  if (!ready) return <DojoLoading />;
 
   if (progress.stage === 'complete') {
     return (
-      <section className={styles.completion}>
-        <p className={styles.eyebrow}>
-          <Check size={13} /> TOPIC MASTERED
-        </p>
-        <h1>{DEMO_DOJO.title} complete.</h1>
-        <p>
-          The learner cleared every subtopic and defeated the Sensei using questions drawn from the
-          full input.
-        </p>
-        <Link className={styles.primaryAction} href={`/dojo/${dojoId}`}>
-          View completed tower
-        </Link>
-      </section>
+      <TowerConquered
+        dojo={dojo}
+        dojoId={dojoId}
+        onReplay={() => {
+          reset();
+          router.push(`/dojo/${dojoId}`);
+        }}
+      />
     );
   }
 
@@ -60,6 +61,8 @@ export function BossIntro() {
         boss
         floorLabel="Final Floor · All input knowledge"
         opponent={FINAL_BOSS.name}
+        opponentFighter={BOSS}
+        arena={levelFor('boss').arena}
         onReady={() => setRoomEntered(true)}
       />
     );
@@ -68,9 +71,12 @@ export function BossIntro() {
   return (
     <PrototypeBattle
       boss
-      topicLabel="All English subtopics"
+      dojoId={dojoId}
+      topicLabel={`Every subtopic · ${dojo.title}`}
       opponentName={FINAL_BOSS.name}
       opponentRole="FINAL BOSS · SENSEI"
+      opponentFighter={BOSS}
+      arena={levelFor('boss').arena}
       onVictory={winBoss}
     />
   );

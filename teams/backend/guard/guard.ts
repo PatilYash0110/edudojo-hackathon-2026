@@ -76,7 +76,7 @@ type QuotaKind = 'classroom' | 'chat' | 'quiz';
 
 /** Per user per day; null = no limit. */
 const DAILY_LIMITS: Record<UserRole, Record<QuotaKind, number | null>> = {
-  student: { classroom: 3, chat: 200, quiz: 30 },
+  student: { classroom: 6, chat: 200, quiz: 30 },
   teacher: { classroom: 20, chat: null, quiz: null },
 };
 
@@ -87,13 +87,16 @@ export async function consumeQuota(
   const limit = DAILY_LIMITS[user.role][kind];
   if (limit === null) return;
   const pool = await db();
+  // Counts only accepted uses: at the limit the update matches nothing and returns no row, so a
+  // refused attempt does not push tomorrow's budget further away.
   const { rows } = await pool.query<{ count: number }>(
     `INSERT INTO dojo_usage (user_id, kind, count) VALUES ($1, $2, 1)
      ON CONFLICT (user_id, day, kind) DO UPDATE SET count = dojo_usage.count + 1
+     WHERE dojo_usage.count < $3
      RETURNING count`,
-    [user.id, kind],
+    [user.id, kind, limit],
   );
-  if ((rows[0]?.count ?? 0) > limit) {
+  if (rows.length === 0) {
     throw new DojoError('RATE_LIMITED', `Tageslimit erreicht (${limit}). Morgen geht es weiter!`);
   }
 }

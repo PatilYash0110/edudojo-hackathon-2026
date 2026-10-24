@@ -1,20 +1,39 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, BookOpen, Swords } from 'lucide-react';
-import { DEMO_DOJO } from '@/teams/game/content/demo-dojo';
+import type { Dojo } from '@/teams/shared/contracts/dojo';
+import { ClassroomSurface } from '@/components/classroom/ClassroomSurface';
+import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
+import { clipUrl, HERO, levelForOrder } from '@/teams/frontend/features/battle/fighter-roster';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import styles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 
 export function LessonPanel() {
-  const params = useParams<{ dojoId: string; floorId: string }>();
+  return <DojoGate>{(dojo, dojoId) => <LessonPanelView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
+}
+
+function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
+  const params = useParams<{ floorId: string }>();
   const router = useRouter();
-  const dojoId = params.dojoId ?? DEMO_DOJO.id;
-  const floor = DEMO_DOJO.floors.find((item) => item.id === params.floorId);
-  const { progress, ready, advance } = useDojoProgress(dojoId, DEMO_DOJO.floors.length);
+  const floor = dojo.floors.find((item) => item.id === params.floorId);
+  const { progress, ready, advance } = useDojoProgress(dojoId, dojo.floors.length);
   const [sceneIndex, setSceneIndex] = useState(0);
+  const floorOrder = floor?.order;
+
+  // While the learner studies, fetch the battle room's art so the guardian's entrance never
+  // plays in an empty room.
+  useEffect(() => {
+    if (!floorOrder) return;
+    const { arena, villain } = levelForOrder(floorOrder);
+    for (const src of [arena.map, clipUrl(HERO, 'idle'), clipUrl(villain, 'idle')]) {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = src;
+    }
+  }, [floorOrder]);
 
   if (!floor) {
     return (
@@ -51,7 +70,8 @@ export function LessonPanel() {
   function completeLesson() {
     if (!current || progress.stage !== 'lesson') return;
     advance('LESSON_COMPLETED');
-    router.push(`/dojo/${dojoId}/floor/${floor!.id}/battle`);
+    // Back to the tower, zoomed onto this floor: the learner steps into the room themselves.
+    router.push(`/dojo/${dojoId}?floor=${encodeURIComponent(floor!.id)}`);
   }
 
   function continueLesson() {
@@ -64,33 +84,52 @@ export function LessonPanel() {
   }
 
   return (
-    <section className={styles.lessonPage} aria-busy={!ready}>
+    <section
+      className={floor.lesson ? `${styles.lessonPage} ${styles.lessonFull}` : styles.lessonPage}
+      aria-busy={!ready}
+    >
       <p className={styles.eyebrow}>
-        DOJO LESSON · FLOOR {floor.order} OF {DEMO_DOJO.floors.length}
+        DOJO LESSON · FLOOR {floor.order} OF {dojo.floors.length}
       </p>
       <h1>{floor.title}</h1>
-      <p>
-        This floor embeds the lesson runtime produced by the Backend Team. When it reports
-        completion, the matching battle unlocks; winning teleports you to the next lesson.
-      </p>
+      {!floor.lesson && (
+        <p>
+          Study this section with the Sensei and your classmates. Finishing the lesson opens the
+          floor&apos;s battle; winning brings you back for the next lesson.
+        </p>
+      )}
 
-      {current && progress.stage === 'lesson' && (
+      {floor.lesson && (
+        <div className={styles.lessonPlayer}>
+          <ClassroomSurface classroomId={floor.lesson.runtimeId} variant="pane" />
+        </div>
+      )}
+      {floor.lesson && current && progress.stage === 'lesson' && (
+        <button
+          className={`${styles.primaryAction} ${styles.finishLesson}`}
+          onClick={completeLesson}
+          type="button"
+        >
+          I finished this section · go to the battle floor <Swords size={20} />
+        </button>
+      )}
+
+      {!floor.lesson && current && progress.stage === 'lesson' && (
         <div className={styles.learningEngine}>
           <BookOpen size={24} />
           <div>
-            <b>Backend OpenMAIC lesson runtime</b>
+            <b>Sensei&apos;s lesson</b>
             <span>
-              Embedded game slot · Scene {sceneIndex + 1} of {floor.objectives.length}
+              Scene {sceneIndex + 1} of {floor.objectives.length}
             </span>
           </div>
           <div className={styles.runtimeScene}>
-            <small>MOCK BACKEND SCENE</small>
             <strong>{floor.objectives[sceneIndex].title}</strong>
-            <p>The Backend Team&apos;s OpenMAIC player renders its generated lesson here.</p>
+            <p>Learn this well: the floor&apos;s guardian will test you on it.</p>
           </div>
           <button className={styles.primaryAction} onClick={continueLesson} type="button">
             {sceneIndex === floor.objectives.length - 1
-              ? 'Finish lesson · enter room'
+              ? 'Finish the lesson · go to the battle floor'
               : 'Next lesson scene'}
             <BookOpen size={15} />
           </button>
@@ -118,11 +157,6 @@ export function LessonPanel() {
           <span className={styles.clearedBadge}>Lesson reviewed</span>
         ) : null}
       </div>
-
-      <p className={styles.devNote}>
-        The mock scenes only test the integration boundary. Backend replaces this slot with its
-        OpenMAIC runtime and emits `LESSON_COMPLETED`; Game Team handles only the unlock afterward.
-      </p>
     </section>
   );
 }

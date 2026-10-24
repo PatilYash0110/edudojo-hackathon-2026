@@ -449,6 +449,77 @@
   font-size: 18px;
   font-weight: 700;
 }
+.loading {
+  display: grid;
+  place-items: center;
+  min-height: 70vh;
+}
+.loading p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-family: var(--font-serif);
+  letter-spacing: 0.08em;
+  /* Fast loads never show the line, so there is no flash of text. */
+  animation: loadingIn 300ms ease-out 400ms both;
+}
+@keyframes loadingIn {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading p {
+    animation-duration: 1ms;
+  }
+}
+.lessonPlayer {
+  position: relative;
+  height: min(72vh, 680px);
+  margin: 22px 0 14px;
+  overflow: hidden;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+/* A live lesson fills the screen: no card, no page width cap, the player as tall as the
+   viewport allows under the nav, the title and the finish button. */
+:global(.dojo-root):has(.lessonFull) > main {
+  max-width: none;
+  padding: 0;
+}
+.lessonPage.lessonFull {
+  max-width: none;
+  margin: 0;
+  padding: 16px 24px 28px;
+  background: none;
+  border: 0;
+  box-shadow: none;
+}
+.lessonFull h1 {
+  margin: 4px 0 0;
+  font-size: 26px;
+}
+.lessonFull h1::after {
+  margin-top: 8px;
+}
+.lessonFull .lessonPlayer {
+  height: max(480px, calc(100svh - 250px));
+  margin: 14px 0 12px;
+}
+@media (max-width: 640px) {
+  .lessonPage.lessonFull {
+    padding: 12px 12px 24px;
+  }
+}
+
+/* The one way out of a live lesson: full width under the player, hard to miss. */
+.finishLesson {
+  width: 100%;
+  min-height: 56px;
+  font-size: 17px;
+  font-weight: 600;
+  gap: 10px;
+}
 .learningEngine {
   display: grid;
   grid-template-columns: 32px 1fr;

@@ -1,5 +1,6 @@
 /**
- * Kahoot-style login. Teachers: email + password. Students: class PIN + nickname.
+ * Kahoot-style login. Teachers: email + password. Students: class PIN + nickname,
+ * or a solo guest student without a class (the AI classmates are the class).
  * Routes: app/api/dojo/auth/** and app/api/dojo/me.
  *
  * OWNER: BACKEND TEAM.
@@ -10,6 +11,7 @@ import type { NextRequest } from 'next/server';
 import { SlidingWindowFailureLimiter } from '@/lib/server/attempt-limiter';
 import { clientIdentity } from '@/lib/server/client-identity';
 import {
+  GuestBody,
   StudentJoinBody,
   TeacherLoginBody,
   TeacherSignupBody,
@@ -29,6 +31,8 @@ import { DojoError, handle, ok, readBody } from './http';
 // shortcut: in-memory limits, per process; move to the DB when running several instances.
 const loginLimiter = new SlidingWindowFailureLimiter({ maxFailures: 10 });
 const joinLimiter = new SlidingWindowFailureLimiter({ maxFailures: 20 });
+// Every guest call creates a user, so each one counts against the window.
+const guestLimiter = new SlidingWindowFailureLimiter({ maxFailures: 20 });
 
 function limited(limiter: SlidingWindowFailureLimiter, key: string) {
   if (limiter.consume(key).limited) {
@@ -124,6 +128,27 @@ export function joinClass(req: NextRequest) {
       throw error;
     }
     joinLimiter.recordSuccess(clientIdentity(req));
+    return setSessionCookie(ok({ user: toMe(user) }, 201), user);
+  });
+}
+
+/** Solo play without a PIN: a student with no class, signed in at once. */
+export function joinAsGuest(req: NextRequest) {
+  return handle(async () => {
+    const body = await readBody(req, GuestBody);
+    limited(guestLimiter, clientIdentity(req));
+    const pool = await db();
+    const user: DojoUser = {
+      id: `s_${randomUUID()}`,
+      role: 'student',
+      displayName: body.nickname ?? 'Apprentice',
+      classId: null,
+      xp: 0,
+    };
+    await pool.query(`INSERT INTO dojo_users (id, role, display_name) VALUES ($1, 'student', $2)`, [
+      user.id,
+      user.displayName,
+    ]);
     return setSessionCookie(ok({ user: toMe(user) }, 201), user);
   });
 }

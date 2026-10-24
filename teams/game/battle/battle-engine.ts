@@ -45,7 +45,7 @@ export function createBattleState(): BattleState {
     round: 1,
     combo: 0,
     cooldowns: { heavy: 0, combo: 0, quiz: 0 },
-    lastMessage: 'Die Glocke läutet. Wähle deine erste Technik.',
+    lastMessage: 'The bell rings. Choose your first technique.',
   };
 }
 
@@ -90,9 +90,9 @@ function resolveAttack(
   };
   cooldowns[technique] = ATTACK_COOLDOWNS[technique];
   const labels: Record<AttackTechnique, string> = {
-    heavy: 'Schwerer Hieb',
-    combo: 'Dreier-Kombo',
-    quiz: 'Wissensstrahl',
+    heavy: 'Heavy Strike',
+    combo: 'Three-Hit Combo',
+    quiz: 'Knowledge Blast',
   };
 
   return {
@@ -104,10 +104,10 @@ function resolveAttack(
     cooldowns,
     lastMessage:
       backlash > 0
-        ? `Der Wissensstrahl ist kollabiert. Du erhältst ${backlash} Rückstoßschaden (${score}/${total} richtig).`
+        ? `The Knowledge Blast collapsed. You take ${backlash} backlash damage (${score}/${total} correct).`
         : damage > 0
-          ? `${labels[technique]} verursacht ${damage} Schaden (${score}/${total} richtig).`
-          : `${labels[technique]} verfehlt. Lies die Erklärung und verteidige dich.`,
+          ? `${labels[technique]} deals ${damage} damage (${score}/${total} correct).`
+          : `${labels[technique]} misses. Read the explanation and defend yourself.`,
   };
 }
 
@@ -136,9 +136,9 @@ function resolveDefense(
   const enemyHp = Math.max(0, state.enemyHp - counterDamage);
   const turn: BattleTurn = playerHp === 0 ? 'defeat' : enemyHp === 0 ? 'victory' : 'player';
   const labels: Record<DefenseTechnique, string> = {
-    block: 'Blocken',
-    counter: 'Parade & Konter',
-    dodge: 'Ausweichen',
+    block: 'Block',
+    counter: 'Parry & Counter',
+    dodge: 'Dodge',
   };
 
   return {
@@ -150,9 +150,9 @@ function resolveDefense(
     combo: incomingDamage === 0 ? state.combo : 0,
     lastMessage: success
       ? counterDamage > 0
-        ? `${labels[technique]} gelingt. Du konterst mit ${counterDamage} Schaden.`
-        : `${labels[technique]} gelingt. Du erhältst ${incomingDamage} Schaden.`
-      : `${labels[technique]} misslingt. Der Gegner verursacht ${incomingDamage} Schaden.`,
+        ? `${labels[technique]} succeeds. You counter for ${counterDamage} damage.`
+        : `${labels[technique]} succeeds. You take ${incomingDamage} damage.`
+      : `${labels[technique]} fails. The enemy deals ${incomingDamage} damage.`,
   };
 }
 

@@ -4,19 +4,24 @@ import { useCallback, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
-import { DEMO_DOJO } from '@/teams/game/content/demo-dojo';
+import type { Dojo } from '@/teams/shared/contracts/dojo';
+import { DojoGate, DojoLoading } from '@/teams/frontend/app-shell/DojoGate';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import flowStyles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 import { FloorEncounter } from './FloorEncounter';
 import PrototypeBattle from './PrototypeBattle';
+import { levelForOrder } from './fighter-roster';
 
 export function BattleScreen() {
-  const params = useParams<{ dojoId: string; floorId: string }>();
+  return <DojoGate>{(dojo, dojoId) => <BattleScreenView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
+}
+
+function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
+  const params = useParams<{ floorId: string }>();
   const router = useRouter();
-  const dojoId = params.dojoId ?? DEMO_DOJO.id;
-  const floor = DEMO_DOJO.floors.find((item) => item.id === params.floorId);
-  const nextFloor = floor ? DEMO_DOJO.floors[floor.order] : undefined;
-  const { progress, ready, advance } = useDojoProgress(dojoId, DEMO_DOJO.floors.length);
+  const floor = dojo.floors.find((item) => item.id === params.floorId);
+  const nextFloor = floor ? dojo.floors[floor.order] : undefined;
+  const { progress, ready, advance } = useDojoProgress(dojoId, dojo.floors.length);
   const [resolved, setResolved] = useState(false);
   const [roomEntered, setRoomEntered] = useState(false);
 
@@ -32,7 +37,7 @@ export function BattleScreen() {
     return () => clearTimeout(timer);
   }, [dojoId, nextFloor, resolved, router]);
 
-  if (!ready) return null;
+  if (!ready) return <DojoLoading />;
 
   if (!floor) {
     return (
@@ -47,7 +52,7 @@ export function BattleScreen() {
   }
 
   if (resolved) {
-    const finalUnlocked = floor.order === DEMO_DOJO.floors.length;
+    const finalUnlocked = floor.order === dojo.floors.length;
     return (
       <section className={flowStyles.completion}>
         <p className={flowStyles.eyebrow}>
@@ -57,7 +62,7 @@ export function BattleScreen() {
         <p>
           {finalUnlocked
             ? 'Every subtopic is cleared. The Sensei has transformed into the Final Boss.'
-            : 'Return to the Dojo. The next OpenMAIC learning section is now available.'}
+            : 'Back to the dojo: your next lesson is open.'}
         </p>
         <span className={flowStyles.clearedBadge}>Returning to the tower…</span>
       </section>
@@ -69,7 +74,7 @@ export function BattleScreen() {
     return (
       <section className={flowStyles.gate}>
         <p className={flowStyles.eyebrow}>BATTLE LOCKED</p>
-        <h1>Complete the current OpenMAIC lesson first.</h1>
+        <h1>Finish this floor&apos;s lesson first.</h1>
         <p>The map controls which floor can be studied and fought next.</p>
         <Link className={flowStyles.secondaryAction} href={`/dojo/${dojoId}`}>
           <ArrowLeft size={15} /> Return to tower
@@ -82,7 +87,9 @@ export function BattleScreen() {
     return (
       <FloorEncounter
         floorLabel={`Floor ${floor.order} · ${floor.title}`}
-        opponent={`Floor ${floor.order} Guardian`}
+        opponent={levelForOrder(floor.order).villain.name}
+        opponentFighter={levelForOrder(floor.order).villain}
+        arena={levelForOrder(floor.order).arena}
         onReady={() => setRoomEntered(true)}
       />
     );
@@ -90,8 +97,13 @@ export function BattleScreen() {
 
   return (
     <PrototypeBattle
+      dojoId={dojoId}
+      floorId={floor.id}
       topicLabel={`Floor ${floor.order} · ${floor.title}`}
-      opponentName={`Floor ${floor.order} Guardian`}
+      opponentName={levelForOrder(floor.order).villain.name}
+      opponentRole={`FLOOR ${floor.order} GUARDIAN`}
+      opponentFighter={levelForOrder(floor.order).villain}
+      arena={levelForOrder(floor.order).arena}
       onVictory={winFloor}
     />
   );
