@@ -22,7 +22,7 @@ type ListState =
 
 const noSubscription = () => () => {};
 
-function progressLine(dojo: DojoSummary): string {
+export function progressLine(dojo: DojoSummary): string {
   if (dojo.status === 'generating') return `Building your lessons · ${Math.round(dojo.progress)}%`;
   if (dojo.status === 'failed') return 'Generation failed';
   const progress = readDojoProgress(dojo.id, dojo.floorIds.length);
@@ -33,7 +33,7 @@ function progressLine(dojo: DojoSummary): string {
   return `Floor ${progress.currentFloor} of ${floors} · ${step}`;
 }
 
-function continueHref(dojo: DojoSummary): string {
+export function continueHref(dojo: DojoSummary): string {
   if (dojo.status !== 'ready') return `/dojo/${encodeURIComponent(dojo.id)}`;
   return resumePath(dojo.id, dojo.floorIds, readDojoProgress(dojo.id, dojo.floorIds.length));
 }

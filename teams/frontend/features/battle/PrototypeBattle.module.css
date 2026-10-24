@@ -1272,6 +1272,65 @@
 .result button {
   margin-top: 20px;
 }
+/* Missed answers, so the learner leaves the duel knowing what to revisit. */
+.result:has(.review) {
+  justify-content: flex-start;
+  overflow-y: auto;
+}
+.result:has(.review) > span {
+  font-size: 64px;
+  margin-bottom: 4px;
+}
+.result:has(.review) h2 {
+  font-size: 36px;
+}
+.review {
+  width: min(640px, 100%);
+  margin-top: 14px;
+  text-align: left;
+}
+.review h3 {
+  margin: 0 0 10px;
+  color: var(--gold);
+  font-family: var(--font-serif);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+}
+.review ol {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.review li {
+  padding: 12px 14px;
+  background: color-mix(in oklab, var(--card) 88%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
+.review strong {
+  display: block;
+  color: var(--foreground);
+  font-size: 15px;
+  line-height: 1.4;
+}
+.review span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted-foreground);
+  font-size: 13px;
+}
+.review em {
+  color: var(--destructive);
+  font-style: normal;
+}
+.review p {
+  margin: 6px 0 0;
+  color: var(--foreground);
+  font-size: 14px;
+  line-height: 1.5;
+}
 
 .effects {
   position: absolute;

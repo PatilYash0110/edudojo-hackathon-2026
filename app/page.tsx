@@ -29,7 +29,6 @@ import {
   Presentation,
   Loader2,
   Menu,
-  Lock,
 } from 'lucide-react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { LanguageSwitcher } from '@/components/language-switcher';
@@ -46,6 +45,7 @@ import { courseGenerationUsable } from '@/lib/model-settings/capabilities';
 import { discardGenerationRun } from '@/lib/generation-run-client/api';
 import { DojoApiError } from '@/teams/frontend/lib/api-client';
 import { useDojoSource } from '@/teams/frontend/lib/dojo-source/DojoSourceProvider';
+import { LessonsPanel } from '@/teams/frontend/features/dojo-map/LessonsPanel';
 import {
   useCourseMaterials,
   type CourseMaterialMessage,
@@ -121,22 +121,6 @@ const LOGO_IMAGE = '/logo-horizontal.png';
  * (text field, level bar, buttons) is kept inside the sharp area of the picture.
  */
 const BACKGROUND_FILL = 0.7;
-
-/** Placeholder progress — no logic yet. Wire to real data later. */
-const CURRENT_LEVEL = 1;
-const CURRENT_XP = 120;
-const NEXT_LEVEL_XP = 300;
-
-/** Judo/karate belt ranks. `belt` is the swatch colour. */
-const LEVELS: { level: number; romaji: string; kanji: string; belt: string }[] = [
-  { level: 1, romaji: 'Shiro-obi', kanji: '白帯', belt: '#f4f1ea' },
-  { level: 2, romaji: 'Ki-obi', kanji: '黄帯', belt: '#e8c547' },
-  { level: 3, romaji: 'Daidai-obi', kanji: '橙帯', belt: '#e38b2c' },
-  { level: 4, romaji: 'Midori-obi', kanji: '緑帯', belt: '#4f8a4b' },
-  { level: 5, romaji: 'Ao-obi', kanji: '青帯', belt: '#3b6ea8' },
-  { level: 6, romaji: 'Cha-obi', kanji: '茶帯', belt: '#7a4b2a' },
-  { level: 7, romaji: 'Kuro-obi', kanji: '黒帯', belt: '#1c1c1c' },
-];
 
 const RECENT_OPEN_STORAGE_KEY = 'recentClassroomsOpen';
 const INTERACTIVE_MODE_STORAGE_KEY = 'interactiveModeEnabled';
@@ -843,14 +827,14 @@ function HomePage() {
 
       {/* ═══ Right level column (tablet/desktop only) ═══ */}
       <aside className="hidden md:flex fixed right-[var(--stage-r)] top-0 z-30 h-[100dvh] w-40 lg:w-52 xl:w-60 2xl:w-64 flex-col border-l border-border bg-card/85 backdrop-blur-sm pt-16">
-        <LevelPanel />
+        <LessonsPanel />
       </aside>
 
-      {/* ═══ Mobile: burger + level drawer ═══ */}
+      {/* ═══ Mobile: burger + lessons drawer ═══ */}
       <button
         type="button"
         onClick={() => setLevelsOpen(true)}
-        aria-label="Levels"
+        aria-label="Your lessons"
         className="md:hidden fixed top-4 left-[calc(var(--stage-l)+1rem)] z-50 inline-flex items-center justify-center size-10 rounded-sm border border-border bg-card/90 backdrop-blur-sm text-foreground shadow-sm"
       >
         <Menu className="size-5" />
@@ -885,7 +869,7 @@ function HomePage() {
                   <X className="size-4" />
                 </button>
               </div>
-              <LevelPanel />
+              <LessonsPanel />
             </motion.div>
           </>
         )}
@@ -2030,76 +2014,6 @@ function ClassroomCard({
           </Tooltip>
         )}
       </div>
-    </div>
-  );
-}
-
-// ─── Level panel — skill display on top, belt levels below (no logic yet) ───
-function LevelPanel() {
-  const [selected, setSelected] = useState(CURRENT_LEVEL);
-  const current = LEVELS.find((l) => l.level === CURRENT_LEVEL) ?? LEVELS[0];
-  const pct = Math.min(100, Math.round((CURRENT_XP / NEXT_LEVEL_XP) * 100));
-
-  return (
-    <div className="flex min-h-0 flex-1 flex-col">
-      {/* Skill / level display */}
-      <div className="px-4 pb-4">
-        <p className="font-serif text-xs uppercase tracking-[0.2em] text-muted-foreground">
-          Skill Level
-        </p>
-        <div className="mt-1 flex items-baseline gap-2">
-          <span className="font-serif text-4xl font-bold leading-none text-foreground">
-            Lv.{current.level}
-          </span>
-          <span className="font-serif text-xl text-primary">{current.kanji}</span>
-        </div>
-        <p className="mt-1 text-sm text-muted-foreground">{current.romaji}</p>
-        <div className="mt-3 h-2 w-full overflow-hidden rounded-sm bg-muted ring-1 ring-border">
-          <div className="h-full bg-primary transition-all" style={{ width: `${pct}%` }} />
-        </div>
-        <p className="mt-1 text-xs tabular-nums text-muted-foreground">
-          {CURRENT_XP} / {NEXT_LEVEL_XP} XP
-        </p>
-        <div className="dojo-rule mt-4 w-full" aria-hidden />
-      </div>
-
-      {/* Level list */}
-      <ol className="min-h-0 flex-1 space-y-1.5 overflow-y-auto px-3 pb-6">
-        {LEVELS.map((lvl) => {
-          const locked = lvl.level > CURRENT_LEVEL;
-          const active = lvl.level === selected;
-          return (
-            <li key={lvl.level}>
-              <button
-                type="button"
-                disabled={locked}
-                onClick={() => setSelected(lvl.level)}
-                aria-current={active ? 'true' : undefined}
-                className={cn(
-                  'flex w-full items-center gap-3 rounded-sm border px-2.5 py-2 text-left transition-colors',
-                  active
-                    ? 'border-primary bg-accent text-foreground'
-                    : 'border-transparent hover:border-border hover:bg-accent/60',
-                  locked &&
-                    'cursor-not-allowed opacity-45 hover:border-transparent hover:bg-transparent',
-                )}
-              >
-                <span
-                  className="h-6 w-8 shrink-0 rounded-[2px] border border-foreground/30"
-                  style={{ backgroundColor: lvl.belt }}
-                />
-                <span className="min-w-0 flex-1">
-                  <span className="block font-serif text-base font-semibold leading-tight">
-                    Lv.{lvl.level} {lvl.kanji}
-                  </span>
-                  <span className="block truncate text-xs text-muted-foreground">{lvl.romaji}</span>
-                </span>
-                {locked && <Lock className="size-3.5 shrink-0 text-muted-foreground" />}
-              </button>
-            </li>
-          );
-        })}
-      </ol>
     </div>
   );
 }

@@ -20,7 +20,7 @@ import {
   Swords,
   Zap,
 } from 'lucide-react';
-import { BATTLE_BALANCE, REACTIVE_TIMINGS } from '@/teams/game/balance/balance';
+import { BATTLE_BALANCE, QUESTION_RULES, REACTIVE_TIMINGS } from '@/teams/game/balance/balance';
 import {
   attackDamage,
   battleReducer,
@@ -58,6 +58,7 @@ type PrototypeBattleProps = {
   /** Every graded answer, for mastery tracking. */
   onGraded?: (result: GradeResult) => void;
 };
+type Mistake = { key: string; prompt: string; given: string; explanation: string };
 type CombatFx = {
   kind: AttackTechnique | DefenseTechnique | 'hit';
   damage: number;
@@ -144,7 +145,7 @@ const DECISION_TIME_MS = 3200;
 const FEEDBACK_PAUSE_MS = 520;
 
 function questionSeconds(question: BattleQuestion | undefined): number {
-  return Math.max(1, Math.round((question?.timeoutMs ?? 9000) / 1000));
+  return Math.max(1, Math.round((question?.timeoutMs ?? QUESTION_RULES.answerTimeoutMs) / 1000));
 }
 
 function ReactiveDefense({
@@ -423,6 +424,8 @@ export default function PrototypeBattle({
   const decisionLock = useRef(false);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const victoryReported = useRef(false);
+  /** Every miss this duel, for the review on the result screen. */
+  const [mistakes, setMistakes] = useState<Mistake[]>([]);
   const questionUsage = useRef(new Map<string, number>());
   const poolRequest = useRef<{
     source: typeof source;
@@ -434,6 +437,7 @@ export default function PrototypeBattle({
   /** Bumped on restart so a late grade from an abandoned duel is ignored. */
   const gradeToken = useRef(0);
   const advanceChallengeRef = useRef<(correct: boolean) => void>(() => undefined);
+  const showFeedbackRef = useRef<(correct: boolean, text: string) => void>(() => undefined);
   const beginChallengeRef = useRef<(index: number) => void>(() => undefined);
   const selectedRef = useRef(0);
   const menu = useRef<HTMLDivElement>(null);
@@ -541,11 +545,17 @@ export default function PrototypeBattle({
     };
   }, [fx]);
 
-  useEffect(() => {
-    if (battle.turn !== 'victory' || fx || victoryReported.current) return;
+  const reportVictory = useCallback(() => {
+    if (victoryReported.current) return;
     victoryReported.current = true;
     onVictory?.();
-  }, [battle.turn, fx, onVictory]);
+  }, [onVictory]);
+
+  // A clean win moves on by itself; a win with misses waits on the review screen.
+  useEffect(() => {
+    if (battle.turn !== 'victory' || fx || mistakes.length > 0) return;
+    reportVictory();
+  }, [battle.turn, fx, mistakes.length, reportVictory]);
 
   useEffect(() => {
     if (question?.answerType === 'typed') answerInput.current?.focus();
@@ -716,10 +726,17 @@ export default function PrototypeBattle({
     setFeedback(null);
   }
 
-  function showFeedback(correct: boolean, text: string) {
+  function showFeedback(correct: boolean, text: string, given = '') {
     setGrading(false);
     setFeedback(correct);
     setExplanation(text);
+    if (!correct && question) {
+      const missed = question;
+      setMistakes((list) => [
+        ...list,
+        { key: `${missed.id}-${list.length}`, prompt: missed.prompt, given, explanation: text },
+      ]);
+    }
     feedbackTimer.current = setTimeout(
       () => advanceChallengeRef.current(correct),
       FEEDBACK_PAUSE_MS,
@@ -735,17 +752,18 @@ export default function PrototypeBattle({
       (result) => {
         if (token !== gradeToken.current) return;
         onGraded?.(result);
-        showFeedback(result.correct, result.explanation);
+        showFeedback(result.correct, result.explanation, value);
       },
       () => {
         if (token !== gradeToken.current) return;
-        showFeedback(false, 'This answer could not be graded, so it counts as a miss.');
+        showFeedback(false, 'This answer could not be graded, so it counts as a miss.', value);
       },
     );
   }
 
   useEffect(() => {
     advanceChallengeRef.current = advanceChallenge;
+    showFeedbackRef.current = showFeedback;
   });
 
   useEffect(() => {
@@ -757,7 +775,7 @@ export default function PrototypeBattle({
       }
       answerLock.current = true;
       setSecondsLeft(0);
-      showFeedback(false, 'Time is up.');
+      showFeedbackRef.current(false, 'Time is up.');
     }, 1000);
     return () => clearTimeout(timer);
   }, [feedback, question, secondsLeft]);
@@ -802,6 +820,7 @@ export default function PrototypeBattle({
     answerLock.current = false;
     decisionLock.current = false;
     victoryReported.current = false;
+    setMistakes([]);
     selectedRef.current = 0;
     setSelected(0);
     setDecisionMsLeft(DECISION_TIME_MS);
@@ -1211,9 +1230,33 @@ export default function PrototypeBattle({
                   : 'Next in your journey: return to Sensei and study the next topic.'
                 : 'Study the explanations and try a different combination.'}
             </p>
-            <button className={styles.primaryButton} onClick={restart}>
-              Replay training duel <RotateCcw size={16} />
-            </button>
+            {mistakes.length > 0 && (
+              <section className={styles.review} aria-label="Answers to review">
+                <h3>
+                  Review {mistakes.length} missed {mistakes.length === 1 ? 'answer' : 'answers'}
+                </h3>
+                <ol>
+                  {mistakes.map((mistake) => (
+                    <li key={mistake.key}>
+                      <strong>{mistake.prompt}</strong>
+                      <span>
+                        Your answer: <em>{mistake.given || 'no answer'}</em>
+                      </span>
+                      <p>{mistake.explanation}</p>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            )}
+            {battle.turn === 'victory' ? (
+              <button className={styles.primaryButton} onClick={reportVictory}>
+                Continue <ChevronRight size={16} />
+              </button>
+            ) : (
+              <button className={styles.primaryButton} onClick={restart}>
+                Replay training duel <RotateCcw size={16} />
+              </button>
+            )}
           </div>
         )}
 

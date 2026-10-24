@@ -185,6 +185,22 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     if (ready) sceneRef.current?.setStates(states);
   }, [ready, states]);
 
+  // Arriving from a finished lesson (`?floor=<id>`): zoom onto that floor so the learner sees the
+  // room and its guardian before stepping in.
+  useEffect(() => {
+    if (!ready) return;
+    const floorId = new URLSearchParams(window.location.search).get('floor');
+    const index = floorId ? stops.findIndex((stop) => stop.id === floorId) : -1;
+    if (index < 0) return;
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (!cancelled) setSelected(index);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [ready, stops]);
+
   // Phones show the floors as a sideways strip: bring the open floor into view.
   useEffect(() => {
     const strip = floorsRef.current;

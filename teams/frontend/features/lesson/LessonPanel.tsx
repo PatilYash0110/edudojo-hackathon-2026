@@ -70,7 +70,8 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   function completeLesson() {
     if (!current || progress.stage !== 'lesson') return;
     advance('LESSON_COMPLETED');
-    router.push(`/dojo/${dojoId}/floor/${floor!.id}/battle`);
+    // Back to the tower, zoomed onto this floor: the learner steps into the room themselves.
+    router.push(`/dojo/${dojoId}?floor=${encodeURIComponent(floor!.id)}`);
   }
 
   function continueLesson() {
@@ -109,7 +110,7 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
           onClick={completeLesson}
           type="button"
         >
-          I finished this section · enter the room <Swords size={20} />
+          I finished this section · go to the battle floor <Swords size={20} />
         </button>
       )}
 
@@ -128,7 +129,7 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
           </div>
           <button className={styles.primaryAction} onClick={continueLesson} type="button">
             {sceneIndex === floor.objectives.length - 1
-              ? 'Finish the lesson · face the guardian'
+              ? 'Finish the lesson · go to the battle floor'
               : 'Next lesson scene'}
             <BookOpen size={15} />
           </button>
