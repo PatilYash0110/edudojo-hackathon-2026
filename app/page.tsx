@@ -1010,7 +1010,7 @@ function HomePage() {
                 onClick={handleGenerate}
                 disabled={!canGenerate || preparingGenerate}
                 className={cn(
-                  'shrink-0 h-10 rounded-lg flex items-center justify-center gap-2 transition-all px-4',
+                  'shrink-0 h-10 rounded-sm flex items-center justify-center gap-2 transition-all px-4',
                   canGenerate && !preparingGenerate
                     ? 'bg-primary text-primary-foreground hover:opacity-90 shadow-sm cursor-pointer'
                     : 'bg-muted text-muted-foreground cursor-not-allowed',

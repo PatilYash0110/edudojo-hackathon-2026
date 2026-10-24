@@ -74,7 +74,10 @@
    washi = rice paper, sumi = ink, shu = vermilion (stamp/seal),
    wood = hinoki/dark timber, gold = kintsugi accent.
    ═══════════════════════════════════════════════════════════════════ */
-:root {
+/* `html:root` / `.dark:not(html)` + `html.dark`: one step more specific than a plain `:root` /
+   `.dark`, because a stock neutral shadcn palette (white/black, violet primary) is compiled
+   after this file and would otherwise replace the dojo colours. */
+html:root {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   /* Headings/brand. Falls back to system Japanese/serif fonts if not loaded. */
   --font-serif:
@@ -123,7 +126,8 @@
 }
 
 /* Night dojo: warm charcoal walls (lifted for readability), paper-coloured text. */
-.dark {
+html.dark,
+.dark:not(html) {
   --washi: oklch(0.3 0.012 60);
   --washi-deep: oklch(0.35 0.014 58);
   --sumi: oklch(0.95 0.016 85);

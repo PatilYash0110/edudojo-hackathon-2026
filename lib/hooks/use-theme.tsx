@@ -13,7 +13,8 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('system');
+  // EduDojo defaults to the night dojo; a stored choice (light, dark or system) wins.
+  const [theme, setThemeState] = useState<Theme>('dark');
   const [systemTheme, setSystemTheme] = useState<'light' | 'dark'>('light');
   // The document already carries the stored theme (the layout's pre-paint
   // script); it is not touched until the stored theme has been read here, or
