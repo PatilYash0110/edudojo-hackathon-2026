@@ -82,8 +82,19 @@ Choose widgets based on the content:
 - Add ICONS to nodes
 - Color-code node types
 
+### Minimum composition (REQUIRED)
+- At least 2 `slide` scenes
+- At least 1 `interactive` scene
+- Exactly 1 `quiz` scene, placed LAST
+
+### Quiz Scene (REQUIRED - exactly one)
+- Exactly ONE scene with `type: "quiz"`, as the last scene of the course
+- `quizConfig` is required on it; use at least 6 questions (prefer 6-10)
+- Spread the questions over the distinct topics the course covered, at least 2 per topic
+- This requirement is separate from the game-widget rule below
+
 ### Game Widget (CRITICAL - NO BORING QUIZZES!)
-- **PREFER action/puzzle games over quizzes**
+- **PREFER action/puzzle games over quizzes** (this is about `game` widgets, not the required `quiz` scene)
 - Player MUST control something (not just click answers)
 - If using simulation, make it INTERACTIVE gameplay
 - Example GOOD game: "Control thrust to land safely"

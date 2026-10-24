@@ -762,7 +762,22 @@
       "high": "ممتاز — أبدعت!",
       "mid": "عمل جيد — استمر.",
       "low": "بداية جيدة — راجع وحاول مجددًا."
-    }
+    },
+    "topicBreakdown": "توزيع المواضيع",
+    "radarGoal": "الهدف ٨٥٪",
+    "radarLabel": "الدقة حسب الموضوع: {{scores}}. الحلقة المتقطعة تمثل هدف ٨٥٪.",
+    "rating": {
+      "excelling": "متميز",
+      "doingWell": "جيد",
+      "satisfactory": "مقبول",
+      "needsPractice": "يحتاج تدريبًا"
+    },
+    "practiceScene": "تدريب",
+    "practiceAction": "تدرّب على هذا الموضوع",
+    "practiceBusy": "جارٍ إنشاء التدريب…",
+    "practiceDone": "تم التدرب",
+    "practiceAdded": "تمت إضافة أسئلة التدريب إلى دورتك.",
+    "practiceFailed": "تعذّر إنشاء أسئلة التدريب. يرجى المحاولة مرة أخرى."
   },
   "whiteboard": {
     "title": "السبورة التفاعلية",

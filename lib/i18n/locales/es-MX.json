@@ -762,7 +762,22 @@
       "high": "Sobresaliente — lo dominaste.",
       "mid": "Buen trabajo — sigue así.",
       "low": "Buen comienzo — repasa e inténtalo de nuevo."
-    }
+    },
+    "topicBreakdown": "Desglose por tema",
+    "radarGoal": "Meta 85 %",
+    "radarLabel": "Precisión por tema: {{scores}}. El anillo punteado marca la meta de 85 %.",
+    "rating": {
+      "excelling": "Excelente",
+      "doingWell": "Bien",
+      "satisfactory": "Satisfactorio",
+      "needsPractice": "A practicar"
+    },
+    "practiceScene": "Práctica",
+    "practiceAction": "Practicar este tema",
+    "practiceBusy": "Generando práctica…",
+    "practiceDone": "Practicado",
+    "practiceAdded": "Se agregaron preguntas de práctica a tu curso.",
+    "practiceFailed": "No se pudieron generar las preguntas de práctica. Inténtalo de nuevo."
   },
   "whiteboard": {
     "title": "Pizarrón interactivo",

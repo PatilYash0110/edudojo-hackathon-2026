@@ -762,7 +762,22 @@
       "high": "素晴らしい！完璧です。",
       "mid": "いい感じ、その調子。",
       "low": "始まりはこれから。復習しましょう。"
-    }
+    },
+    "topicBreakdown": "トピック別の結果",
+    "radarGoal": "目標 85%",
+    "radarLabel": "トピック別の正答率: {{scores}}。破線のリングは85%の目標です。",
+    "rating": {
+      "excelling": "非常に優秀",
+      "doingWell": "良好",
+      "satisfactory": "まずまず",
+      "needsPractice": "練習が必要"
+    },
+    "practiceScene": "練習",
+    "practiceAction": "このトピックを練習する",
+    "practiceBusy": "練習問題を作成中…",
+    "practiceDone": "練習済み",
+    "practiceAdded": "練習問題をコースに追加しました。",
+    "practiceFailed": "練習問題を作成できませんでした。もう一度お試しください。"
   },
   "whiteboard": {
     "title": "インタラクティブホワイトボード",

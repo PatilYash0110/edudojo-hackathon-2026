@@ -762,7 +762,22 @@
       "high": "Hervorragend — das sitzt.",
       "mid": "Starke Leistung — weiter so.",
       "low": "Ein guter Anfang — wiederhole den Stoff und versuche es erneut."
-    }
+    },
+    "topicBreakdown": "Themenübersicht",
+    "radarGoal": "Ziel 85 %",
+    "radarLabel": "Genauigkeit nach Thema: {{scores}}. Der gestrichelte Ring markiert das Ziel von 85 %.",
+    "rating": {
+      "excelling": "Ausgezeichnet",
+      "doingWell": "Gut",
+      "satisfactory": "Befriedigend",
+      "needsPractice": "Üben"
+    },
+    "practiceScene": "Übung",
+    "practiceAction": "Dieses Thema üben",
+    "practiceBusy": "Übung wird erstellt…",
+    "practiceDone": "Geübt",
+    "practiceAdded": "Übungsfragen wurden deinem Kurs hinzugefügt.",
+    "practiceFailed": "Übungsfragen konnten nicht erstellt werden. Bitte versuche es erneut."
   },
   "whiteboard": {
     "title": "Interaktives Whiteboard",

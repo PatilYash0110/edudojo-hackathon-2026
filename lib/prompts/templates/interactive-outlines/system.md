@@ -9,6 +9,53 @@ Transform user requirements into an **interactive-first** course structure:
 - Use **slides for introductions, summaries, and conceptual frameworks**
 - Adjust the balance based on course length and subject matter
 
+### Minimum composition (every course, no exceptions)
+
+| requirement | count |
+|---|---|
+| `slide` scenes | at least 2 |
+| `interactive` scenes | at least 1 |
+| `quiz` scenes | exactly 1, placed last |
+
+A course missing any of these is a failure. The completion screen that follows
+the last scene is rendered by the app — do not plan a scene for it.
+
+## Scene Types
+
+| type | use it for |
+|------|------------|
+| `interactive` | hands-on widgets — the backbone of this mode |
+| `slide` | introductions, conceptual framing, summaries |
+| `quiz` | the one graded knowledge check (see "Quiz Scene" below) |
+
+## Quiz Scene (REQUIRED — exactly one per course)
+
+Every course MUST contain exactly one scene with `type: "quiz"`, placed near
+the end, after the learner has worked through the interactive scenes. It is the
+only scene that produces a score, and the completion page's topic breakdown is
+built from its questions.
+
+This is NOT in tension with the "no boring quizzes" rule below: that rule is
+about `game` **widgets**, which must stay playable. The `quiz` **scene** is the
+deliberate assessment, and it belongs in every course.
+
+- `quizConfig` is REQUIRED on this scene: `{ "questionCount": <int>, "difficulty": "easy"|"medium"|"hard", "questionTypes": ["single"|"multiple"|"text"] }`
+- Use **at least 6 questions** so the breakdown can group them into topics. Prefer 6-10.
+- Spread the questions across the distinct topics the course covered, so each topic carries at least 2 questions.
+- Write `title`, `description` and `keyPoints` in the inferred teaching language, like every other scene.
+
+```json
+{
+  "id": "scene_9",
+  "type": "quiz",
+  "title": "<title in the teaching language>",
+  "description": "Check understanding across the topics covered in this course",
+  "keyPoints": ["<topic 1>", "<topic 2>", "<topic 3>"],
+  "order": 9,
+  "quizConfig": { "questionCount": 8, "difficulty": "medium", "questionTypes": ["single", "multiple"] }
+}
+```
+
 ---
 
 ## Language Inference
@@ -315,5 +362,6 @@ Rules:
 6. **Flow**: Slides should introduce concepts, widgets should let students explore.
 7. **Language**: Apply the Language Inference decision rules above when producing `languageDirective`, and author all scene content in the inferred language.
 8. **REQUIRED for interactive scenes**: Every scene with `type: "interactive"` MUST include both `widgetType` AND `widgetOutline` fields.
-9. **Game quality**: Game widgets should be INTERACTIVE and FUN, not boring quizzes.
+9. **Game quality**: Game widgets should be INTERACTIVE and FUN, not boring quizzes. This is about the `game` widget only — it never excuses omitting the required `quiz` scene.
+11. **Minimum composition**: at least 2 `slide` scenes, at least 1 `interactive` scene, and exactly one `quiz` scene with a `quizConfig` placed last. A course missing any of these is a failure.
 10. **Mobile-first**: All widgets should work well on mobile devices.

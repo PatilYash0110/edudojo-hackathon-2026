@@ -762,7 +762,22 @@
       "high": "太棒了，完美发挥！",
       "mid": "表现不错，继续加油！",
       "low": "万事开头难，回去再练练吧。"
-    }
+    },
+    "topicBreakdown": "主题分布",
+    "radarGoal": "目标 85%",
+    "radarLabel": "各主题正确率：{{scores}}。虚线环表示 85% 的目标。",
+    "rating": {
+      "excelling": "优秀",
+      "doingWell": "良好",
+      "satisfactory": "及格",
+      "needsPractice": "需要练习"
+    },
+    "practiceScene": "练习",
+    "practiceAction": "练习此主题",
+    "practiceBusy": "正在生成练习…",
+    "practiceDone": "已练习",
+    "practiceAdded": "练习题已添加到你的课程。",
+    "practiceFailed": "无法生成练习题，请重试。"
   },
   "whiteboard": {
     "title": "互动白板",

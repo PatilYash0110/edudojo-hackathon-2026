@@ -762,7 +762,22 @@
       "high": "Xuất sắc — bạn làm rất tốt.",
       "mid": "Khá tốt — cứ giữ đà này.",
       "low": "Khởi đầu ổn — hãy xem lại rồi thử lần nữa."
-    }
+    },
+    "topicBreakdown": "Phân tích theo chủ đề",
+    "radarGoal": "Mục tiêu 85%",
+    "radarLabel": "Độ chính xác theo chủ đề: {{scores}}. Vòng nét đứt là mục tiêu 85%.",
+    "rating": {
+      "excelling": "Xuất sắc",
+      "doingWell": "Tốt",
+      "satisfactory": "Đạt",
+      "needsPractice": "Cần luyện thêm"
+    },
+    "practiceScene": "Luyện tập",
+    "practiceAction": "Luyện tập chủ đề này",
+    "practiceBusy": "Đang tạo bài luyện tập…",
+    "practiceDone": "Đã luyện tập",
+    "practiceAdded": "Đã thêm câu hỏi luyện tập vào khóa học của bạn.",
+    "practiceFailed": "Không thể tạo câu hỏi luyện tập. Vui lòng thử lại."
   },
   "whiteboard": {
     "title": "Bảng tương tác",

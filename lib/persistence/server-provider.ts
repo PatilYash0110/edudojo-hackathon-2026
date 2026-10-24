@@ -28,6 +28,36 @@ import { ensureOwnerAgentSchema } from '@/lib/server/agents/store';
 export type PersistencePoolFactory = (connectionString: string) => Pool;
 
 /**
+ * Connections this process may hold at once.
+ *
+ * node-postgres defaults to 10, which is too many when the database sits
+ * behind a session-mode pooler: Supabase's session pooler caps a project at
+ * `pool_size` (15 on the small tiers) across every client, and those slots are
+ * held for the life of the connection, not the transaction. One dev server
+ * taking 10 plus the agent-event listener and a psql session is already at the
+ * ceiling, and the next connect fails the whole app with
+ * `(EMAXCONNSESSION) max clients reached in session mode`.
+ *
+ * Transaction mode would lift the ceiling but is not an option here:
+ * `withSchemaBootstrapLock` holds a session-level advisory lock, which
+ * PgBouncer's transaction mode does not support.
+ *
+ * So the ceiling is ours to respect. Override with `DATABASE_POOL_MAX` when
+ * the database is direct rather than pooled.
+ */
+const DEFAULT_POOL_MAX = 5;
+
+function resolvePoolMax(): number {
+  const raw = process.env.DATABASE_POOL_MAX?.trim();
+  if (!raw) return DEFAULT_POOL_MAX;
+  const value = Number(raw);
+  if (!Number.isInteger(value) || value < 1) {
+    throw new Error(`DATABASE_POOL_MAX must be a positive integer, received "${raw}"`);
+  }
+  return value;
+}
+
+/**
  * The process's persistence stores. There is deliberately no document store
  * here: an unscoped `PgDocumentStore` would write courses with no owner check
  * and no host create hooks. Documents are reached only through the
@@ -164,7 +194,8 @@ async function createServerPersistenceProvider(
  */
 export function getServerPersistenceProvider(
   connectionString: string,
-  poolFactory: PersistencePoolFactory = (value) => new Pool({ connectionString: value }),
+  poolFactory: PersistencePoolFactory = (value) =>
+    new Pool({ connectionString: value, max: resolvePoolMax() }),
 ): Promise<ServerPersistenceProvider> {
   const key = connectionString.trim();
   if (providerState.providerPromise && providerState.connectionString === key) {

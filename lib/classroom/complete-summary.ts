@@ -1,9 +1,32 @@
 import type { Scene, SceneType, QuizContent } from '@/lib/types/stage';
 import { gradeChoiceQuestions } from '@/lib/quiz/grading';
+import { PRACTICE_POINTS, practiceTopicOf } from '@/lib/classroom/practice';
+
+/** One graded choice question, kept so the radar can group them by topic. */
+export interface QuizAnswerResult {
+  questionId: string;
+  sceneId: string;
+  sceneTitle: string;
+  question: string;
+  correct: boolean;
+  /**
+   * What this question is worth to the summary. Course questions count 1 and
+   * generated practice counts half, so drilling a weak topic moves the score
+   * without letting it be farmed.
+   *
+   * Deliberately NOT `QuizQuestion.points`: the generator writes points on a
+   * scale of its own (10 and 15 are common), so using them turned a learner's
+   * "5 / 8 correct" into "40 / 95". Points are the quiz engine's scoring
+   * scale; this is a question count.
+   */
+  weight: number;
+}
 
 export interface CompleteSummary {
   countsByType: Partial<Record<SceneType, number>>;
   quiz: { correct: number; total: number; pct: number } | null;
+  /** Empty until the async pass has read the stored answers. */
+  results: QuizAnswerResult[];
 }
 
 export interface ResolvedCompleteSummary {
@@ -18,6 +41,7 @@ export function pendingCompleteSummary(scenes: Scene[]): CompleteSummary {
       return counts;
     }, {}),
     quiz: null,
+    results: [],
   };
 }
 
@@ -59,6 +83,7 @@ export async function summarizeScenes(
 
   let correct = 0;
   let total = 0;
+  const results: QuizAnswerResult[] = [];
   for (const scene of scenes) {
     if (scene.type !== 'quiz') continue;
     const questions = (scene.content as QuizContent).questions ?? [];
@@ -69,14 +94,33 @@ export async function summarizeScenes(
       continue;
     }
     if (answers === undefined) continue;
-    const results = gradeChoiceQuestions(questions, answers);
-    for (const r of results) {
-      total += 1;
-      if (r.correct === true) correct += 1;
+    const graded = gradeChoiceQuestions(questions, answers);
+    for (const r of graded) {
+      const weight = practiceTopicOf(r.questionId) ? PRACTICE_POINTS : 1;
+      total += weight;
+      if (r.correct === true) correct += weight;
+      results.push({
+        questionId: r.questionId,
+        sceneId: scene.id,
+        sceneTitle: scene.title ?? '',
+        question: questions.find((q) => q.id === r.questionId)?.question ?? '',
+        correct: r.correct === true,
+        weight,
+      });
     }
   }
 
-  const quiz = total > 0 ? { correct, total, pct: Math.round((correct / total) * 100) } : null;
+  // Half-weight practice makes both figures fractional. The percentage is
+  // computed from the exact values and only the display counts are rounded:
+  // "6.5 correct answers" is not something a learner has ever been shown.
+  const quiz =
+    total > 0
+      ? {
+          correct: Math.round(correct),
+          total: Math.round(total),
+          pct: Math.round((correct / total) * 100),
+        }
+      : null;
 
-  return { countsByType, quiz };
+  return { countsByType, quiz, results };
 }

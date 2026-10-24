@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
 import { animate, motion, MotionConfig, useReducedMotion } from 'motion/react';
 import { FileText, HelpCircle, Gamepad2, Puzzle } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,23 @@ import {
   readSceneQuizAnswers,
   summarizeScenes,
 } from '@/lib/classroom/complete-summary';
+import {
+  fallbackCategories,
+  fetchInsightCategories,
+  hasEnoughAxes,
+  ratingKey,
+  type InsightCategory,
+} from '@/lib/classroom/insights';
+import { CompleteRadar } from '@/components/scene-renderers/complete-radar';
+import {
+  PRACTICE_THRESHOLD,
+  fetchPracticeQuestions,
+  mergePracticeQuestions,
+  practisedTopics,
+} from '@/lib/classroom/practice';
+import { makeScene, type QuizContent, type QuizQuestion } from '@/lib/types/stage';
+import { Loader2, Dumbbell, Check } from 'lucide-react';
+import { toast } from 'sonner';
 import { loadQuizAttemptState } from '@/lib/quiz/runtime';
 import { createLogger } from '@/lib/logger';
 
@@ -24,6 +41,12 @@ const SCENE_TYPE_ICONS: Record<SceneType, typeof FileText> = {
   interactive: Gamepad2,
   pbl: Puzzle,
 };
+
+/** How far the fit-to-stage scale may go in either direction. */
+const MIN_FIT_SCALE = 0.45;
+const MAX_FIT_SCALE = 1.35;
+/** Breathing room so the outermost card never sits flush against the stage. */
+const FIT_INSET = 16;
 
 const TYPE_ORDER: SceneType[] = ['slide', 'quiz', 'interactive', 'pbl'];
 
@@ -80,10 +103,20 @@ function makeConfetti(count: number): Particle[] {
   return arr;
 }
 
+/** Never-changing store: the snapshot differs between server and client. */
+const subscribeNever = () => () => {};
+
 function Confetti() {
   const prefersReducedMotion = useReducedMotion();
   const particles = useMemo(() => makeConfetti(55), []);
-  if (prefersReducedMotion) return null;
+  // The particle geometry is random, so server and client HTML can never
+  // agree — render nothing until after hydration.
+  const hydrated = useSyncExternalStore(
+    subscribeNever,
+    () => true,
+    () => false,
+  );
+  if (prefersReducedMotion || !hydrated) return null;
 
   return (
     <div
@@ -260,7 +293,13 @@ function AnimatedCounter({
       ease: [0.16, 1, 0.3, 1],
       onUpdate: (v) => setDisplay(Math.round(v)),
     });
-    return () => controls.stop();
+    return () => {
+      controls.stop();
+      // Land on the real number rather than wherever the animation was cut
+      // off. An interrupted count-up used to leave the card reading 0, which
+      // is not a slower truth but a wrong one.
+      setDisplay(value);
+    };
   }, [value, delay, duration, prefersReducedMotion]);
 
   return <>{prefersReducedMotion ? value : display}</>;
@@ -328,9 +367,17 @@ function QuizRing({
 interface ClassroomCompletePageProps {
   readonly scenes: Scene[];
   readonly title: string;
+  /** Design-preview overrides: skip the stored answers and the LLM request. */
+  readonly insightsOverride?: InsightCategory[];
+  readonly quizOverride?: { correct: number; total: number; pct: number };
 }
 
-export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePageProps) {
+export function ClassroomCompletePage({
+  scenes,
+  title,
+  insightsOverride,
+  quizOverride,
+}: ClassroomCompletePageProps) {
   const { t, locale } = useI18n();
   const prefersReducedMotion = useReducedMotion();
 
@@ -338,7 +385,8 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
     scenes,
     summary: pendingCompleteSummary(scenes),
   }));
-  const summary = completeSummaryForScenes(scenes, resolvedSummary);
+  const resolved = completeSummaryForScenes(scenes, resolvedSummary);
+  const summary = quizOverride ? { ...resolved, quiz: quizOverride } : resolved;
 
   useEffect(() => {
     let cancelled = false;
@@ -358,6 +406,95 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
     };
   }, [scenes]);
 
+  // Topic breakdown for the radar. The LLM groups the graded questions, which
+  // takes a model round trip, so the scene-title grouping is drawn immediately
+  // and the model's topics crossfade over it when they land. Waiting instead
+  // would leave the card empty for seconds and then pop a chart into a page
+  // the learner is already reading.
+  const [llmInsights, setLlmInsights] = useState<InsightCategory[]>([]);
+  const quizResults = summary.results;
+  // Not memoized by hand: the React Compiler cannot preserve a memo keyed on
+  // this array, and the grouping is a single pass over the graded answers.
+  const insights =
+    insightsOverride ?? (llmInsights.length > 0 ? llmInsights : fallbackCategories(quizResults));
+  useEffect(() => {
+    if (insightsOverride) return;
+    if (quizResults.length === 0) return;
+    const controller = new AbortController();
+    void fetchInsightCategories(
+      { courseTitle: title, language: locale, results: quizResults },
+      controller.signal,
+    ).then((categories) => {
+      if (!controller.signal.aborted) setLlmInsights(categories);
+    });
+    return () => controller.abort();
+  }, [quizResults, title, locale, insightsOverride]);
+
+  const showRadar = hasEnoughAxes(insights);
+
+  // Targeted practice. Only offered on topics the model actually named: when
+  // no model answered, the "topics" are quiz-scene titles, and a drill
+  // generated from a scene title would be vague where it needs to be precise.
+  const topicsAreFromModel = llmInsights.length > 0 && !insightsOverride;
+  const addScene = useStageStore((state) => state.addScene);
+  const updateScene = useStageStore((state) => state.updateScene);
+  const stageId = useStageStore((state) => state.stage?.id);
+  const practiceSceneTitle = t('classroomComplete.practiceScene');
+  // The scene that already holds practice questions is the durable record of
+  // what has been drilled, so the answer is read off it rather than stored a
+  // second time where the two copies could disagree.
+  const practiceScene = scenes.find(
+    (scene) =>
+      scene.type === 'quiz' &&
+      practisedTopics(((scene.content as QuizContent).questions ?? []) as QuizQuestion[]).size > 0,
+  );
+  const practised = practisedTopics(
+    ((practiceScene?.content as QuizContent | undefined)?.questions ?? []) as QuizQuestion[],
+  );
+  // One generation at a time: these are model calls on a single slot, and
+  // three in flight is three chances of a rate-limit refusal landing on
+  // someone who only wanted to practise.
+  const [practisingTopic, setPractisingTopic] = useState<string | null>(null);
+
+  const practise = async (topic: string) => {
+    if (practisingTopic || !stageId) return;
+    setPractisingTopic(topic);
+    try {
+      const generated = await fetchPracticeQuestions({
+        courseTitle: title,
+        language: locale,
+        topic,
+        results: quizResults,
+      });
+      const existing = ((practiceScene?.content as QuizContent | undefined)?.questions ??
+        []) as QuizQuestion[];
+      const questions = mergePracticeQuestions(existing, topic, generated);
+      if (practiceScene) {
+        updateScene(practiceScene.id, { content: { type: 'quiz', questions } });
+      } else {
+        addScene(
+          makeScene(
+            {
+              id: `scene-practice-${Date.now().toString(36)}`,
+              stageId,
+              title: practiceSceneTitle,
+              order: scenes.length,
+            },
+            { type: 'quiz', questions },
+          ),
+        );
+      }
+      toast(t('classroomComplete.practiceAdded'));
+    } catch (error) {
+      // The course is left untouched; the specific reason is for the log, not
+      // for someone who just finished a lesson.
+      log.warn('Practice generation failed:', error);
+      toast(t('classroomComplete.practiceFailed'));
+    } finally {
+      setPractisingTopic(null);
+    }
+  };
+
   const dateLabel = useMemo(() => {
     try {
       return new Intl.DateTimeFormat(locale).format(new Date());
@@ -376,42 +513,76 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
   );
 
   // Adaptive compact mode. The complete page lives inside the `<Stage>`
-  // viewport — when that viewport is short (e.g. user shrinks the browser, or
-  // the stage is embedded in a thin column), the natural content (trophy +
-  // ribbon + title + stats + quiz) overflows. A centered flex container that
-  // overflows clips its top half beyond the scroll origin, so the trophy
-  // becomes unreachable — instead of relying on scrolling, we toggle a
-  // `compact` token before content overflows the container.
+  // viewport — when that viewport is short (a small window, or the stage
+  // embedded in a thin column), the full layout overflows. A centered flex
+  // container that overflows clips its top half beyond the scroll origin, so
+  // the trophy becomes unreachable; swapping to a `compact` token before that
+  // happens keeps the whole page reachable without scrolling.
   //
-  // We base the decision on the **container height alone**, not on
-  // measuring content vs. container. Measuring content while in compact
-  // would only see the compact size, so if we used "content + margin >
-  // container" both ways, we'd ping-pong between the two layouts (compact
-  // fits → swap to full → full overflows → swap to compact → repeat every
-  // frame).
+  // The decision is measured, not guessed at with a fixed pixel threshold.
+  // Content height is not constant here: the topic breakdown appears only for
+  // courses with a quiz, its chart is taller than its bar fallback, and the
+  // row count follows the topic count. A hard-coded "full layout needs 760px"
+  // was calibrated before the breakdown existed and silently stopped being
+  // true once it shipped.
   //
-  // Hysteresis on the container size avoids that:
-  //   - flip TO compact when container drops below FULL_MIN
-  //   - flip BACK to full only when container climbs above FULL_SAFE
-  //
-  // FULL_MIN matches the natural full-layout height (trophy + title + 4
-  // stat cards + quiz card, all spaced); FULL_SAFE has a little headroom
-  // on top of that so we don't oscillate around the seam.
+  // Measuring naively would oscillate — compact content fits, so it would
+  // flip back to full, overflow, and flip again every frame. The fix is to
+  // remember how tall the content was the last time it rendered full, and
+  // require that much room again before leaving compact:
+  //   - in full: overflow the container → go compact, remembering that height
+  //   - in compact: only return to full once the container clears the
+  //     remembered full height plus a margin
   const sectionRef = useRef<HTMLElement | null>(null);
+  const contentRef = useRef<HTMLDivElement | null>(null);
+  const fullContentHeight = useRef<number>(0);
   const [compact, setCompact] = useState(false);
+  const [scale, setScale] = useState(1);
+  // Scaled content keeps its unscaled layout box, so the scroll layer would
+  // report an overflow the viewer no longer has. Scrolling is enabled only
+  // when the scale floor was hit and something is genuinely out of view.
+  const [fits, setFits] = useState(true);
+  // The column's unscaled height, kept so the scroll track can be sized to
+  // what is actually drawn rather than to the layout box behind it.
+  const [naturalHeight, setNaturalHeight] = useState(0);
   useEffect(() => {
     const section = sectionRef.current;
-    if (!section) return;
-    const FULL_MIN = 760; // below this height, full layout overflows
-    const FULL_SAFE = 820; // only re-expand once we have this much again
+    const content = contentRef.current;
+    if (!section || !content) return;
+    // Enough to clear a rounding difference without inviting a flip-flop.
+    const MARGIN = 24;
     const measure = () => {
-      const h = section.clientHeight;
-      setCompact((prev) => (prev ? h < FULL_SAFE : h < FULL_MIN));
+      const availableHeight = section.clientHeight;
+      const availableWidth = section.clientWidth;
+      // offsetWidth/offsetHeight are layout sizes, which a CSS transform does
+      // not affect — so reading them back while scaled cannot feed into
+      // itself.
+      const naturalHeight = content.offsetHeight;
+      const naturalWidth = content.offsetWidth;
+      setCompact((prev) => {
+        if (prev) return availableHeight < fullContentHeight.current + MARGIN;
+        fullContentHeight.current = naturalHeight;
+        return naturalHeight > availableHeight;
+      });
+      if (naturalHeight > 0 && naturalWidth > 0) {
+        const next = Math.max(
+          MIN_FIT_SCALE,
+          Math.min(
+            MAX_FIT_SCALE,
+            (availableHeight - FIT_INSET) / naturalHeight,
+            (availableWidth - FIT_INSET) / naturalWidth,
+          ),
+        );
+        setScale(next);
+        setFits(naturalHeight * next <= availableHeight + 1);
+        setNaturalHeight(naturalHeight);
+      }
     };
-    const ro = new ResizeObserver(measure);
-    ro.observe(section);
+    const observer = new ResizeObserver(measure);
+    observer.observe(section);
+    observer.observe(content);
     measure();
-    return () => ro.disconnect();
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -464,190 +635,367 @@ export function ClassroomCompletePage({ scenes, title }: ClassroomCompletePagePr
         {/* Confetti — pinned to section */}
         <Confetti />
 
-        {/* Scroll layer: only this part scrolls when content overflows. */}
-        <div className="absolute inset-0 overflow-y-auto overflow-x-hidden">
+        {/* Scroll layer: only this part scrolls, and only when scaling alone
+            could not make the content fit. */}
+        <div
+          className={cn(
+            'absolute inset-0 overflow-x-hidden',
+            fits ? 'overflow-y-hidden' : 'overflow-y-auto',
+          )}
+        >
           <div className="min-h-full flex items-center justify-center">
-            {/* Content */}
+            {/* Scroll track. A scaled element keeps its unscaled layout box,
+                so without this the scrollable range was the full-size height
+                while only the scaled height was drawn — scrolling ran off the
+                end of the content into empty space. Sized only while
+                scrolling is in play; the height is never read back into the
+                measurement, which reads the column inside it. */}
             <div
-              className={cn(
-                'relative flex flex-col items-center max-w-2xl w-full',
-                compact ? 'gap-3 px-6 py-4' : 'gap-6 px-8 py-10',
-              )}
+              // items-start matters: a stretching flex child would take the
+              // track's height, and that height is derived from the child's
+              // own measurement — the column would measure itself.
+              className="w-full flex items-start justify-center"
+              style={fits ? undefined : { height: Math.round(naturalHeight * scale) }}
             >
-              {/* Trophy + halo + sparkles */}
+              {/* Content. Scaled to fill the stage: two spacing tiers cannot
+                cover every viewport this page is embedded in — the classroom
+                stage is far shorter than a full window — so after the compact
+                token has done what it can, the whole column is scaled to the
+                room that is actually there. Scaling up as well as down keeps
+                the page filling the stage instead of floating in it. */}
               <div
-                className="relative"
-                style={{ width: compact ? 120 : 200, height: compact ? 120 : 200 }}
-              >
-                <motion.div
-                  aria-hidden
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: [0.9, 1.15, 0.95, 1.1], opacity: [0, 0.55, 0.4, 0.5] }}
-                  transition={{
-                    delay: 0.15,
-                    duration: 2.6,
-                    repeat: Infinity,
-                    repeatType: 'reverse',
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    background:
-                      'radial-gradient(circle, color-mix(in oklab, var(--gold) 45%, transparent), color-mix(in oklab, var(--shu) 12%, transparent) 55%, transparent 72%)',
-                    filter: 'blur(14px)',
-                  }}
-                />
-                <motion.div
-                  aria-hidden
-                  initial={{ y: 44, scale: 0.4, opacity: 0 }}
-                  animate={{ y: 0, scale: 1, opacity: 1 }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.2 }}
-                  className="absolute inset-0 flex items-center justify-center"
-                >
-                  <motion.div
-                    animate={{ y: [0, -5, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{
-                      width: compact ? 90 : 148,
-                      height: compact ? 112 : 185,
-                    }}
-                  >
-                    <TrophySvg className="w-full h-full drop-shadow-[0_10px_18px_color-mix(in_oklab,var(--wood)_45%,transparent)]" />
-                  </motion.div>
-                </motion.div>
-                {!compact && <Sparkles />}
-              </div>
-
-              {/* Ribbon */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.7, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.65, type: 'spring', stiffness: 280, damping: 18 }}
+                ref={contentRef}
+                style={{
+                  transform: `scale(${scale})`,
+                  // Centred while it fits, so the page sits in the middle of the
+                  // stage. Once the scale floor is reached and scrolling takes
+                  // over, anchoring to the top is what makes the scroll usable:
+                  // a centred origin pushes the trophy up behind the scroll
+                  // origin, where it cannot be reached.
+                  transformOrigin: fits ? 'center center' : 'top center',
+                }}
                 className={cn(
-                  'dojo-seal inline-flex items-center gap-1.5 font-bold uppercase',
-                  compact ? 'px-3 py-1 text-[10px]' : 'px-4 py-1.5 text-xs',
+                  'relative flex flex-col items-center max-w-3xl w-full',
+                  compact ? 'gap-2 px-6 py-3' : 'gap-5 px-8 py-6',
                 )}
               >
-                <Sparkle className="w-3 h-3" />
-                {t('classroomComplete.title')}
-                <Sparkle className="w-3 h-3" />
-              </motion.div>
-
-              {/* Title + date */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.78, duration: 0.4, ease: 'easeOut' }}
-                className={cn('text-center', compact ? 'space-y-0.5' : 'space-y-1.5')}
-              >
-                <h2
-                  className={cn(
-                    'dojo-heading font-bold leading-tight text-foreground',
-                    compact ? 'text-xl md:text-2xl' : 'text-3xl md:text-4xl',
-                  )}
-                >
-                  {title || t('classroomComplete.title')}
-                </h2>
-                {/* Brush-stroke rule, as under the home page's headings. */}
-                <div aria-hidden className={cn('dojo-rule mx-auto', compact ? 'w-16' : 'w-24')} />
-                <p className={cn('text-muted-foreground', compact ? 'text-xs' : 'text-sm')}>
-                  {dateLabel}
-                </p>
-              </motion.div>
-
-              {/* Stats cards */}
-              {trailItems.length > 0 && (
+                {/* Trophy + halo + sparkles */}
                 <div
-                  className={cn(
-                    'grid w-full',
-                    compact ? 'gap-2' : 'gap-3',
-                    trailItems.length === 1 && 'grid-cols-1 max-w-[180px]',
-                    trailItems.length === 2 && 'grid-cols-2 max-w-md',
-                    trailItems.length === 3 && 'grid-cols-3',
-                    trailItems.length === 4 && 'grid-cols-2 sm:grid-cols-4',
-                  )}
+                  className="relative"
+                  style={{ width: compact ? 88 : 168, height: compact ? 88 : 168 }}
                 >
-                  {trailItems.map(({ type, count, Icon, label }, idx) => {
-                    const cardDelay = 0.96 + idx * 0.08;
-                    return (
-                      <motion.div
-                        key={type}
-                        initial={{ opacity: 0, y: 14, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{
-                          delay: cardDelay,
-                          type: 'spring',
-                          stiffness: 260,
-                          damping: 20,
-                        }}
-                        className={cn(
-                          'dojo-frame rounded-sm bg-card flex flex-col items-center',
-                          compact ? 'px-3 py-2 gap-0.5' : 'px-4 py-4 gap-1.5',
-                        )}
-                      >
-                        <Icon
-                          className={cn('text-[var(--shu)]', compact ? 'w-4 h-4' : 'w-6 h-6')}
-                          strokeWidth={1.8}
-                        />
-                        <div
-                          className={cn(
-                            'font-serif font-bold text-foreground leading-none',
-                            compact ? 'text-xl' : 'text-3xl',
-                          )}
-                        >
-                          <AnimatedCounter value={count} delay={cardDelay + 0.15} />
-                        </div>
-                        <div
-                          className={cn(
-                            'text-muted-foreground uppercase tracking-wider',
-                            compact ? 'text-[10px]' : 'text-[11px]',
-                          )}
-                        >
-                          {label}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
+                  <motion.div
+                    aria-hidden
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: [0.9, 1.15, 0.95, 1.1], opacity: [0, 0.55, 0.4, 0.5] }}
+                    transition={{
+                      delay: 0.15,
+                      duration: 2.6,
+                      repeat: Infinity,
+                      repeatType: 'reverse',
+                      ease: 'easeInOut',
+                    }}
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      background:
+                        'radial-gradient(circle, color-mix(in oklab, var(--gold) 45%, transparent), color-mix(in oklab, var(--shu) 12%, transparent) 55%, transparent 72%)',
+                      filter: 'blur(14px)',
+                    }}
+                  />
+                  <motion.div
+                    aria-hidden
+                    initial={{ y: 44, scale: 0.4, opacity: 0 }}
+                    animate={{ y: 0, scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.2 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <motion.div
+                      animate={{ y: [0, -5, 0] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                      style={{
+                        width: compact ? 66 : 124,
+                        height: compact ? 82 : 155,
+                      }}
+                    >
+                      <TrophySvg className="w-full h-full drop-shadow-[0_10px_18px_color-mix(in_oklab,var(--wood)_45%,transparent)]" />
+                    </motion.div>
+                  </motion.div>
+                  {!compact && <Sparkles />}
                 </div>
-              )}
 
-              {/* Quiz card */}
-              {summary.quiz && (
+                {/* Ribbon */}
                 <motion.div
-                  initial={{ opacity: 0, y: 14, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ delay: 1.2, type: 'spring', stiffness: 220, damping: 20 }}
+                  initial={{ opacity: 0, scale: 0.7, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: 0.65, type: 'spring', stiffness: 280, damping: 18 }}
                   className={cn(
-                    'dojo-frame w-full rounded-sm bg-card',
-                    compact ? 'px-4 py-3' : 'px-6 py-5',
+                    'dojo-seal inline-flex items-center gap-1.5 font-bold uppercase',
+                    compact ? 'px-3 py-1 text-[10px]' : 'px-4 py-1.5 text-xs',
                   )}
                 >
-                  <div className={cn('flex items-center', compact ? 'gap-3' : 'gap-5')}>
-                    <QuizRing pct={summary.quiz.pct} delay={1.3} compact={compact} />
-                    <div className="flex-1 min-w-0">
-                      <div
-                        className={cn(
-                          'font-serif font-bold text-foreground',
-                          compact ? 'text-sm' : 'text-base',
-                        )}
-                      >
-                        {t('classroomComplete.quizScoreLabel', {
-                          correct: summary.quiz.correct,
-                          total: summary.quiz.total,
-                        })}
-                      </div>
-                      <div
-                        className={cn(
-                          'mt-1 text-muted-foreground',
-                          compact ? 'text-xs' : 'text-sm',
-                        )}
-                      >
-                        {t(`classroomComplete.encouragement.${encouragementKey(summary.quiz.pct)}`)}
-                      </div>
-                    </div>
-                  </div>
+                  <Sparkle className="w-3 h-3" />
+                  {t('classroomComplete.title')}
+                  <Sparkle className="w-3 h-3" />
                 </motion.div>
-              )}
+
+                {/* Title + date */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.78, duration: 0.4, ease: 'easeOut' }}
+                  className={cn('text-center', compact ? 'space-y-0.5' : 'space-y-1.5')}
+                >
+                  <h2
+                    className={cn(
+                      'dojo-heading font-bold leading-tight text-foreground',
+                      compact ? 'text-xl md:text-2xl' : 'text-3xl md:text-4xl',
+                    )}
+                  >
+                    {title || t('classroomComplete.title')}
+                  </h2>
+                  {/* Brush-stroke rule, as under the home page's headings. */}
+                  <div aria-hidden className={cn('dojo-rule mx-auto', compact ? 'w-16' : 'w-24')} />
+                  <p className={cn('text-muted-foreground', compact ? 'text-xs' : 'text-sm')}>
+                    {dateLabel}
+                  </p>
+                </motion.div>
+
+                {/* Stats cards */}
+                {trailItems.length > 0 && (
+                  <div
+                    className={cn(
+                      'grid w-full',
+                      compact ? 'gap-2' : 'gap-3',
+                      trailItems.length === 1 && 'grid-cols-1 max-w-[180px]',
+                      trailItems.length === 2 && 'grid-cols-2 max-w-md',
+                      trailItems.length === 3 && 'grid-cols-3',
+                      trailItems.length === 4 && 'grid-cols-2 sm:grid-cols-4',
+                    )}
+                  >
+                    {trailItems.map(({ type, count, Icon, label }, idx) => {
+                      const cardDelay = 0.96 + idx * 0.08;
+                      return (
+                        <motion.div
+                          key={type}
+                          initial={{ opacity: 0, y: 14, scale: 0.9 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{
+                            delay: cardDelay,
+                            type: 'spring',
+                            stiffness: 260,
+                            damping: 20,
+                          }}
+                          className={cn(
+                            'dojo-frame rounded-sm bg-card flex flex-col items-center',
+                            compact ? 'px-3 py-1.5 gap-0.5' : 'px-4 py-3 gap-1.5',
+                          )}
+                        >
+                          <Icon
+                            className={cn('text-[var(--shu)]', compact ? 'w-4 h-4' : 'w-6 h-6')}
+                            strokeWidth={1.8}
+                          />
+                          <div
+                            className={cn(
+                              'font-serif font-bold text-foreground leading-none',
+                              compact ? 'text-xl' : 'text-3xl',
+                            )}
+                          >
+                            <AnimatedCounter value={count} delay={cardDelay + 0.15} />
+                          </div>
+                          <div
+                            className={cn(
+                              'text-muted-foreground uppercase tracking-wider',
+                              compact ? 'text-[10px]' : 'text-[11px]',
+                            )}
+                          >
+                            {label}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Results card — score summary on the left, topic radar on the
+                  right. The radar only appears once the breakdown has at
+                  least three axes; below that a radar reads as noise. */}
+                {summary.quiz && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 14, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: 1.2, type: 'spring', stiffness: 220, damping: 20 }}
+                    className={cn(
+                      'dojo-frame w-full rounded-sm bg-card',
+                      compact ? 'px-4 py-3' : 'px-6 py-4',
+                    )}
+                  >
+                    <div className={cn('flex flex-col', compact ? 'gap-2.5' : 'gap-4')}>
+                      <div className={cn('flex items-center', compact ? 'gap-3' : 'gap-5')}>
+                        <QuizRing pct={summary.quiz.pct} delay={1.3} compact={compact} />
+                        <div className="flex-1 min-w-0">
+                          <div
+                            className={cn(
+                              'font-serif font-bold text-foreground',
+                              compact ? 'text-sm' : 'text-base',
+                            )}
+                          >
+                            {t('classroomComplete.quizScoreLabel', {
+                              correct: summary.quiz.correct,
+                              total: summary.quiz.total,
+                            })}
+                          </div>
+                          <div
+                            className={cn(
+                              'mt-1 text-muted-foreground',
+                              compact ? 'text-xs' : 'text-sm',
+                            )}
+                          >
+                            {t(
+                              `classroomComplete.encouragement.${encouragementKey(summary.quiz.pct)}`,
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {insights.length > 0 && (
+                        <div
+                          className={cn(
+                            'border-t border-[color-mix(in_oklab,var(--wood)_18%,transparent)]',
+                            compact ? 'pt-2.5' : 'pt-4',
+                          )}
+                        >
+                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                            {t('classroomComplete.topicBreakdown')}
+                          </div>
+                          <div
+                            className={cn(
+                              'mt-1.5 flex items-center',
+                              // Side by side when there is a chart: the radar is
+                              // square and the list is short, so stacking them
+                              // spent height the viewport did not have while
+                              // leaving the card's width empty either side.
+                              // Without a chart the bars want the full width.
+                              showRadar ? 'flex-row' : 'flex-col',
+                              compact ? 'gap-2' : 'gap-5',
+                            )}
+                          >
+                            {showRadar && (
+                              <CompleteRadar
+                                categories={insights}
+                                compact={compact}
+                                goalLabel={t('classroomComplete.radarGoal')}
+                                ariaLabel={t('classroomComplete.radarLabel', {
+                                  scores: insights
+                                    .map((category) => `${category.label} ${category.score}%`)
+                                    .join(', '),
+                                })}
+                              />
+                            )}
+                            {/* The same numbers as text, beside the chart: the
+                              chart is never the only way to read a score, and
+                              the list carries the untruncated topic names the
+                              radar captions have to shorten.
+
+                              Below three axes there is no chart at all — a one-
+                              or two-sided polygon is not a shape anyone can
+                              read — so each row grows a bar instead. The score
+                              still gets a visual length, which is all a radar
+                              was giving it. */}
+                            <ul
+                              className={cn(
+                                'min-w-0 flex-1 grid grid-cols-1',
+                                showRadar ? 'gap-y-1' : 'w-full gap-y-3',
+                              )}
+                            >
+                              {insights.map((category, index) => (
+                                <li key={category.label} className="min-w-0 text-xs">
+                                  <div className="flex items-baseline justify-between gap-3">
+                                    <span className="truncate text-foreground">
+                                      {/* Matches the numbered marker on the
+                                          chart, which is the only way to tell
+                                          the axes apart once the captions are
+                                          too small to carry names. */}
+                                      {showRadar && compact && (
+                                        <span className="mr-1.5 tabular-nums text-muted-foreground">
+                                          {index + 1}
+                                        </span>
+                                      )}
+                                      {category.label}
+                                    </span>
+                                    <span className="flex shrink-0 items-baseline gap-2 whitespace-nowrap text-muted-foreground">
+                                      <span>
+                                        <span className="font-serif font-bold text-foreground">
+                                          {category.score}%
+                                        </span>{' '}
+                                        {t(`classroomComplete.rating.${ratingKey(category.score)}`)}
+                                      </span>
+                                      {/* Practice is offered only on the weak
+                                          topics, and only when the model named
+                                          them: a drill built from a quiz-scene
+                                          title would be vague where it has to
+                                          be precise. */}
+                                      {topicsAreFromModel &&
+                                        category.score < PRACTICE_THRESHOLD &&
+                                        (practised.has(category.label) ? (
+                                          <span
+                                            className="flex items-center gap-0.5 text-[10px] text-muted-foreground"
+                                            title={t('classroomComplete.practiceDone')}
+                                          >
+                                            <Check className="h-3 w-3" aria-hidden />
+                                            {t('classroomComplete.practiceDone')}
+                                          </span>
+                                        ) : (
+                                          <button
+                                            type="button"
+                                            onClick={() => void practise(category.label)}
+                                            disabled={practisingTopic !== null}
+                                            aria-label={t('classroomComplete.practiceAction')}
+                                            title={
+                                              practisingTopic === category.label
+                                                ? t('classroomComplete.practiceBusy')
+                                                : t('classroomComplete.practiceAction')
+                                            }
+                                            className="rounded-sm p-0.5 text-[var(--shu)] transition-opacity hover:opacity-70 disabled:opacity-40"
+                                          >
+                                            {practisingTopic === category.label ? (
+                                              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                                            ) : (
+                                              <Dumbbell className="h-3.5 w-3.5" />
+                                            )}
+                                          </button>
+                                        ))}
+                                    </span>
+                                  </div>
+                                  {!showRadar && (
+                                    <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[color-mix(in_oklab,var(--wood)_14%,transparent)]">
+                                      <motion.div
+                                        className="h-full rounded-full bg-[var(--shu)]"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${category.score}%` }}
+                                        transition={{
+                                          duration: prefersReducedMotion ? 0 : 0.6,
+                                          delay: prefersReducedMotion ? 0 : 1.4 + index * 0.1,
+                                          ease: [0.16, 1, 0.3, 1],
+                                        }}
+                                      />
+                                      {/* The same 85% the radar draws as a ring. */}
+                                      <div
+                                        className="absolute inset-y-0 w-px bg-[var(--gold)]"
+                                        style={{ left: '85%' }}
+                                        aria-hidden
+                                      />
+                                    </div>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
         </div>
