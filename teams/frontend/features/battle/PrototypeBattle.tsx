@@ -142,7 +142,8 @@ const QUESTION_POOL_REFILL = 5;
 const QUESTION_POOL_MAX = 15;
 const QUESTION_REFILL_BELOW = 5;
 const DECISION_TIME_MS = 3200;
-const FEEDBACK_PAUSE_MS = 520;
+/** Long enough to see the answer turn green or red before the next question. */
+const FEEDBACK_PAUSE_MS = 900;
 
 function questionSeconds(question: BattleQuestion | undefined): number {
   return Math.max(1, Math.round((question?.timeoutMs ?? QUESTION_RULES.answerTimeoutMs) / 1000));
@@ -1124,7 +1125,11 @@ export default function PrototypeBattle({
         )}
 
         {challenge && question && (
-          <form className={styles.questionPanel} onSubmit={submitAnswer}>
+          <form
+            className={styles.questionPanel}
+            onSubmit={submitAnswer}
+            data-feedback={feedback === null ? undefined : feedback ? 'correct' : 'wrong'}
+          >
             <div className={styles.questionHeader}>
               <div>
                 <p className={styles.eyebrow}>

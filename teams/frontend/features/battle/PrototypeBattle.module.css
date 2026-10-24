@@ -3298,6 +3298,32 @@
   color: var(--foreground);
 }
 
+/* After grading, the chosen answer (or the typed one) glows green when right, red when wrong. */
+.shell .questionPanel[data-feedback='correct'] .optionSelected {
+  filter: drop-shadow(0 0 6px #4ade80) drop-shadow(0 0 16px #22c55e99);
+}
+.shell .questionPanel[data-feedback='correct'] .optionSelected::before {
+  background: #15803d;
+}
+.shell .questionPanel[data-feedback='wrong'] .optionSelected {
+  filter: drop-shadow(0 0 6px #f87171) drop-shadow(0 0 16px #ef444499);
+}
+.shell .questionPanel[data-feedback='wrong'] .optionSelected::before {
+  background: #b91c1c;
+}
+.shell .questionPanel[data-feedback='correct'] .typedInput {
+  border-color: #4ade80;
+  box-shadow:
+    0 0 0 1px #4ade80,
+    0 0 18px 2px #22c55e88;
+}
+.shell .questionPanel[data-feedback='wrong'] .typedInput {
+  border-color: #f87171;
+  box-shadow:
+    0 0 0 1px #f87171,
+    0 0 18px 2px #ef444488;
+}
+
 /* Timers: big, glowing, between the fighters' heads. */
 .shell .questionTimer,
 .shell .decisionTimer {
