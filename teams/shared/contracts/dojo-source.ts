@@ -10,11 +10,19 @@ import type { BattleQuestion, GradeRequest, GradeResult, QuestionRequest } from 
 
 export type DojoSourceKind = 'demo' | 'live';
 
+/** Live dojos are generated first (a few minutes); demo dojos are always ready. */
+export type DojoGenerationStatus =
+  | { status: 'ready' }
+  | { status: 'generating'; progress: number }
+  | { status: 'failed'; error: string }
+  | { status: 'missing' };
+
 export interface DojoSource {
   readonly kind: DojoSourceKind;
   createDojo(input: CreateDojoInput): Promise<{ dojoId: string }>;
-  /** Resolves `null` when the dojo does not exist. */
+  /** Resolves `null` until the dojo exists and is ready; `getStatus` says why. */
   getDojo(dojoId: string): Promise<Dojo | null>;
+  getStatus(dojoId: string): Promise<DojoGenerationStatus>;
   /** May return fewer than `count` when the pool is small; never returns answer keys. */
   getQuestions(request: QuestionRequest): Promise<BattleQuestion[]>;
   grade(request: GradeRequest): Promise<GradeResult>;

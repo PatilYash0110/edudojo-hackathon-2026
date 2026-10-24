@@ -11,6 +11,8 @@ export const OpenMaicLessonReferenceSchema = z.object({
   /** Runtime generated and served by the Backend Team's OpenMAIC integration. */
   runtimeId: z.string().min(1),
   sceneIds: z.array(z.string().min(1)),
+  /** Same-origin player page for this runtime, e.g. `/classroom/<stageId>`. */
+  playerUrl: z.string().min(1).optional(),
 });
 export type OpenMaicLessonReference = z.infer<typeof OpenMaicLessonReferenceSchema>;
 
@@ -65,5 +67,7 @@ export type Dojo = z.infer<typeof DojoSchema>;
 
 export const CreateDojoInputSchema = z.object({
   topic: z.string().trim().min(1).max(2000),
+  /** PDFs uploaded first through OpenMAIC's materials API. */
+  materialIds: z.array(z.string().min(1)).max(5).optional(),
 });
 export type CreateDojoInput = z.infer<typeof CreateDojoInputSchema>;
