@@ -21,7 +21,7 @@ export const ATTACK_COOLDOWNS = {
 
 /** Per-answer timer and mastery change reported with each grade. */
 export const QUESTION_RULES = {
-  answerTimeoutMs: 9000,
+  answerTimeoutMs: 17000,
   masteryDeltaCorrect: 0.1,
   masteryDeltaWrong: -0.05,
 } as const;
