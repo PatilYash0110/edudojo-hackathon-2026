@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import type { Dojo } from '@/teams/shared/contracts/dojo';
 import { FINAL_BOSS } from '@/teams/game/boss/boss-phases';
-import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
+import { DojoGate, DojoLoading } from '@/teams/frontend/app-shell/DojoGate';
 import PrototypeBattle from '@/teams/frontend/features/battle/PrototypeBattle';
 import { BOSS, levelFor } from '@/teams/frontend/features/battle/fighter-roster';
 import { FloorEncounter } from '@/teams/frontend/features/battle/FloorEncounter';
@@ -27,7 +27,7 @@ function BossIntroView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     advance('BOSS_DEFEATED');
   }, [advance]);
 
-  if (!ready) return null;
+  if (!ready) return <DojoLoading />;
 
   if (progress.stage === 'complete') {
     return (
@@ -62,6 +62,7 @@ function BossIntroView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
         floorLabel="Final Floor · All input knowledge"
         opponent={FINAL_BOSS.name}
         opponentFighter={BOSS}
+        arena={levelFor('boss').arena}
         onReady={() => setRoomEntered(true)}
       />
     );

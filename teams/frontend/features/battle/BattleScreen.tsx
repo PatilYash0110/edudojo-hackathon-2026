@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, Check } from 'lucide-react';
 import type { Dojo } from '@/teams/shared/contracts/dojo';
-import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
+import { DojoGate, DojoLoading } from '@/teams/frontend/app-shell/DojoGate';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import flowStyles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 import { FloorEncounter } from './FloorEncounter';
@@ -37,7 +37,7 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     return () => clearTimeout(timer);
   }, [dojoId, nextFloor, resolved, router]);
 
-  if (!ready) return null;
+  if (!ready) return <DojoLoading />;
 
   if (!floor) {
     return (
@@ -62,7 +62,7 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
         <p>
           {finalUnlocked
             ? 'Every subtopic is cleared. The Sensei has transformed into the Final Boss.'
-            : 'Return to the Dojo. The next OpenMAIC learning section is now available.'}
+            : 'Back to the dojo: your next lesson is open.'}
         </p>
         <span className={flowStyles.clearedBadge}>Returning to the tower…</span>
       </section>
@@ -74,7 +74,7 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     return (
       <section className={flowStyles.gate}>
         <p className={flowStyles.eyebrow}>BATTLE LOCKED</p>
-        <h1>Complete the current OpenMAIC lesson first.</h1>
+        <h1>Finish this floor&apos;s lesson first.</h1>
         <p>The map controls which floor can be studied and fought next.</p>
         <Link className={flowStyles.secondaryAction} href={`/dojo/${dojoId}`}>
           <ArrowLeft size={15} /> Return to tower
@@ -89,6 +89,7 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
         floorLabel={`Floor ${floor.order} · ${floor.title}`}
         opponent={levelForOrder(floor.order).villain.name}
         opponentFighter={levelForOrder(floor.order).villain}
+        arena={levelForOrder(floor.order).arena}
         onReady={() => setRoomEntered(true)}
       />
     );

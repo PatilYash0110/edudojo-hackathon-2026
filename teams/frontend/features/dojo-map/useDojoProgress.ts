@@ -53,16 +53,16 @@ export function useDojoProgress(dojoId: string, floorCount: number) {
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    const frame = window.requestAnimationFrame(() => {
-      try {
-        const stored = JSON.parse(localStorage.getItem(storageKey(dojoId)) ?? 'null');
-        setProgress(isStoredProgress(stored, floorCount) ? stored : createDojoProgress(floorCount));
-      } catch {
-        setProgress(createDojoProgress(floorCount));
-      }
+    // Read after hydration, but not on an animation frame: a background tab would delay it.
+    let cancelled = false;
+    void Promise.resolve().then(() => {
+      if (cancelled) return;
+      setProgress(readDojoProgress(dojoId, floorCount));
       setReady(true);
     });
-    return () => window.cancelAnimationFrame(frame);
+    return () => {
+      cancelled = true;
+    };
   }, [dojoId, floorCount]);
 
   const advance = useCallback(

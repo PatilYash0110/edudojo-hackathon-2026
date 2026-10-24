@@ -6,7 +6,7 @@
  *
  * OWNER: FRONTEND TEAM
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { ArrowRight, Plus, RotateCcw } from 'lucide-react';
 import type { DojoSummary } from '@/teams/shared/contracts/dojo-source';
@@ -19,6 +19,8 @@ type ListState =
   | { status: 'loading' }
   | { status: 'ready'; dojos: DojoSummary[] }
   | { status: 'error'; message: string };
+
+const noSubscription = () => () => {};
 
 function progressLine(dojo: DojoSummary): string {
   if (dojo.status === 'generating') return `Building your lessons · ${Math.round(dojo.progress)}%`;
@@ -60,12 +62,12 @@ export function DojoList() {
     };
   }, [source, attempt]);
 
-  // Progress lives in this browser, so lines are read after mount (never during server render).
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    const frame = window.requestAnimationFrame(() => setMounted(true));
-    return () => window.cancelAnimationFrame(frame);
-  }, []);
+  // Progress lives in this browser, so lines are read on the client only (never server-rendered).
+  const mounted = useSyncExternalStore(
+    noSubscription,
+    () => true,
+    () => false,
+  );
 
   return (
     <section className={flow.page} aria-busy={state.status === 'loading'}>

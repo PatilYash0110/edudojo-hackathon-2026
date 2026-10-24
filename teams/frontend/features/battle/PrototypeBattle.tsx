@@ -408,6 +408,14 @@ export default function PrototypeBattle({
   const [selected, setSelected] = useState(0);
   const [fullMotion, setFullMotion] = useState(true);
   const [weapon, setWeapon] = useState<WeaponId>('katana');
+  // Equipment, motion and restart controls are for playtesting: add `?dev` to the URL.
+  const [devTools, setDevTools] = useState(false);
+  useEffect(() => {
+    const frame = window.requestAnimationFrame(() =>
+      setDevTools(new URLSearchParams(window.location.search).has('dev')),
+    );
+    return () => window.cancelAnimationFrame(frame);
+  }, []);
   const [secondsLeft, setSecondsLeft] = useState(0);
   const [decisionMsLeft, setDecisionMsLeft] = useState(DECISION_TIME_MS);
   const actionLock = useRef(false);
@@ -831,37 +839,39 @@ export default function PrototypeBattle({
     // `dark`: the arena always uses the night-dojo tokens; glows and trails are tuned for a dark stage.
     <div className={`dark ${styles.shell}`} data-full-motion={fullMotion} data-weapon={weapon}>
       <header className={styles.header}>
-        <h1>
-          EDUDOJO <small>Combat test · 1 vs 1</small>
-        </h1>
+        <h1>{boss ? 'Final Boss' : 'Floor battle'}</h1>
         <span>
           {topicLabel ?? 'Training duel'} · Round {battle.round}
         </span>
-        <label className={styles.equipmentControl}>
-          EQUIPMENT
-          <select
-            aria-label="Player equipment"
-            value={weapon}
-            onChange={(event) => setWeapon(event.target.value as WeaponId)}
-          >
-            <option value="katana">Training Katana</option>
-            <option value="dragon">Dragon Fang</option>
-          </select>
-        </label>
-        <label
-          className={styles.motionControl}
-          title="Override system reduced motion for combat testing"
-        >
-          <input
-            type="checkbox"
-            checked={fullMotion}
-            onChange={(event) => setFullMotion(event.target.checked)}
-          />
-          Full motion
-        </label>
-        <button className={styles.resetButton} onClick={restart}>
-          <RotateCcw size={15} /> Restart duel
-        </button>
+        {devTools && (
+          <>
+            <label className={styles.equipmentControl}>
+              EQUIPMENT
+              <select
+                aria-label="Player equipment"
+                value={weapon}
+                onChange={(event) => setWeapon(event.target.value as WeaponId)}
+              >
+                <option value="katana">Training Katana</option>
+                <option value="dragon">Dragon Fang</option>
+              </select>
+            </label>
+            <label
+              className={styles.motionControl}
+              title="Override system reduced motion for combat testing"
+            >
+              <input
+                type="checkbox"
+                checked={fullMotion}
+                onChange={(event) => setFullMotion(event.target.checked)}
+              />
+              Full motion
+            </label>
+            <button className={styles.resetButton} onClick={restart}>
+              <RotateCcw size={15} /> Restart duel
+            </button>
+          </>
+        )}
       </header>
 
       <section
@@ -1233,9 +1243,6 @@ export default function PrototypeBattle({
           {battle.lastMessage}
         </p>
       </section>
-      <footer className={styles.footer}>
-        <p>Game Team · 1v1 combat sandbox · Questions come from this dojo&apos;s lessons</p>
-      </footer>
     </div>
   );
 }

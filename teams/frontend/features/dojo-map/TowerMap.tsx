@@ -185,6 +185,14 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     if (ready) sceneRef.current?.setStates(states);
   }, [ready, states]);
 
+  // Phones show the floors as a sideways strip: bring the open floor into view.
+  useEffect(() => {
+    const strip = floorsRef.current;
+    const chip = strip?.children[currentIndex] as HTMLElement | undefined;
+    if (!ready || !strip || !chip || getComputedStyle(strip).flexDirection !== 'row') return;
+    strip.scrollLeft = chip.offsetLeft - (strip.clientWidth - chip.offsetWidth) / 2;
+  }, [currentIndex, ready]);
+
   useEffect(() => {
     sceneRef.current?.focus(selected);
   }, [selected]);
@@ -290,12 +298,14 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
         className={styles.reset}
         type="button"
         onClick={() => {
+          if (!window.confirm('Restart this dojo from floor 1? Your progress here is cleared.'))
+            return;
           reset();
           setSelected(null);
         }}
       >
-        <RotateCcw size={14} aria-label="Reset test progress" />
-        <span className={styles.resetLabel}>Reset test progress</span>
+        <RotateCcw size={14} aria-label="Restart this dojo" />
+        <span className={styles.resetLabel}>Restart this dojo</span>
       </button>
 
       <nav ref={floorsRef} className={styles.floors} aria-label="Tower floors">
@@ -375,9 +385,10 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
               <button
                 className={styles.primaryAction}
                 type="button"
-                onClick={() => setSelected(currentIndex)}
+                disabled={!destination(currentIndex)}
+                onClick={() => enter(currentIndex)}
               >
-                Go to {stops[currentIndex].label.toLowerCase()}
+                {actionLabel(currentIndex)}
               </button>
             </div>
           </>

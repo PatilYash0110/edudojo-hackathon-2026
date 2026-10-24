@@ -1,12 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, BookOpen, Swords } from 'lucide-react';
 import type { Dojo } from '@/teams/shared/contracts/dojo';
 import { ClassroomSurface } from '@/components/classroom/ClassroomSurface';
 import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
+import { clipUrl, HERO, levelForOrder } from '@/teams/frontend/features/battle/fighter-roster';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import styles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 
@@ -20,6 +21,19 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   const floor = dojo.floors.find((item) => item.id === params.floorId);
   const { progress, ready, advance } = useDojoProgress(dojoId, dojo.floors.length);
   const [sceneIndex, setSceneIndex] = useState(0);
+  const floorOrder = floor?.order;
+
+  // While the learner studies, fetch the battle room's art so the guardian's entrance never
+  // plays in an empty room.
+  useEffect(() => {
+    if (!floorOrder) return;
+    const { arena, villain } = levelForOrder(floorOrder);
+    for (const src of [arena.map, clipUrl(HERO, 'idle'), clipUrl(villain, 'idle')]) {
+      const image = new Image();
+      image.decoding = 'async';
+      image.src = src;
+    }
+  }, [floorOrder]);
 
   if (!floor) {
     return (
@@ -96,19 +110,18 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
         <div className={styles.learningEngine}>
           <BookOpen size={24} />
           <div>
-            <b>Backend OpenMAIC lesson runtime</b>
+            <b>Sensei&apos;s lesson</b>
             <span>
-              Embedded game slot · Scene {sceneIndex + 1} of {floor.objectives.length}
+              Scene {sceneIndex + 1} of {floor.objectives.length}
             </span>
           </div>
           <div className={styles.runtimeScene}>
-            <small>MOCK BACKEND SCENE</small>
             <strong>{floor.objectives[sceneIndex].title}</strong>
-            <p>The Backend Team&apos;s OpenMAIC player renders its generated lesson here.</p>
+            <p>Learn this well: the floor&apos;s guardian will test you on it.</p>
           </div>
           <button className={styles.primaryAction} onClick={continueLesson} type="button">
             {sceneIndex === floor.objectives.length - 1
-              ? 'Finish lesson · enter room'
+              ? 'Finish the lesson · face the guardian'
               : 'Next lesson scene'}
             <BookOpen size={15} />
           </button>
@@ -136,13 +149,6 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
           <span className={styles.clearedBadge}>Lesson reviewed</span>
         ) : null}
       </div>
-
-      {!floor.lesson && (
-        <p className={styles.devNote}>
-          Demo tower: these mock scenes stand in for the OpenMAIC lesson a generated dojo plays
-          here.
-        </p>
-      )}
     </section>
   );
 }

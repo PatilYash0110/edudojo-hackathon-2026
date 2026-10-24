@@ -8,6 +8,15 @@ import { DEMO_DOJO_ID } from '@/teams/frontend/lib/dojo-source/demo-source';
 import { useDojo } from '@/teams/frontend/lib/dojo-source/DojoSourceProvider';
 import styles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 
+/** Holds the page's height while a dojo screen loads; the line only shows if loading is slow. */
+export function DojoLoading() {
+  return (
+    <section className={styles.loading} aria-busy="true">
+      <p role="status">Opening the dojo…</p>
+    </section>
+  );
+}
+
 /**
  * Loads the dojo named in the route (the demo when none is named) through the active DojoSource,
  * then renders the screen with it. Screens never import dojo data directly.
@@ -17,7 +26,7 @@ export function DojoGate({ children }: { children: (dojo: Dojo, dojoId: string) 
   const dojoId = params.dojoId ?? DEMO_DOJO_ID;
   const state = useDojo(dojoId);
 
-  if (state.status === 'loading') return null;
+  if (state.status === 'loading') return <DojoLoading />;
 
   if (state.status === 'missing') {
     return (

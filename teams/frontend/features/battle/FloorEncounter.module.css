@@ -12,6 +12,14 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
+  /* Keeps the arena stage (z-index below 0) inside the room instead of behind the page. */
+  isolation: isolate;
+}
+/* The battle stage sizes its map from the arena's layout variables on narrow screens; the
+   encounter has none, so the map simply covers the room. */
+.room .arenaStage > span:first-child {
+  inset: -2%;
+  height: auto;
 }
 .backWall {
   position: absolute;

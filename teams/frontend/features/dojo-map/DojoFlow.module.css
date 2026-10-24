@@ -449,6 +449,29 @@
   font-size: 18px;
   font-weight: 700;
 }
+.loading {
+  display: grid;
+  place-items: center;
+  min-height: 70vh;
+}
+.loading p {
+  margin: 0;
+  color: var(--muted-foreground);
+  font-family: var(--font-serif);
+  letter-spacing: 0.08em;
+  /* Fast loads never show the line, so there is no flash of text. */
+  animation: loadingIn 300ms ease-out 400ms both;
+}
+@keyframes loadingIn {
+  from {
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .loading p {
+    animation-duration: 1ms;
+  }
+}
 .lessonPlayer {
   position: relative;
   height: min(72vh, 680px);

@@ -40,7 +40,7 @@ export function clipUrl(fighter: FighterArt, clip: ClipName) {
 }
 
 export const FIGHTERS: Record<FighterId, FighterArt> = {
-  monk: { id: 'monk', name: 'Sprachschüler', element: '#7fd4ff', scale: 1, feetY: 0.977 },
+  monk: { id: 'monk', name: 'Apprentice', element: '#7fd4ff', scale: 1, feetY: 0.977 },
   brawler: { id: 'brawler', name: 'Ember Fist', element: '#ff8a3d', scale: 1, feetY: 0.97 },
   ninja: { id: 'ninja', name: 'Kasumi', element: '#5fe3c8', scale: 1, feetY: 0.977 },
   valkyrie: { id: 'valkyrie', name: 'Void Valkyrie', element: '#c58cff', scale: 1, feetY: 0.967 },
