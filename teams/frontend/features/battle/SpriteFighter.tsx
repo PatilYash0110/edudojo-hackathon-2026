@@ -58,7 +58,10 @@ const clamp01 = (t: number) => Math.min(1, Math.max(0, t));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
 function comboTimes(hits: number) {
-  return Array.from({ length: Math.max(1, hits) }, (_, i) => COMBO_FIRST_HIT_MS + i * COMBO_HIT_GAP_MS);
+  return Array.from(
+    { length: Math.max(1, hits) },
+    (_, i) => COMBO_FIRST_HIT_MS + i * COMBO_HIT_GAP_MS,
+  );
 }
 
 function clipMs(clip: ClipName) {
@@ -80,7 +83,8 @@ function timeline(motion: FighterMotion, kind: string, hits: number, impactMs: n
   const idle: Segment = { at: 0, clip: 'idle' };
   switch (motion) {
     case 'lunge':
-      if (kind === 'combo') return withIdleAfter([idle, ...comboTimes(hits).map((t) => strikeAt('jab', t))]);
+      if (kind === 'combo')
+        return withIdleAfter([idle, ...comboTimes(hits).map((t) => strikeAt('jab', t))]);
       return withIdleAfter([idle, strikeAt(kind === 'counter' ? 'jab' : 'heavy', impactMs)]);
     case 'charge':
       return withIdleAfter([idle, strikeAt('special', impactMs)]);
@@ -88,7 +92,9 @@ function timeline(motion: FighterMotion, kind: string, hits: number, impactMs: n
       if (kind === 'block') return withIdleAfter([idle, strikeAt('block', impactMs)]);
       return withIdleAfter([
         idle,
-        ...(kind === 'combo' ? comboTimes(hits) : [impactMs]).map((at): Segment => ({ at, clip: 'hurt' })),
+        ...(kind === 'combo' ? comboTimes(hits) : [impactMs]).map(
+          (at): Segment => ({ at, clip: 'hurt' }),
+        ),
       ]);
     case 'evade':
       return withIdleAfter([idle, { at: 80, clip: 'block' }]);
@@ -111,10 +117,20 @@ function applyStrike(pose: Pose, t: number) {
     Object.assign(pose, { rot: -6 * k, sx: 1 - 0.03 * k, sy: 1 + 0.03 * k, x: -2 * k });
   } else if (t < 0) {
     const k = ease((t + 70) / 70);
-    Object.assign(pose, { rot: lerp(-6, 10, k), sx: lerp(0.97, 1.08, k), sy: lerp(1.03, 0.94, k), x: lerp(-2, 6, k) });
+    Object.assign(pose, {
+      rot: lerp(-6, 10, k),
+      sx: lerp(0.97, 1.08, k),
+      sy: lerp(1.03, 0.94, k),
+      x: lerp(-2, 6, k),
+    });
   } else {
     const k = ease(t / 260);
-    Object.assign(pose, { rot: lerp(10, 0, k), sx: lerp(1.08, 1, k), sy: lerp(0.94, 1, k), x: lerp(6, 0, k) });
+    Object.assign(pose, {
+      rot: lerp(10, 0, k),
+      sx: lerp(1.08, 1, k),
+      sy: lerp(0.94, 1, k),
+      x: lerp(6, 0, k),
+    });
     pose.burst = t / 260;
   }
   pose.ghost = Math.max(pose.ghost, clamp01(1 - Math.abs(t - 25) / 115));
@@ -128,12 +144,21 @@ function applyHurt(pose: Pose, t: number, blocked: boolean) {
   Object.assign(pose, { rot: -9 * k, x: -5 * k, sx: 1 + 0.03 * k });
 }
 
-function poseAt(elapsed: number, motion: FighterMotion, kind: string, hits: number, impactMs: number): Pose {
+function poseAt(
+  elapsed: number,
+  motion: FighterMotion,
+  kind: string,
+  hits: number,
+  impactMs: number,
+): Pose {
   const pose = restPose();
   switch (motion) {
     case 'lunge': {
       const contacts = kind === 'combo' ? comboTimes(hits) : [impactMs];
-      const nearest = contacts.reduce((best, at) => (Math.abs(elapsed - at) < Math.abs(elapsed - best) ? at : best));
+      const nearest = contacts.reduce(
+        (best, at) => (Math.abs(elapsed - at) < Math.abs(elapsed - best) ? at : best),
+        contacts[0],
+      );
       applyStrike(pose, elapsed - nearest);
       break;
     }
@@ -142,7 +167,8 @@ function poseAt(elapsed: number, motion: FighterMotion, kind: string, hits: numb
       applyStrike(pose, elapsed - impactMs);
       break;
     case 'hurt':
-      for (const at of kind === 'combo' ? comboTimes(hits) : [impactMs]) applyHurt(pose, elapsed - at, kind === 'block');
+      for (const at of kind === 'combo' ? comboTimes(hits) : [impactMs])
+        applyHurt(pose, elapsed - at, kind === 'block');
       break;
     case 'evade': {
       const k = Math.sin(Math.PI * clamp01((elapsed - 80) / 540));
@@ -184,14 +210,20 @@ export function SpriteFighter({
     const burstElement = burst.current;
     if (!element || !burstElement) return;
     const segments = timeline(motion, kind, hits, impactMs);
-    const layers = [element, ...ghosts.current.filter((ghost): ghost is HTMLDivElement => ghost !== null)];
+    const layers = [
+      element,
+      ...ghosts.current.filter((ghost): ghost is HTMLDivElement => ghost !== null),
+    ];
     const start = performance.now();
     let shownClip: ClipName | null = null;
     let request = 0;
 
     const render = (now: number) => {
       const elapsed = now - start;
-      const segment = segments.reduce((current, candidate) => (candidate.at <= elapsed ? candidate : current), segments[0]);
+      const segment = segments.reduce(
+        (current, candidate) => (candidate.at <= elapsed ? candidate : current),
+        segments[0],
+      );
       const spec = CLIPS[segment.clip];
       const raw = Math.floor(((elapsed - segment.at) * spec.fps) / 1000);
       const frame = spec.loop ? raw % spec.frames : Math.min(raw, spec.frames - 1);

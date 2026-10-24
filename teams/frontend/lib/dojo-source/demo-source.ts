@@ -53,34 +53,38 @@ export function createDemoSource(options: DemoSourceOptions = {}): DojoSource {
   return {
     kind: 'demo',
 
-    async createDojo() {
+    createDojo() {
       // The demo cannot generate; every topic opens the handwritten tower.
-      return { dojoId: dojo.id };
+      return Promise.resolve({ dojoId: dojo.id });
     },
 
-    async listDojos() {
-      return [
+    listDojos() {
+      return Promise.resolve([
         {
           id: dojo.id,
           title: dojo.title,
-          status: 'ready',
+          status: 'ready' as const,
           progress: 100,
           floorIds: dojo.floors.map((floor) => floor.id),
         },
-      ];
+      ]);
     },
 
-    async getDojo(dojoId) {
-      return dojoId === dojo.id ? structuredClone(dojo) : null;
+    getDojo(dojoId) {
+      return Promise.resolve(dojoId === dojo.id ? structuredClone(dojo) : null);
     },
 
-    async getStatus(dojoId) {
-      return dojoId === dojo.id ? { status: 'ready' } : { status: 'missing' };
+    getStatus(dojoId) {
+      return Promise.resolve(
+        dojoId === dojo.id ? { status: 'ready' as const } : { status: 'missing' as const },
+      );
     },
 
-    async getQuestions(rawRequest): Promise<BattleQuestion[]> {
-      const request = QuestionRequestSchema.parse(rawRequest);
-      if (request.dojoId !== dojo.id) return [];
+    getQuestions(rawRequest): Promise<BattleQuestion[]> {
+      const parsed = QuestionRequestSchema.safeParse(rawRequest);
+      if (!parsed.success) return Promise.reject(parsed.error);
+      const request = parsed.data;
+      if (request.dojoId !== dojo.id) return Promise.resolve([]);
 
       const objectives = objectiveIdsFor(request);
       const pool = DEMO_QUESTION_BANK.filter(
@@ -93,16 +97,16 @@ export function createDemoSource(options: DemoSourceOptions = {}): DojoSource {
       const reused = pool.filter((question) => excluded.has(question.id));
       // Prefer unseen questions, then fall back to repeats so a battle never runs dry.
       const ordered = [...shuffled(fresh, random), ...shuffled(reused, random)];
-      return ordered.slice(0, request.count).map(toBattleQuestion);
+      return Promise.resolve(ordered.slice(0, request.count).map(toBattleQuestion));
     },
 
-    async grade({ dojoId, questionId, answer }: GradeRequest): Promise<GradeResult> {
+    grade({ dojoId, questionId, answer }: GradeRequest): Promise<GradeResult> {
       const question: DemoBankQuestion | undefined =
         dojoId === dojo.id ? bankById.get(questionId) : undefined;
-      if (!question) throw new Error(`Unknown demo question: ${questionId}`);
+      if (!question) return Promise.reject(new Error(`Unknown demo question: ${questionId}`));
 
       const correct = isDemoAnswerCorrect(question, answer);
-      return {
+      return Promise.resolve({
         questionId,
         objectiveId: question.objectiveId,
         correct,
@@ -111,7 +115,7 @@ export function createDemoSource(options: DemoSourceOptions = {}): DojoSource {
         masteryDelta: correct
           ? QUESTION_RULES.masteryDeltaCorrect
           : QUESTION_RULES.masteryDeltaWrong,
-      };
+      });
     },
   };
 }

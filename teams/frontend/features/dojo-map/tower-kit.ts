@@ -9,17 +9,22 @@ export type Draw = (g: CanvasRenderingContext2D, width: number, height: number) 
 
 /** Seeded mulberry32 so every visit builds the same tower. */
 export function rng(seed: number) {
-  let state = seed;
+  // `>>> 0` keeps the state a wrapping 32-bit integer (Math.trunc would not wrap).
+  let state = seed >>> 0;
   return () => {
-    state |= 0;
-    state = (state + 0x6d2b79f5) | 0;
+    state = (state + 0x6d2b79f5) >>> 0;
     let t = Math.imul(state ^ (state >>> 15), 1 | state);
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
 
-export function canvasTexture(width: number, height: number, draw: Draw, repeat?: [number, number]) {
+export function canvasTexture(
+  width: number,
+  height: number,
+  draw: Draw,
+  repeat?: [number, number],
+) {
   const canvas = document.createElement('canvas');
   canvas.width = width;
   canvas.height = height;
@@ -36,7 +41,10 @@ export function canvasTexture(width: number, height: number, draw: Draw, repeat?
   return texture;
 }
 
-export function standard(color: THREE.ColorRepresentation, options: THREE.MeshStandardMaterialParameters = {}) {
+export function standard(
+  color: THREE.ColorRepresentation,
+  options: THREE.MeshStandardMaterialParameters = {},
+) {
   return new THREE.MeshStandardMaterial({ color, roughness: 0.85, metalness: 0, ...options });
 }
 
@@ -58,7 +66,14 @@ export function box(
   return mesh;
 }
 
-export function plane(width: number, height: number, material: THREE.Material, x: number, y: number, z: number) {
+export function plane(
+  width: number,
+  height: number,
+  material: THREE.Material,
+  x: number,
+  y: number,
+  z: number,
+) {
   const mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), material);
   mesh.position.set(x, y, z);
   return mesh;
@@ -127,7 +142,14 @@ export class TowerKit {
     });
   }
 
-  glow(x: number, y: number, z: number, size: number, opacity: number, color?: THREE.ColorRepresentation) {
+  glow(
+    x: number,
+    y: number,
+    z: number,
+    size: number,
+    opacity: number,
+    color?: THREE.ColorRepresentation,
+  ) {
     const material = new THREE.SpriteMaterial({
       map: this.glowTexture,
       transparent: true,
@@ -142,7 +164,15 @@ export class TowerKit {
     return sprite;
   }
 
-  lantern(group: THREE.Group, x: number, y: number, z: number, size: number, color: number, emissive: number) {
+  lantern(
+    group: THREE.Group,
+    x: number,
+    y: number,
+    z: number,
+    size: number,
+    color: number,
+    emissive: number,
+  ) {
     const body = new THREE.Mesh(
       new THREE.CylinderGeometry(size * 0.5, size * 0.5, size, 12, 1),
       standard(color, { emissive, emissiveIntensity: 1.4, roughness: 0.6 }),
@@ -150,7 +180,19 @@ export class TowerKit {
     body.scale.y = 1.12;
     body.position.set(x, y, z);
     group.add(body);
-    group.add(box(size * 0.24, size * 0.1, size * 0.24, standard(0x241208), x, y + size * 0.66, z, false, false));
+    group.add(
+      box(
+        size * 0.24,
+        size * 0.1,
+        size * 0.24,
+        standard(0x241208),
+        x,
+        y + size * 0.66,
+        z,
+        false,
+        false,
+      ),
+    );
     group.add(this.glow(x, y, z, size * 3.2, 0.7, emissive));
   }
 
@@ -161,14 +203,39 @@ export class TowerKit {
     const radius = 0.12 * scale;
     const span = 1.6 * scale;
     for (const px of [-span, span]) {
-      const post = new THREE.Mesh(new THREE.CylinderGeometry(radius * 0.85, radius, height, 10), material);
+      const post = new THREE.Mesh(
+        new THREE.CylinderGeometry(radius * 0.85, radius, height, 10),
+        material,
+      );
       post.position.set(x + px, height / 2, z);
       post.castShadow = true;
       group.add(post);
     }
-    group.add(box(span * 2 + 0.7 * scale, 0.24 * scale, 0.34 * scale, material, x, height, z, true, false));
-    group.add(box(span * 2 + 1.05 * scale, 0.15 * scale, 0.18 * scale, material, x, height + 0.2 * scale, z));
-    group.add(box(span * 2 - 0.25 * scale, 0.16 * scale, 0.26 * scale, material, x, height - 0.5 * scale, z));
+    group.add(
+      box(span * 2 + 0.7 * scale, 0.24 * scale, 0.34 * scale, material, x, height, z, true, false),
+    );
+    group.add(
+      box(
+        span * 2 + 1.05 * scale,
+        0.15 * scale,
+        0.18 * scale,
+        material,
+        x,
+        height + 0.2 * scale,
+        z,
+      ),
+    );
+    group.add(
+      box(
+        span * 2 - 0.25 * scale,
+        0.16 * scale,
+        0.26 * scale,
+        material,
+        x,
+        height - 0.5 * scale,
+        z,
+      ),
+    );
     return group;
   }
 
@@ -176,18 +243,38 @@ export class TowerKit {
     const group = new THREE.Group();
     const stone = standard(color, { roughness: 0.9 });
     group.add(box(0.5 * scale, 0.2 * scale, 0.6 * scale, stone, x, 0.1 * scale, z, true));
-    const body = new THREE.Mesh(new THREE.CylinderGeometry(0.15 * scale, 0.22 * scale, 0.75 * scale, 8), stone);
+    const body = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.15 * scale, 0.22 * scale, 0.75 * scale, 8),
+      stone,
+    );
     body.position.set(x, 0.57 * scale, z);
     body.castShadow = true;
     group.add(body);
-    group.add(box(0.22 * scale, 0.24 * scale, 0.26 * scale, stone, x, 0.98 * scale, z + 0.03 * scale, true));
+    group.add(
+      box(0.22 * scale, 0.24 * scale, 0.26 * scale, stone, x, 0.98 * scale, z + 0.03 * scale, true),
+    );
     for (const ex of [-0.08, 0.08]) {
       const ear = new THREE.Mesh(new THREE.ConeGeometry(0.05 * scale, 0.17 * scale, 4), stone);
       ear.position.set(x + ex, 1.16 * scale, z);
       group.add(ear);
     }
-    group.add(box(0.1 * scale, 0.1 * scale, 0.16 * scale, stone, x, 0.95 * scale, z + 0.2 * scale, false, false));
-    const tail = new THREE.Mesh(new THREE.CylinderGeometry(0.03 * scale, 0.14 * scale, 0.62 * scale, 6), stone);
+    group.add(
+      box(
+        0.1 * scale,
+        0.1 * scale,
+        0.16 * scale,
+        stone,
+        x,
+        0.95 * scale,
+        z + 0.2 * scale,
+        false,
+        false,
+      ),
+    );
+    const tail = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.03 * scale, 0.14 * scale, 0.62 * scale, 6),
+      stone,
+    );
     tail.position.set(x, 0.62 * scale, z - 0.3 * scale);
     tail.rotation.x = 0.7;
     group.add(tail);
@@ -211,7 +298,10 @@ export class TowerKit {
   stoneLantern(group: THREE.Group, x: number, z: number, scale: number, light = 0xff9a3a) {
     const sil = this.silhouette;
     group.add(box(0.44 * scale, 0.12 * scale, 0.44 * scale, sil, x, 0.06 * scale, z, true));
-    const post = new THREE.Mesh(new THREE.CylinderGeometry(0.08 * scale, 0.1 * scale, 0.6 * scale, 8), sil);
+    const post = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.08 * scale, 0.1 * scale, 0.6 * scale, 8),
+      sil,
+    );
     post.position.set(x, 0.4 * scale, z);
     post.castShadow = true;
     group.add(post);
@@ -264,7 +354,14 @@ export class TowerKit {
       },
       [2, 2],
     );
-    return standard(0xffffff, { map, emissive: 0xffffff, emissiveMap, emissiveIntensity: 0.8, roughness: 0.3, metalness: 0.35 });
+    return standard(0xffffff, {
+      map,
+      emissive: 0xffffff,
+      emissiveMap,
+      emissiveIntensity: 0.8,
+      roughness: 0.3,
+      metalness: 0.35,
+    });
   }
 
   /** Cracked basalt with glowing lava seams. */
@@ -310,7 +407,13 @@ export class TowerKit {
       },
       [2, 2],
     );
-    return standard(0xffffff, { map, emissive: 0xffffff, emissiveMap, emissiveIntensity: 2.6, roughness: 0.8 });
+    return standard(0xffffff, {
+      map,
+      emissive: 0xffffff,
+      emissiveMap,
+      emissiveIntensity: 2.6,
+      roughness: 0.8,
+    });
   }
 }
 
@@ -338,7 +441,8 @@ interface ParticleField {
 export class RoomFx {
   private readonly hazes: { material: THREE.MeshBasicMaterial; opacity: number }[] = [];
   private readonly fields: ParticleField[] = [];
-  private readonly flashers: { material: THREE.MeshBasicMaterial; timer: number; flash: number }[] = [];
+  private readonly flashers: { material: THREE.MeshBasicMaterial; timer: number; flash: number }[] =
+    [];
   private readonly fires: THREE.Mesh[] = [];
   dim = 1;
 
@@ -424,7 +528,10 @@ export class RoomFx {
   brazier(x: number, z: number, scale: number) {
     const group = new THREE.Group();
     const iron = standard(0x1a1618, { metalness: 0.6, roughness: 0.5 });
-    const bowl = new THREE.Mesh(new THREE.CylinderGeometry(0.4 * scale, 0.22 * scale, 0.3 * scale, 12), iron);
+    const bowl = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.4 * scale, 0.22 * scale, 0.3 * scale, 12),
+      iron,
+    );
     bowl.position.set(x, 0.95 * scale, z);
     bowl.castShadow = true;
     group.add(bowl);
@@ -434,7 +541,10 @@ export class RoomFx {
       [-1, 1],
       [1, 1],
     ]) {
-      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.03 * scale, 0.03 * scale, 0.95 * scale, 6), iron);
+      const leg = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.03 * scale, 0.03 * scale, 0.95 * scale, 6),
+        iron,
+      );
       leg.position.set(x + lx * 0.2 * scale, 0.48 * scale, z + lz * 0.2 * scale);
       leg.rotation.x = lz * 0.12;
       leg.rotation.z = -lx * 0.12;
