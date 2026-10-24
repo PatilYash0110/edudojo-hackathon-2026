@@ -525,6 +525,126 @@ async function prepareOutline(
 }
 
 /**
+ * The shape every course owes a learner, whatever the model planned.
+ *
+ * A course has to teach, let the learner do something, and then measure: at
+ * least two slides, at least one interactive scene, and exactly one quiz. The
+ * outline prompts ask for all three, and the standard template always has —
+ * but Interactive Mode's template spent its scene-type guidance on widgets, so
+ * interactive courses routinely came back with no quiz at all, leaving the
+ * completion page with no score and no topic breakdown. A prompt rule cannot
+ * guarantee a floor, so it is enforced here, after every retry and fallback
+ * has had its say.
+ *
+ * The quiz goes last: the learner has worked through the course by then, and a
+ * check is the natural close. (The completion page that follows it is an
+ * overlay, not a scene — see `components/canvas/canvas-area.tsx` — so nothing
+ * needs to be generated for it.) `questionCount` is 6 because the completion
+ * page wants two questions behind each of its three topic axes
+ * (`MIN_QUESTIONS_PER_AXIS` in `lib/classroom/insights`).
+ *
+ * Appended scenes carry English titles, unlike every model-authored scene,
+ * which follows the course language. That is the cost of a scene no model
+ * wrote; a course where the model obeys the prompt never reaches this path.
+ *
+ * Task-engine mode is exempt: `normalizeTaskEngineOutline` admits only slide
+ * and interactive scenes there, so adding a quiz would contradict the mode's
+ * own normalizer.
+ */
+const MIN_SLIDE_SCENES = 2;
+const FALLBACK_QUIZ_QUESTION_COUNT = 6;
+
+function fallbackQuiz(topics: string[]): SceneOutline {
+  return {
+    id: nanoid(),
+    type: 'quiz',
+    title: 'Check Your Understanding',
+    description: 'Check understanding across the topics covered in this course.',
+    keyPoints: topics.slice(0, 5),
+    order: 0,
+    quizConfig: {
+      questionCount: FALLBACK_QUIZ_QUESTION_COUNT,
+      difficulty: 'medium',
+      questionTypes: ['single', 'multiple'],
+    },
+  };
+}
+
+function fallbackInteractive(topic: string): SceneOutline {
+  return {
+    id: nanoid(),
+    type: 'interactive',
+    title: 'Explore It Yourself',
+    description: `Hands-on exploration of ${topic}.`,
+    keyPoints: ['Change the inputs', 'Watch what responds', 'Find the pattern'],
+    order: 0,
+    // Both fields are required of every interactive scene; simulation with a
+    // bare concept is the documented default.
+    widgetType: 'simulation',
+    widgetOutline: { concept: topic },
+  };
+}
+
+function fallbackSlide(topic: string, index: number): SceneOutline {
+  return {
+    id: nanoid(),
+    type: 'slide',
+    title: index === 0 ? 'Key Ideas' : 'Putting It Together',
+    description:
+      index === 0 ? `The core ideas behind ${topic}.` : `How the pieces of ${topic} fit together.`,
+    keyPoints: ['What it is', 'Why it matters', 'Where it shows up'],
+    order: 0,
+  };
+}
+
+/**
+ * Bring an outline up to the floor, adding only what is missing and leaving
+ * everything the model authored untouched.
+ */
+function ensureMinimumComposition(
+  outlines: SceneOutline[],
+  requirement: string,
+  taskEngineMode: boolean,
+): SceneOutline[] {
+  if (taskEngineMode) return outlines;
+  const topic = outlines[0]?.title || requirement;
+  const quizzes = outlines.filter((outline) => outline.type === 'quiz');
+  const rest = outlines.filter((outline) => outline.type !== 'quiz');
+
+  const additions: SceneOutline[] = [];
+  const missingSlides = MIN_SLIDE_SCENES - rest.filter((o) => o.type === 'slide').length;
+  for (let index = 0; index < missingSlides; index += 1) {
+    additions.push(fallbackSlide(topic, index));
+  }
+  if (!rest.some((outline) => outline.type === 'interactive')) {
+    additions.push(fallbackInteractive(topic));
+  }
+
+  // Exactly one quiz, last. A model that emitted several keeps the first.
+  const quiz = quizzes[0] ?? fallbackQuiz(rest.map((outline) => outline.title));
+  const extraQuizzes = quizzes.slice(1);
+  if (additions.length === 0 && quizzes.length === 1 && outlines.at(-1)?.type === 'quiz') {
+    return outlines;
+  }
+
+  // Rebuilt from empty, the way the streaming loop builds it: seeding the set
+  // with the ids already in hand would make every outline collide with itself
+  // and get renamed.
+  const usedIds = new Set<string>();
+  const assembled = [...rest, ...extraQuizzes, ...additions, quiz].map((outline) =>
+    ensureUniqueOutlineId(outline, usedIds),
+  );
+
+  // At the ceiling the additions take the place of trailing scenes rather than
+  // pushing the outline past a length the schema rejects.
+  const trimmed =
+    assembled.length > MAX_OUTLINE_SCENES
+      ? [...assembled.slice(0, MAX_OUTLINE_SCENES - 1), assembled[assembled.length - 1]!]
+      : assembled;
+  return trimmed.map((outline, index) => ({ ...outline, order: index + 1 }));
+}
+
+/**
  * Stream the outline generation: report the language directive, the course
  * title and each outline as they appear, retry an empty or failed stream, and
  * return the outlines, or throw OutlineGenerationError when every attempt
@@ -794,7 +914,9 @@ async function streamOutlines(
 
   return {
     // Replace sequential gen_img_N/gen_vid_N with globally unique IDs
-    outlines: uniquifyMediaElementIds(parsedOutlines),
+    outlines: uniquifyMediaElementIds(
+      ensureMinimumComposition(parsedOutlines, requirement, taskEngineMode),
+    ),
     languageDirective: languageDirective || DEFAULT_LANGUAGE_DIRECTIVE,
     courseTitle: courseTitle || undefined,
     taskEngineMode,
