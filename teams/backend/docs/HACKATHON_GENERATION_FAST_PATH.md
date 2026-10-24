@@ -225,10 +225,12 @@ Stop after the five-scene Piper run meets the 3-minute target twice on the prese
 
 ## Measured results (2026-10-24, fixed photosynthesis prompt, dev server on the MacBook)
 
-What was built differs from the proposal in three ways:
+What was built differs from the proposal in these ways:
 
-- Thinking is off (`LLM_THINKING_DISABLED=true`). `deepseek-flash` has thinking on by default, so every
-  outline, content and actions call paid for reasoning tokens. With it off, each LLM step takes about 6 s.
+- Thinking stays on (the `deepseek-flash` default) for slide quality. Runs 1 to 5 measured it off
+  (`LLM_THINKING_DISABLED=true`): about 1m38s per classroom. Run 6 with thinking on took 4m55s, almost all
+  in slide content (78 s and 90 s per slide instead of about 3 s). For a faster live run, set
+  `LLM_THINKING_DISABLED=true` in `.env.local`.
 - The scene cap is prompt-only: `classroom.ts` appends a German five-scene profile to the requirement. No
   `maxScenes` field. Add a server cap only if a run ever returns more than five scenes.
 - The action prompts also cap speech length (about 250 characters per speech), not only the count.
@@ -242,6 +244,7 @@ What was built differs from the proposal in three ways:
 | 3 | + `PARALLEL_SCENE_CONCURRENCY=3` | 3m07s | 2506 | 5 |
 | 4 | + `piper-de_DE-thorsten-medium` voice | 1m40s | 2805 | 5 |
 | 5 | same as run 4 (repeat) | 1m36s | 2716 | 5 |
+| 6 | run 4 with thinking on (the committed default) | 4m55s | 2408 | 5 |
 
 Every run produced slide, slide, interactive, quiz, slide, with all narration voiced.
 

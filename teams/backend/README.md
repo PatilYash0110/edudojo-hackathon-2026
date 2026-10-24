@@ -15,7 +15,6 @@ Types for callers: `teams/shared/contracts/backend-api.ts`.
    DEEPSEEK_API_KEY=sk-...
    SPEACHES_BASE_URL=http://localhost:8000/v1   # in Docker: http://speaches:8000/v1
    OPENMAIC_SECRET_KEY=<openssl rand -base64 32>  # signs sessions; keep it stable
-   LLM_THINKING_DISABLED=true                     # faster generation: no reasoning tokens
    PARALLEL_SCENE_CONCURRENCY=3                    # scene content ahead + parallel TTS per scene
    ```
 3. **Model config:** `cp teams/backend/config/openmaic.dojo.yml openmaic.yml`. Classroom generation uses
