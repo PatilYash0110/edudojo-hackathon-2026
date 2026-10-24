@@ -108,7 +108,7 @@ Other principles:
 2. Progressive: start with simple observations, then guide to more complex interactions
 3. Encourage exploration: prompt students to try different inputs and observe results
 4. Connect to theory: link what students see in the widget to underlying concepts
-5. 3-8 items: generate 3-8 total items for a natural teaching flow
+5. 3-6 items: generate 3-6 total items, with at most 2 speech items of 2-3 sentences (at most about 250 characters) each
 6. Visible actions: prefer widget actions only when they create a clear user-visible change
 
 ## Important Notes

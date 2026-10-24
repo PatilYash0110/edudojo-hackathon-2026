@@ -35,6 +35,15 @@ import { FLOORS_SYSTEM, FloorsReply, floorsPrompt, normalizeFloors, type SceneRe
 
 const log = createLogger('Dojo Classroom');
 
+// Keeps live demo runs short (5 scenes instead of ~8-10). German, so the outline keeps German as
+// the course language. shortcut: prompt-only, the model may still return more; add a server-side
+// cap in the run engine if a run ever overshoots.
+const DEMO_SCENE_PROFILE =
+  '\n\nUmfang: kurze Einheit von etwa 5 Minuten mit genau 5 Szenen in dieser Reihenfolge: ' +
+  '1. Einstieg und Überblick (slide), 2. Kernerklärung (slide), ' +
+  '3. interaktives Modell oder Simulation (interactive), 4. Wissenscheck (quiz), ' +
+  '5. Zusammenfassung und nächster Schritt (slide). Keine pbl-Szene.';
+
 export interface ClassroomRow {
   id: string;
   creator_id: string;
@@ -120,7 +129,7 @@ export async function createClassroom(
     if (refused)
       return respond(fail('INTERNAL_ERROR', `KI-Modell nicht konfiguriert: ${refused.message}`));
     const input = parseRunInput({
-      requirement: goal,
+      requirement: goal + DEMO_SCENE_PROFILE,
       materialIds: body.materialIds ?? [],
       outlineReview: 'auto',
       // OpenMAIC's teacher narrates the slides; chat agents are ours (see personas.ts).
