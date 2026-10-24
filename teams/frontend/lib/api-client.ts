@@ -57,12 +57,13 @@ function signInAsGuest(): Promise<unknown> {
 
 export async function dojoFetch<T>(
   path: string,
-  init?: { method?: string; body?: unknown },
+  init?: { method?: string; body?: unknown; signIn?: boolean },
 ): Promise<T> {
   try {
     return await request<T>(path, init);
   } catch (error) {
     if (!(error instanceof DojoApiError) || error.code !== 'UNAUTHENTICATED') throw error;
+    if (init?.signIn === false) throw error;
     await signInAsGuest();
     return request<T>(path, init);
   }

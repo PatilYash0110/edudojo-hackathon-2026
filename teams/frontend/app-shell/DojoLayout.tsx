@@ -13,19 +13,22 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import '@/teams/frontend/theme/dojo.css';
 
-const NAV = [
-  ['/dojo', 'Tower'],
-  ['/dojo/demo/floor/1', 'Floor'],
-  ['/dojo/demo/floor/1/battle', 'Battle'],
-  ['/dojo/demo/boss', 'Boss'],
-  ['/dojo/demo/leaderboard', 'Leaderboard'],
-  ['/dashboard', 'Student dashboard'],
-  ['/teacher', 'Teacher'],
-  ['/teacher/dojo/new', 'Create dojo'],
-];
+/** Solo learner nav: their dojos, a new topic, and the open dojo's own pages. */
+function navFor(pathname: string): [href: string, label: string][] {
+  const items: [string, string][] = [
+    ['/dojo', 'My dojos'],
+    ['/', 'New topic'],
+  ];
+  const dojoId = pathname.match(/^\/dojo\/([^/]+)/)?.[1];
+  if (dojoId) {
+    items.push([`/dojo/${dojoId}`, 'Tower'], [`/dojo/${dojoId}/leaderboard`, 'Leaderboard']);
+  }
+  return items;
+}
 
 export default function DojoLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const NAV = navFor(pathname);
 
   return (
     <div className="dojo-root dojo-paper min-h-screen text-foreground">

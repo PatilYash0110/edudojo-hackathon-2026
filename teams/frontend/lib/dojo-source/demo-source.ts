@@ -58,6 +58,18 @@ export function createDemoSource(options: DemoSourceOptions = {}): DojoSource {
       return { dojoId: dojo.id };
     },
 
+    async listDojos() {
+      return [
+        {
+          id: dojo.id,
+          title: dojo.title,
+          status: 'ready',
+          progress: 100,
+          floorIds: dojo.floors.map((floor) => floor.id),
+        },
+      ];
+    },
+
     async getDojo(dojoId) {
       return dojoId === dojo.id ? structuredClone(dojo) : null;
     },

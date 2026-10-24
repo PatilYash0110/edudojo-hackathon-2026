@@ -14,6 +14,8 @@ export function createAppSource(
   return {
     kind: 'live',
     createDojo: (input) => live.createDojo(input),
+    // The learner's own dojos first, the demo tower last.
+    listDojos: async () => [...(await live.listDojos()), ...(await demo.listDojos())],
     getDojo: (dojoId) => pick(dojoId).getDojo(dojoId),
     getStatus: (dojoId) => pick(dojoId).getStatus(dojoId),
     getQuestions: (request) => pick(request.dojoId).getQuestions(request),

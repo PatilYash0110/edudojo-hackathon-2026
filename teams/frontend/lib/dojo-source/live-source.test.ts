@@ -198,6 +198,33 @@ describe('live DojoSource', () => {
   });
 });
 
+describe('listing dojos', () => {
+  it('lists nothing for a first visit without creating a guest', async () => {
+    const calls = mockFetch({
+      'GET /api/dojo/classrooms': () => ({
+        status: 401,
+        json: { success: false, errorCode: 'UNAUTHENTICATED', error: 'Bitte melde dich an.' },
+      }),
+    });
+    expect(await createLiveSource().listDojos()).toEqual([]);
+    expect(calls.map((c) => c.url)).toEqual(['/api/dojo/classrooms']);
+  });
+
+  it("puts the learner's dojos before the demo tower", async () => {
+    mockFetch({
+      'GET /api/dojo/classrooms': () => ({
+        json: { success: true, classrooms: [classroom({ status: 'generating', progress: 40 })] },
+      }),
+    });
+    const list = await createAppSource(createDemoSource(), createLiveSource()).listDojos();
+    expect(list.map((d) => [d.id, d.status])).toEqual([
+      ['c1', 'generating'],
+      ['demo', 'ready'],
+    ]);
+    expect(list[0].floorIds).toEqual(['f1', 'f2']);
+  });
+});
+
 describe('app DojoSource', () => {
   it('routes the demo id to the demo source and everything else to live', async () => {
     mockFetch({});

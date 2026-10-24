@@ -99,6 +99,25 @@ export function createLiveSource(): DojoSource {
       return { dojoId: classroom.id };
     },
 
+    async listDojos() {
+      try {
+        const { classrooms } = await dojoFetch<{ classrooms: Classroom[] }>(DOJO_API.classrooms, {
+          signIn: false,
+        });
+        return classrooms.map((classroom) => ({
+          id: classroom.id,
+          title: classroom.title || classroom.prompt,
+          status: classroom.status,
+          progress: classroom.progress,
+          floorIds: classroomToDojo(classroom).floors.map((floor) => floor.id),
+        }));
+      } catch (error) {
+        // A first visit has no session yet, so there is nothing to list.
+        if ((error as { code?: string }).code === 'UNAUTHENTICATED') return [];
+        throw error;
+      }
+    },
+
     async getDojo(dojoId) {
       const classroom = await loadClassroom(dojoId);
       return classroom?.status === 'ready' ? classroomToDojo(classroom) : null;

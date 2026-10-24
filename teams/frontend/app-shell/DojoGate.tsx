@@ -9,7 +9,7 @@ import { useDojo } from '@/teams/frontend/lib/dojo-source/DojoSourceProvider';
 import styles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 
 /**
- * Loads the dojo named in the route (or the demo on `/dojo`) through the active DojoSource,
+ * Loads the dojo named in the route (the demo when none is named) through the active DojoSource,
  * then renders the screen with it. Screens never import dojo data directly.
  */
 export function DojoGate({ children }: { children: (dojo: Dojo, dojoId: string) => ReactNode }) {
