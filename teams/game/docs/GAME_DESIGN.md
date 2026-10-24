@@ -157,17 +157,17 @@ These values remain open until the first playable battle is available for playte
 
 ## 14. Current combat sandbox (`/dojo`)
 
-This page is a temporary **1v1 Game Team test**, not the finished Frontend design. It uses handwritten German questions. Lesson navigation, multiple floors, Sensei's transformation and backend grading are not connected to this screen yet.
+This page is a temporary **1v1 Game Team test**, not the finished Frontend design. It uses handwritten German questions while Backend prepares live generation and grading.
 
-- Fixed three-quarter view: apprentice in the left foreground, opponent farther right. Dragging horizontally orbits the arena within ±10°. Both fighters return to their starting positions after acting.
+- Fixed 2D side view: apprentice on the left and opponent on the right. There is no orbit camera, perspective transform, 3D scene, or model-loading requirement.
 - Heavy: one forward lunge and one broad slash; impact at 460 ms.
 - Combo: one visible cut and recoil per correct answer, starting at 360 ms, 180 ms apart. Damage is committed after the last hit.
 - Quiz: a simple charge and beam; below 3/5 causes 16 self-damage. Impact at 1400 ms.
 - Defense: a slow enemy windup while choosing/answering, then a timed Block, Counter or Dodge. The timing check uses elapsed time; repeated presses cannot resolve twice.
 - Menus stay locked during an action. Restart cancels pending animation outcomes.
-- Motion uses CSS transforms/opacity with SVG ribbon trails. Both fighters have asynchronous hop idles. Slash contact adds a short hold, directional recoil and a 2 px arena shake. **Full motion** explicitly enables animation for testing.
+- Motion uses 2D CSS translate/rotate/scale with SVG ribbon trails. Both fighters have guard/feint loops and close-range face-offs. Slash contact adds a short hold, directional recoil and a 2 px arena shake. **Full motion** explicitly enables animation for testing.
 - **Dev Set** switches the handwritten prototype questions between German and English and restarts the current duel.
 
 Frontend owns final UI, character art/animation, roster and production effects. The simple capsule fighters only demonstrate positioning, attack direction and timing. Backend owns live question generation and grading; the exposed sample answers must not be used for a scored production session.
 
-Validation: the game suites pass (9 tests, 3 TODOs). Browser checks cover heavy damage, a 2-hit combo, parry, block, early defense failure, quiz backlash, restart during an attack, both slash directions and drag orbit. Full-device performance profiling and mobile art tuning remain Frontend work.
+Validation: the game suites pass (9 tests, 3 TODOs). Browser checks cover heavy damage, a 2-hit combo, parry, block, early defense failure, quiz backlash, restart during an attack, both slash directions, auto-lock timing and the fixed 2D stage. Full-device performance profiling and mobile art tuning remain Frontend work.

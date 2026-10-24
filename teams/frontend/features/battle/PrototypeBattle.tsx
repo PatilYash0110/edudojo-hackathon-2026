@@ -3,7 +3,6 @@
 import {
   type CSSProperties,
   type FormEvent,
-  type PointerEvent as ReactPointerEvent,
   useCallback,
   useEffect,
   useReducer,
@@ -378,8 +377,6 @@ export default function PrototypeBattle({
   const [fullMotion, setFullMotion] = useState(true);
   const [sampleLanguage, setSampleLanguage] = useState<'de' | 'en'>('de');
   const [weapon, setWeapon] = useState<WeaponId>('katana');
-  const [cameraYaw, setCameraYaw] = useState(0);
-  const [isOrbiting, setIsOrbiting] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(QUESTION_TIME_SECONDS);
   const [decisionMsLeft, setDecisionMsLeft] = useState(DECISION_TIME_MS);
   const actionLock = useRef(false);
@@ -390,7 +387,6 @@ export default function PrototypeBattle({
   const advanceChallengeRef = useRef<(correct: boolean) => void>(() => undefined);
   const beginChallengeRef = useRef<(index: number) => void>(() => undefined);
   const selectedRef = useRef(0);
-  const orbitDrag = useRef<{ pointerId: number; startX: number; startYaw: number } | null>(null);
   const menu = useRef<HTMLDivElement>(null);
   const answerInput = useRef<HTMLInputElement>(null);
   const isFinished = battle.turn === 'victory' || battle.turn === 'defeat';
@@ -659,37 +655,6 @@ export default function PrototypeBattle({
     dispatch({ type: 'RESET' });
   }
 
-  function beginOrbit(event: ReactPointerEvent<HTMLElement>) {
-    if (
-      event.button !== 0 ||
-      (event.target instanceof Element &&
-        event.target.closest('button, input, select, label, form'))
-    )
-      return;
-    orbitDrag.current = {
-      pointerId: event.pointerId,
-      startX: event.clientX,
-      startYaw: cameraYaw,
-    };
-    setIsOrbiting(true);
-    event.currentTarget.setPointerCapture(event.pointerId);
-  }
-
-  function moveOrbit(event: ReactPointerEvent<HTMLElement>) {
-    if (orbitDrag.current?.pointerId !== event.pointerId) return;
-    const nextYaw = orbitDrag.current.startYaw + (event.clientX - orbitDrag.current.startX) / 18;
-    setCameraYaw(Math.max(-10, Math.min(10, nextYaw)));
-  }
-
-  function endOrbit(event: ReactPointerEvent<HTMLElement>) {
-    if (orbitDrag.current?.pointerId !== event.pointerId) return;
-    orbitDrag.current = null;
-    setIsOrbiting(false);
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
-    }
-  }
-
   const playerMotion = fx
     ? fx.kind === 'dodge'
       ? 'evade'
@@ -775,11 +740,6 @@ export default function PrototypeBattle({
         data-target={fx?.target ?? ''}
         data-failed={fx?.failed ?? false}
         data-standoff={choosing || active !== null || timingSession !== null}
-        data-orbiting={isOrbiting}
-        onPointerDown={beginOrbit}
-        onPointerMove={moveOrbit}
-        onPointerUp={endOrbit}
-        onPointerCancel={endOrbit}
         style={
           {
             '--impact': `${fx?.impactMs ?? 0}ms`,
@@ -787,11 +747,7 @@ export default function PrototypeBattle({
           } as CSSProperties
         }
       >
-        <div
-          className={styles.world}
-          aria-hidden="true"
-          style={{ '--camera-yaw': `${cameraYaw}deg` } as CSSProperties}
-        >
+        <div className={styles.world} aria-hidden="true">
           <div className={styles.backdrop} />
           <div className={styles.atmosphere} />
 
@@ -811,7 +767,11 @@ export default function PrototypeBattle({
             <div className={styles.groundShadow} />
             <span className={styles.actorAura} />
             <span className={styles.motionDust} />
-            <div className={styles.playerModel} role="img" aria-label="Player position placeholder">
+            <div
+              className={styles.playerSprite}
+              role="img"
+              aria-label="2D player sprite placeholder"
+            >
               <span className={styles.actorSword}>
                 <span className={styles.weaponSprite} />
               </span>
@@ -833,7 +793,7 @@ export default function PrototypeBattle({
             <div className={styles.groundShadow} />
             <span className={styles.actorAura} />
             <span className={styles.motionDust} />
-            <div className={styles.enemyModel} role="img" aria-label="Enemy position placeholder">
+            <div className={styles.enemySprite} role="img" aria-label="2D enemy sprite placeholder">
               <span className={styles.actorSword}>
                 <span className={styles.weaponSprite} />
               </span>
@@ -847,8 +807,8 @@ export default function PrototypeBattle({
           )}
           {fx && <CombatEffects fx={fx} />}
         </div>
-        <span className={styles.orbitHint} aria-hidden="true">
-          DRAG THE ARENA TO ORBIT
+        <span className={styles.stageHint} aria-hidden="true">
+          2D SIDE-VIEW COMBAT PLANE
         </span>
         {challenge && question && (
           <div

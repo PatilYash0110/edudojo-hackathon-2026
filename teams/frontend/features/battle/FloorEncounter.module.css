@@ -11,7 +11,6 @@
   position: absolute;
   inset: 0;
   overflow: hidden;
-  perspective: 900px;
 }
 .backWall {
   position: absolute;
@@ -38,10 +37,10 @@
 }
 .tatami {
   position: absolute;
-  left: 9%;
-  right: 9%;
-  bottom: -13%;
-  height: 61%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 44%;
   background:
     linear-gradient(90deg, transparent 49.5%, #564d3a 49.5% 50.5%, transparent 50.5%),
     repeating-linear-gradient(
@@ -51,10 +50,8 @@
       #a8a077 25% 49%,
       #514b39 49% 50%
     );
-  border: 12px solid #322c25;
-  transform: rotateX(58deg);
-  transform-origin: bottom;
-  box-shadow: 0 -30px 80px #0006;
+  border-top: 12px solid #322c25;
+  box-shadow: inset 0 18px 0 #0002;
 }
 .player,
 .opponent {
@@ -67,18 +64,23 @@
 }
 .player {
   left: 29%;
-  background: linear-gradient(130deg, #ffc17a, #ad4529);
+  background: #d97842;
+  border: 3px solid #ffd09b;
+  box-shadow: 7px 7px 0 #6e2e23;
   animation: playerBrace 900ms ease both;
 }
 .opponent {
   right: 29%;
-  background: linear-gradient(130deg, #bdb3ff, #4a397f);
+  background: #6f5cc5;
+  border: 3px solid #cbbfff;
+  box-shadow: -7px 7px 0 #30255f;
   animation: guardianDrop 900ms cubic-bezier(0.18, 0.82, 0.25, 1) both;
 }
 .encounter[data-boss='true'] .opponent {
   width: 54px;
   height: 120px;
-  background: linear-gradient(130deg, #f0db9d, #7e3025);
+  background: #a94735;
+  border-color: #f0db9d;
   animation-duration: 1250ms;
 }
 .caption {
