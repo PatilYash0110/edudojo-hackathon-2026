@@ -7,7 +7,16 @@
  * Plain three.js, no React: TowerMap.tsx owns the canvas and the HUD around it.
  */
 import * as THREE from 'three';
-import { box, canvasTexture, plane, rng, RoomFx, standard, TowerKit, type RoomDims } from './tower-kit';
+import {
+  box,
+  canvasTexture,
+  plane,
+  rng,
+  RoomFx,
+  standard,
+  TowerKit,
+  type RoomDims,
+} from './tower-kit';
 import { RING, ROOMS, type RoomTheme } from './tower-rooms';
 
 export type FloorState = 'locked' | 'current' | 'cleared';
@@ -82,7 +91,10 @@ interface FloorRuntime {
   sh: number;
 }
 
-export function createTowerScene(canvas: HTMLCanvasElement, options: TowerSceneOptions): TowerScene {
+export function createTowerScene(
+  canvas: HTMLCanvasElement,
+  options: TowerSceneOptions,
+): TowerScene {
   // The prototype's palette was authored for three r128, which did no colour management.
   const colorManagement = THREE.ColorManagement.enabled;
   THREE.ColorManagement.enabled = false;
@@ -96,7 +108,11 @@ export function createTowerScene(canvas: HTMLCanvasElement, options: TowerSceneO
   }
 }
 
-function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, restore: () => void): TowerScene {
+function buildTower(
+  canvas: HTMLCanvasElement,
+  options: TowerSceneOptions,
+  restore: () => void,
+): TowerScene {
   const { floors, hero: heroSprite, reducedMotion } = options;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(0.7);
@@ -130,7 +146,12 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   const beam = standard(0x5c1714, { roughness: 0.5 });
   const wood = standard(0x2e2026, { roughness: 0.9 });
   const darkWood = standard(0x241a22, { roughness: 0.9 });
-  const gold = standard(0xd9a441, { roughness: 0.35, metalness: 0.5, emissive: 0x5a3a08, emissiveIntensity: 0.35 });
+  const gold = standard(0xd9a441, {
+    roughness: 0.35,
+    metalness: 0.5,
+    emissive: 0x5a3a08,
+    emissiveIntensity: 0.35,
+  });
   const roof = standard(0xffffff, {
     roughness: 0.65,
     metalness: 0.05,
@@ -193,7 +214,12 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     g.textBaseline = 'middle';
     g.fillText('封  印  ·  封  印  ·  封  印', w / 2, h / 2 + 2);
   });
-  const sealMaterial = standard(0xffffff, { map: sealTexture, emissive: 0x3a2a1a, emissiveIntensity: 0.6, roughness: 0.9 });
+  const sealMaterial = standard(0xffffff, {
+    map: sealTexture,
+    emissive: 0x3a2a1a,
+    emissiveIntensity: 0.6,
+    roughness: 0.9,
+  });
 
   const topY = 0.7 + (floors.length - 1) * STEP + H0 - 0.2 + ROOF_H + 2.4;
   const tower = new THREE.Group();
@@ -215,13 +241,23 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     texture.minFilter = THREE.LinearFilter;
     texture.repeat.set((flip ? -1 : 1) / sprite.frames, 1);
     texture.offset.x = flip ? 1 / sprite.frames : 0;
-    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, alphaTest: 0.1 });
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      alphaTest: 0.1,
+    });
     const size = FIGHTER_SIZE * sprite.scale;
     const body = new THREE.Mesh(new THREE.PlaneGeometry(size, size), material);
     body.position.y = size / 2 - (1 - sprite.feetY) * size;
     const shadow = new THREE.Mesh(
       new THREE.PlaneGeometry(size * 0.55, size * 0.18),
-      new THREE.MeshBasicMaterial({ map: kit.glowTexture, color: 0x000000, transparent: true, opacity: 0.6, depthWrite: false }),
+      new THREE.MeshBasicMaterial({
+        map: kit.glowTexture,
+        color: 0x000000,
+        transparent: true,
+        opacity: 0.6,
+        depthWrite: false,
+      }),
     );
     shadow.rotation.x = -Math.PI / 2;
     shadow.position.y = 0.005;
@@ -255,8 +291,22 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     shell.add(box(w + 0.5, 0.12, w + 0.5, wood, 0, 0.02, 0, true));
     shell.add(box(w, h, 0.25, plaster, 0, h / 2, backZ - 0.12, true));
     for (const side of [-1, 1]) {
-      shell.add(box(0.2, h, ID + RING, plaster, side * (w / 2 - 0.08), h / 2, (front + backZ) / 2, true));
-      shell.add(box(0.05, h * 0.5, ID * 0.7, shoji, side * (w / 2 - 0.02), h * 0.5, (front + backZ) / 2, false, false));
+      shell.add(
+        box(0.2, h, ID + RING, plaster, side * (w / 2 - 0.08), h / 2, (front + backZ) / 2, true),
+      );
+      shell.add(
+        box(
+          0.05,
+          h * 0.5,
+          ID * 0.7,
+          shoji,
+          side * (w / 2 - 0.02),
+          h * 0.5,
+          (front + backZ) / 2,
+          false,
+          false,
+        ),
+      );
       shell.add(box(0.34, h, 0.34, lacquer, side * (w / 2 - 0.04), h / 2, front, true));
     }
     shell.add(box(w, 0.18, ID + RING, soffit, 0, h - 0.09, (front + backZ) / 2, true));
@@ -264,13 +314,15 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     const fz = front - RING / 2 + 0.06;
     shell.add(box(w, topBar, RING, plaster, 0, h - topBar / 2, fz, true));
     shell.add(box(w, botBar, RING, plaster, 0, botBar / 2, fz, true));
-    for (const side of [-1, 1]) shell.add(box(sideBar, sh, RING, plaster, side * (sw / 2 + sideBar / 2), cyO, fz, true));
+    for (const side of [-1, 1])
+      shell.add(box(sideBar, sh, RING, plaster, side * (sw / 2 + sideBar / 2), cyO, fz, true));
     shell.add(box(w + 0.2, 0.2, w + 0.2, beam, 0, h - 0.12, 0, true));
     const trim = gold.clone();
     const tz = front + 0.04;
     shell.add(box(sw + 0.24, 0.11, 0.07, trim, 0, cyO + sh / 2 + 0.05, tz, false, false));
     shell.add(box(sw + 0.24, 0.11, 0.07, trim, 0, cyO - sh / 2 - 0.05, tz, false, false));
-    for (const side of [-1, 1]) shell.add(box(0.11, sh, 0.07, trim, side * (sw / 2 + 0.05), cyO, tz, false, false));
+    for (const side of [-1, 1])
+      shell.add(box(0.11, sh, 0.07, trim, side * (sw / 2 + 0.05), cyO, tz, false, false));
 
     /* room interior */
     const room = new THREE.Group();
@@ -279,7 +331,12 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     const dims: RoomDims = { sw, IW, IH: h, ID, front, backZ };
     const fx = new RoomFx(kit, room, dims);
     const lightSpec = ROOMS[spec.theme](fx);
-    const light = new THREE.PointLight(lightSpec.color, lightSpec.intensity * LIGHT, lightSpec.distance, 2);
+    const light = new THREE.PointLight(
+      lightSpec.color,
+      lightSpec.intensity * LIGHT,
+      lightSpec.distance,
+      2,
+    );
     light.position.set(0, y0 + h * 0.34, backZ + 0.6);
     scene.add(light);
 
@@ -342,7 +399,8 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     tower.add(roofGroup);
     const eaveLanterns = new THREE.Group();
     eaveLanterns.position.y = y0;
-    for (let q = -1; q <= 1; q++) kit.lantern(eaveLanterns, q * w * 0.3, h + 0.05, front + 0.1, 0.2, 0xff6a4a, 0xff4a2a);
+    for (let q = -1; q <= 1; q++)
+      kit.lantern(eaveLanterns, q * w * 0.3, h + 0.05, front + 0.1, 0.2, 0xff6a4a, 0xff4a2a);
     tower.add(eaveLanterns);
     if (i === floors.length - 1) tower.add(finial(kit, gold, eave + ROOF_H));
 
@@ -400,7 +458,14 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   sun.target.position.set(0, 10, 4);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  Object.assign(sun.shadow.camera, { left: -22, right: 22, top: 34, bottom: -8, near: 1, far: 120 });
+  Object.assign(sun.shadow.camera, {
+    left: -22,
+    right: 22,
+    top: 34,
+    bottom: -8,
+    near: 1,
+    far: 120,
+  });
   sun.shadow.bias = -0.0006;
   scene.add(sun, sun.target);
   const rim = new THREE.DirectionalLight(0x7a5cff, 0.4 * LIGHT);
@@ -427,7 +492,8 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   function applyView() {
     camera.aspect = viewWidth / viewHeight;
     // Shift the projection so the scene's centre lands in the middle of the free area.
-    if (insetBottom > 0) camera.setViewOffset(viewWidth, viewHeight, 0, insetBottom / 2, viewWidth, viewHeight);
+    if (insetBottom > 0)
+      camera.setViewOffset(viewWidth, viewHeight, 0, insetBottom / 2, viewWidth, viewHeight);
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   }
@@ -459,7 +525,10 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   const ndc = new THREE.Vector2();
   function floorAt(event: PointerEvent) {
     const rect = canvas.getBoundingClientRect();
-    ndc.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -(((event.clientY - rect.top) / rect.height) * 2 - 1));
+    ndc.set(
+      ((event.clientX - rect.left) / rect.width) * 2 - 1,
+      -(((event.clientY - rect.top) / rect.height) * 2 - 1),
+    );
     raycaster.setFromCamera(ndc, camera);
     const hit = raycaster.intersectObjects(picks, false)[0];
     return hit ? (hit.object.userData.floor as number) : -1;
@@ -475,7 +544,11 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     const rect = canvas.getBoundingClientRect();
     if (down) {
       if (Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) dragging = true;
-      if (dragging) pointerX = Math.max(-1, Math.min(1, down.pointerX + ((event.clientX - down.x) / rect.width) * 2.6));
+      if (dragging)
+        pointerX = Math.max(
+          -1,
+          Math.min(1, down.pointerX + ((event.clientX - down.x) / rect.width) * 2.6),
+        );
       return;
     }
     if (event.pointerType !== 'mouse') return;
@@ -533,7 +606,8 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     const pulse = reducedMotion ? 0.5 : 0.5 + 0.5 * Math.sin(t * 2.4);
     runtimes.forEach((floor, i) => {
       const highlighted = i === hovered || i === focused;
-      const lit = floor.state === 'locked' ? 0.18 : floor.state === 'current' ? 1 + 0.18 * pulse : 1;
+      const lit =
+        floor.state === 'locked' ? 0.18 : floor.state === 'current' ? 1 + 0.18 * pulse : 1;
       const lightTarget = floor.baseIntensity * lit * (highlighted ? 1.5 : 1);
       floor.light.intensity += (lightTarget - floor.light.intensity) * 0.15;
       const trimTarget = highlighted
@@ -602,10 +676,12 @@ function disposeScene(scene: THREE.Scene) {
     const mesh = object as THREE.Mesh;
     mesh.geometry?.dispose();
     const material = mesh.material as THREE.Material | THREE.Material[] | undefined;
-    for (const item of Array.isArray(material) ? material : material ? [material] : []) materials.add(item);
+    for (const item of Array.isArray(material) ? material : material ? [material] : [])
+      materials.add(item);
   });
   for (const material of materials) {
-    for (const value of Object.values(material)) if (value instanceof THREE.Texture) textures.add(value);
+    for (const value of Object.values(material))
+      if (value instanceof THREE.Texture) textures.add(value);
     material.dispose();
   }
   for (const texture of textures) texture.dispose();
@@ -685,7 +761,12 @@ function buildBackdrop(scene: THREE.Scene, kit: TowerKit) {
     const layer = plane(
       width,
       height,
-      new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, fog: false }),
+      new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        depthWrite: false,
+        fog: false,
+      }),
       0,
       -2 + height / 2,
       z,
@@ -732,7 +813,14 @@ function buildGrounds(scene: THREE.Scene, kit: TowerKit) {
     },
     [1, 16],
   );
-  const path = plane(4.4, 70, standard(0xffffff, { map: pathTexture, roughness: 0.95 }), 0, 0.012, 42);
+  const path = plane(
+    4.4,
+    70,
+    standard(0xffffff, { map: pathTexture, roughness: 0.95 }),
+    0,
+    0.012,
+    42,
+  );
   path.rotation.x = -Math.PI / 2;
   path.receiveShadow = true;
   scene.add(path);
@@ -858,7 +946,12 @@ function finial(kit: TowerKit, gold: THREE.Material, y: number) {
   group.add(orb);
   const tip = new THREE.Mesh(
     new THREE.ConeGeometry(0.15, 0.6, 10),
-    standard(0xffd45a, { emissive: 0xff9a2a, emissiveIntensity: 0.9, metalness: 0.4, roughness: 0.3 }),
+    standard(0xffd45a, {
+      emissive: 0xff9a2a,
+      emissiveIntensity: 0.9,
+      metalness: 0.4,
+      roughness: 0.3,
+    }),
   );
   tip.position.y = 2.6;
   group.add(tip);
@@ -892,7 +985,10 @@ function mapleTree(kit: TowerKit, x: number, z: number, scale: number, seed: num
     ['#ff8a2b', '#f26a1f', '#ffb347', '#e5472a'],
     ['#d9302a', '#b3222a', '#f0502f', '#e5472a'],
     ['#ff9bb5', '#ff7a9c', '#ffc1d3', '#f06a8a'],
-  ].map((colors, k) => new THREE.SpriteMaterial({ map: kit.blobTexture(colors, 41 + k), transparent: true }));
+  ].map(
+    (colors, k) =>
+      new THREE.SpriteMaterial({ map: kit.blobTexture(colors, 41 + k), transparent: true }),
+  );
   for (let i = 0; i < 34; i++) {
     const angle = random() * Math.PI * 2;
     const distance = Math.sqrt(random());
