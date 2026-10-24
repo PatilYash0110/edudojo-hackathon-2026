@@ -45,7 +45,13 @@ export const FIGHTERS: Record<FighterId, FighterArt> = {
   ninja: { id: 'ninja', name: 'Kasumi', element: '#5fe3c8', scale: 1, feetY: 0.977 },
   valkyrie: { id: 'valkyrie', name: 'Void Valkyrie', element: '#c58cff', scale: 1, feetY: 0.967 },
   storm: { id: 'storm', name: 'Raikō', element: '#9db8ff', scale: 1, feetY: 0.977 },
-  colossus: { id: 'colossus', name: 'Stone Colossus', element: '#ff5a4f', scale: 1.16, feetY: 0.97 },
+  colossus: {
+    id: 'colossus',
+    name: 'Stone Colossus',
+    element: '#ff5a4f',
+    scale: 1.16,
+    feetY: 0.97,
+  },
 };
 
 export const HERO = FIGHTERS.monk;
@@ -83,3 +89,14 @@ export function villainForFloor(floorId: string | undefined): FighterArt {
 }
 
 export const TOWER_LEVELS = ['1', '2', '3', '4', 'boss'] as const;
+export type TowerLevel = (typeof TOWER_LEVELS)[number];
+
+/** Art level for a learning floor by its 1-based order; dojos with more floors cycle the four. */
+export function artLevelForOrder(order: number): Exclude<TowerLevel, 'boss'> {
+  const levels = ['1', '2', '3', '4'] as const;
+  return levels[(Math.max(1, Math.floor(order)) - 1) % levels.length];
+}
+
+export function levelForOrder(order: number) {
+  return levelFor(artLevelForOrder(order));
+}

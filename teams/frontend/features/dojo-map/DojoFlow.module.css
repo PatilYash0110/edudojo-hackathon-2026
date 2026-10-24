@@ -449,6 +449,15 @@
   font-size: 18px;
   font-weight: 700;
 }
+.lessonPlayer {
+  position: relative;
+  height: min(72vh, 680px);
+  margin: 22px 0 14px;
+  overflow: hidden;
+  background: var(--background);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+}
 .learningEngine {
   display: grid;
   grid-template-columns: 32px 1fr;

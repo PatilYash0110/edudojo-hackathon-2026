@@ -41,20 +41,10 @@ import { SettingsDialog } from '@/components/settings';
 import { GenerationToolbar } from '@/components/generation/generation-toolbar';
 import { AgentBar } from '@/components/agent/agent-bar';
 import { useTheme } from '@/lib/hooks/use-theme';
-import {
-  courseGenerationUsable,
-  requireModelCapabilities,
-} from '@/lib/model-settings/capabilities';
-import {
-  RunApiError,
-  discardGenerationRun,
-  runApiErrorText,
-} from '@/lib/generation-run-client/api';
-import {
-  RunStartRefusedError,
-  startClassicRun,
-  startDefinitelyRefused,
-} from '@/lib/generation-run-client/start';
+import { courseGenerationUsable } from '@/lib/model-settings/capabilities';
+import { discardGenerationRun } from '@/lib/generation-run-client/api';
+import { DojoApiError } from '@/teams/frontend/lib/api-client';
+import { useDojoSource } from '@/teams/frontend/lib/dojo-source/DojoSourceProvider';
 import {
   useCourseMaterials,
   type CourseMaterialMessage,
@@ -223,6 +213,7 @@ function HomePage() {
   const { t } = useI18n();
   const { theme, setTheme } = useTheme();
   const router = useRouter();
+  const dojoSource = useDojoSource();
   // Do not replay the classic hero's entrance after the route handoff already
   // carried the lockup and composer into place. The entrance is CSS, not a
   // JS-driven animation, so the server-rendered hero is painted (and fades in)
@@ -665,35 +656,24 @@ function HomePage() {
     // delete them under the run.
     const materialIds = courseMaterials.handOff();
     try {
-      // Nothing is started from settings that could not be read.
-      const capabilities = await requireModelCapabilities();
-      if (!capabilities) throw new Error(t('generation.modelSettingsUnavailable'));
-      // Nor from a material that went meanwhile: its chip shows it removed.
+      // Nothing is started from a material that went meanwhile: its chip shows it removed.
       if (materialIds.length > 0 && !(await courseMaterials.verify())) {
         throw new Error(t('toolbar.materialUnavailable'));
       }
-      const run = await startClassicRun({
-        requirement: form.requirement,
+      // EduDojo: the lesson input becomes a dojo tower; the tower page shows generation progress.
+      const { dojoId } = await dojoSource.createDojo({
+        topic: form.requirement,
         materialIds,
-        interactive: form.vocationalTestMode ? true : form.interactiveMode,
-        taskEngine: form.vocationalTestMode,
-        capabilities,
       });
-      router.push(`/generation-preview?run=${encodeURIComponent(run.id)}`);
+      router.push(`/dojo/${encodeURIComponent(dojoId)}`);
     } catch (err) {
       log.error('Error starting generation:', err);
-      // Only a definitive refusal says no run holds them: they stay attached.
+      // Only a definitive refusal (4xx) says no run holds them: they stay attached.
       // A lost answer may hide a run that releases them when it is over.
-      if (!(err instanceof RunApiError) || startDefinitelyRefused(err)) {
+      if (!(err instanceof DojoApiError) || (err.status >= 400 && err.status < 500)) {
         courseMaterials.takeBack(materialIds);
       }
-      if (err instanceof RunStartRefusedError) {
-        setError(t(err.reason, err.values));
-      } else if (err instanceof RunApiError) {
-        setError(runApiErrorText(err, t));
-      } else {
-        setError(err instanceof Error ? err.message : t('upload.generateFailed'));
-      }
+      setError(err instanceof Error ? err.message : t('upload.generateFailed'));
     } finally {
       // Unfreeze the set once prep settles (navigation unmounts this page, so
       // this is normally a no-op on the way out).

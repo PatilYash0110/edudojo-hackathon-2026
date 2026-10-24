@@ -131,8 +131,15 @@ const impactSparks = [
   { angle: 78, distance: 46 },
 ] as const;
 
-/** Questions requested once per battle; techniques then draw from this pool. */
-const QUESTION_POOL_SIZE = 40;
+/**
+ * A battle starts with a small question pool and tops it up as fresh questions run low, up to a
+ * cap; after that techniques reuse the least-used questions. Live, every 5 questions is one
+ * generated quiz from the student's daily quota, so the cap keeps a full tower run affordable.
+ */
+const QUESTION_POOL_FIRST = 10;
+const QUESTION_POOL_REFILL = 5;
+const QUESTION_POOL_MAX = 15;
+const QUESTION_REFILL_BELOW = 5;
 const DECISION_TIME_MS = 3200;
 const FEEDBACK_PAUSE_MS = 520;
 
@@ -409,6 +416,13 @@ export default function PrototypeBattle({
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const victoryReported = useRef(false);
   const questionUsage = useRef(new Map<string, number>());
+  const poolRequest = useRef<{
+    source: typeof source;
+    key: string;
+    questions: Promise<BattleQuestion[]>;
+  } | null>(null);
+  const poolRefilling = useRef(false);
+  const poolExhausted = useRef(false);
   /** Bumped on restart so a late grade from an abandoned duel is ignored. */
   const gradeToken = useRef(0);
   const advanceChallengeRef = useRef<(correct: boolean) => void>(() => undefined);
@@ -441,7 +455,17 @@ export default function PrototypeBattle({
     const scope: QuestionScope = boss
       ? { kind: 'boss' }
       : { kind: 'floor', floorId: floorId ?? '' };
-    source.getQuestions({ dojoId, scope, count: QUESTION_POOL_SIZE }).then(
+    // A re-run of this effect for the same request (React dev double-invoke) reuses the one in
+    // flight: live questions are generated quizzes that cost daily quota.
+    const key = `${dojoId}|${boss ? 'boss' : floorId}|${poolAttempt}`;
+    if (poolRequest.current?.source !== source || poolRequest.current.key !== key) {
+      poolRequest.current = {
+        source,
+        key,
+        questions: source.getQuestions({ dojoId, scope, count: QUESTION_POOL_FIRST }),
+      };
+    }
+    poolRequest.current.questions.then(
       (questions) => {
         if (cancelled) return;
         setPool(questions);
@@ -455,6 +479,46 @@ export default function PrototypeBattle({
       cancelled = true;
     };
   }, [boss, dojoId, floorId, poolAttempt, source]);
+
+  const topUpPool = useCallback(
+    (current: BattleQuestion[]) => {
+      const fresh = current.filter((q) => !questionUsage.current.has(q.id)).length;
+      if (
+        fresh >= QUESTION_REFILL_BELOW ||
+        current.length >= QUESTION_POOL_MAX ||
+        poolRefilling.current ||
+        poolExhausted.current
+      )
+        return;
+      poolRefilling.current = true;
+      const scope: QuestionScope = boss
+        ? { kind: 'boss' }
+        : { kind: 'floor', floorId: floorId ?? '' };
+      const known = new Set(current.map((q) => q.id));
+      source
+        .getQuestions({
+          dojoId,
+          scope,
+          count: QUESTION_POOL_REFILL,
+          excludeIds: [...known],
+        })
+        .then(
+          (more) => {
+            const added = more.filter((q) => !known.has(q.id));
+            // A source with nothing new (the small demo bank) stops asking.
+            if (added.length === 0) poolExhausted.current = true;
+            setPool((previous) => (previous ? [...previous, ...added] : previous));
+          },
+          () => {
+            poolExhausted.current = true;
+          },
+        )
+        .finally(() => {
+          poolRefilling.current = false;
+        });
+    },
+    [boss, dojoId, floorId, source],
+  );
 
   useEffect(() => {
     if (!fx) return;
@@ -500,6 +564,7 @@ export default function PrototypeBattle({
         );
       }
       setChallengeQuestions(drawn);
+      topUpPool(pool);
       setSelected(index);
       setActive(
         isDefense
@@ -515,7 +580,7 @@ export default function PrototypeBattle({
       setSecondsLeft(questionSeconds(drawn[0]));
       answerLock.current = false;
     },
-    [battle.cooldowns, choosing, isDefense, pool],
+    [battle.cooldowns, choosing, isDefense, pool, topUpPool],
   );
 
   useEffect(() => {

@@ -62,6 +62,10 @@ export function createDemoSource(options: DemoSourceOptions = {}): DojoSource {
       return dojoId === dojo.id ? structuredClone(dojo) : null;
     },
 
+    async getStatus(dojoId) {
+      return dojoId === dojo.id ? { status: 'ready' } : { status: 'missing' };
+    },
+
     async getQuestions(rawRequest): Promise<BattleQuestion[]> {
       const request = QuestionRequestSchema.parse(rawRequest);
       if (request.dojoId !== dojo.id) return [];

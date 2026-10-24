@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { ArrowLeft, BookOpen, Swords } from 'lucide-react';
 import type { Dojo } from '@/teams/shared/contracts/dojo';
+import { ClassroomSurface } from '@/components/classroom/ClassroomSurface';
 import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
 import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgress';
 import styles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
@@ -74,11 +75,24 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       </p>
       <h1>{floor.title}</h1>
       <p>
-        This floor embeds the lesson runtime produced by the Backend Team. When it reports
-        completion, the matching battle unlocks; winning teleports you to the next lesson.
+        Study this section with the Sensei and your classmates. Finishing the lesson opens the
+        floor&apos;s battle; winning brings you back for the next lesson.
       </p>
 
-      {current && progress.stage === 'lesson' && (
+      {floor.lesson && (
+        <div className={styles.lessonPlayer}>
+          <ClassroomSurface classroomId={floor.lesson.runtimeId} variant="pane" />
+        </div>
+      )}
+      {floor.lesson && current && progress.stage === 'lesson' && (
+        <div className={styles.lessonActions}>
+          <button className={styles.primaryAction} onClick={completeLesson} type="button">
+            I finished this section · enter the room <Swords size={15} />
+          </button>
+        </div>
+      )}
+
+      {!floor.lesson && current && progress.stage === 'lesson' && (
         <div className={styles.learningEngine}>
           <BookOpen size={24} />
           <div>
@@ -123,10 +137,12 @@ function LessonPanelView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
         ) : null}
       </div>
 
-      <p className={styles.devNote}>
-        The mock scenes only test the integration boundary. Backend replaces this slot with its
-        OpenMAIC runtime and emits `LESSON_COMPLETED`; Game Team handles only the unlock afterward.
-      </p>
+      {!floor.lesson && (
+        <p className={styles.devNote}>
+          Demo tower: these mock scenes stand in for the OpenMAIC lesson a generated dojo plays
+          here.
+        </p>
+      )}
     </section>
   );
 }

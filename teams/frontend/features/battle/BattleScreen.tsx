@@ -10,7 +10,7 @@ import { useDojoProgress } from '@/teams/frontend/features/dojo-map/useDojoProgr
 import flowStyles from '@/teams/frontend/features/dojo-map/DojoFlow.module.css';
 import { FloorEncounter } from './FloorEncounter';
 import PrototypeBattle from './PrototypeBattle';
-import { levelFor, villainForFloor } from './fighter-roster';
+import { levelForOrder } from './fighter-roster';
 
 export function BattleScreen() {
   return <DojoGate>{(dojo, dojoId) => <BattleScreenView dojo={dojo} dojoId={dojoId} />}</DojoGate>;
@@ -87,8 +87,8 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     return (
       <FloorEncounter
         floorLabel={`Floor ${floor.order} · ${floor.title}`}
-        opponent={villainForFloor(floor.id).name}
-        opponentFighter={villainForFloor(floor.id)}
+        opponent={levelForOrder(floor.order).villain.name}
+        opponentFighter={levelForOrder(floor.order).villain}
         onReady={() => setRoomEntered(true)}
       />
     );
@@ -99,10 +99,10 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       dojoId={dojoId}
       floorId={floor.id}
       topicLabel={`Floor ${floor.order} · ${floor.title}`}
-      opponentName={villainForFloor(floor.id).name}
+      opponentName={levelForOrder(floor.order).villain.name}
       opponentRole={`FLOOR ${floor.order} GUARDIAN`}
-      opponentFighter={villainForFloor(floor.id)}
-      arena={levelFor(floor.id).arena}
+      opponentFighter={levelForOrder(floor.order).villain}
+      arena={levelForOrder(floor.order).arena}
       onVictory={winFloor}
     />
   );

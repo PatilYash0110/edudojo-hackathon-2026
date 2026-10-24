@@ -10,9 +10,11 @@ import {
   CLIPS,
   clipUrl,
   HERO,
+  artLevelForOrder,
   levelFor,
-  TOWER_LEVELS,
+  levelForOrder,
   type FighterArt,
+  type TowerLevel,
 } from '@/teams/frontend/features/battle/fighter-roster';
 import { DojoMap } from './DojoMap';
 import type { RoomTheme } from './tower-rooms';
@@ -25,9 +27,7 @@ import {
 import { useDojoProgress } from './useDojoProgress';
 import styles from './TowerMap.module.css';
 
-type LevelId = (typeof TOWER_LEVELS)[number];
-
-const THEMES: Record<LevelId, RoomTheme> = {
+const THEMES: Record<TowerLevel, RoomTheme> = {
   '1': 'cage',
   '2': 'lake',
   '3': 'neon',
@@ -35,22 +35,42 @@ const THEMES: Record<LevelId, RoomTheme> = {
   boss: 'lava',
 };
 
-/** Tower storeys, bottom first: the dojo's learning floors, then the Sensei's floor. */
-const STOPS = TOWER_LEVELS.map((id, index) => {
-  const { villain, arena } = levelFor(id);
-  const boss = id === 'boss';
-  return {
-    id,
-    boss,
-    badge: boss ? '頂' : String(index + 1),
-    label: boss ? 'Final floor' : `Floor ${index + 1}`,
-    villain,
-    arena,
-  };
-});
+type Stop = {
+  /** Dojo floor id, or `boss`. */
+  id: string;
+  boss: boolean;
+  badge: string;
+  label: string;
+  title: string;
+  theme: RoomTheme;
+  villain: FighterArt;
+  arena: ReturnType<typeof levelFor>['arena'];
+};
 
-function stopTitle(dojo: Dojo, index: number): string {
-  return STOPS[index].boss ? dojo.boss.name : (dojo.floors[index]?.title ?? `Floor ${index + 1}`);
+/** Tower storeys, bottom first: the dojo's learning floors, then the Sensei's floor. */
+function buildStops(dojo: Dojo): Stop[] {
+  const floors = dojo.floors.map((floor, index): Stop => {
+    const order = index + 1;
+    return {
+      id: floor.id,
+      boss: false,
+      badge: String(order),
+      label: `Floor ${order}`,
+      title: floor.title,
+      theme: THEMES[artLevelForOrder(order)],
+      ...levelForOrder(order),
+    };
+  });
+  const boss: Stop = {
+    id: 'boss',
+    boss: true,
+    badge: '頂',
+    label: 'Final floor',
+    title: dojo.boss.name,
+    theme: THEMES.boss,
+    ...levelFor('boss'),
+  };
+  return [...floors, boss];
 }
 
 function idleSprite(fighter: FighterArt): TowerSprite {
@@ -63,9 +83,9 @@ function idleSprite(fighter: FighterArt): TowerSprite {
   };
 }
 
-function floorStates(progress: DojoProgress): FloorState[] {
+function floorStates(stops: Stop[], progress: DojoProgress): FloorState[] {
   const bossUnlocked = progress.stage === 'boss' || progress.stage === 'complete';
-  return STOPS.map((stop, index): FloorState => {
+  return stops.map((stop, index): FloorState => {
     if (stop.boss) {
       if (progress.stage === 'complete') return 'cleared';
       return progress.stage === 'boss' ? 'current' : 'locked';
@@ -89,8 +109,9 @@ export function TowerMap() {
 function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   const router = useRouter();
   const { progress, ready, reset } = useDojoProgress(dojoId, dojo.floors.length);
-  const states = useMemo(() => floorStates(progress), [progress]);
-  const currentIndex = states.includes('current') ? states.indexOf('current') : STOPS.length - 1;
+  const stops = useMemo(() => buildStops(dojo), [dojo]);
+  const states = useMemo(() => floorStates(stops, progress), [stops, progress]);
+  const currentIndex = states.includes('current') ? states.indexOf('current') : stops.length - 1;
   const [selected, setSelected] = useState<number | null>(null);
   const [hovered, setHovered] = useState(-1);
   const [webglFailed, setWebglFailed] = useState(false);
@@ -104,14 +125,14 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
 
   const destination = useCallback(
     (index: number) => {
-      const stop = STOPS[index];
+      const stop = stops[index];
       if (states[index] === 'locked') return null;
       if (stop.boss) return `/dojo/${dojoId}/boss`;
       if (states[index] === 'current' && progress.stage === 'battle')
         return `/dojo/${dojoId}/floor/${stop.id}/battle`;
       return `/dojo/${dojoId}/floor/${stop.id}`;
     },
-    [dojoId, progress.stage, states],
+    [dojoId, progress.stage, states, stops],
   );
 
   const enter = useCallback(
@@ -132,8 +153,8 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     let scene: TowerScene;
     try {
       scene = createTowerScene(canvas, {
-        floors: STOPS.map((stop) => ({
-          theme: THEMES[stop.id],
+        floors: stops.map((stop) => ({
+          theme: stop.theme,
           map: stop.arena.small,
           villain: idleSprite(stop.villain),
         })),
@@ -158,7 +179,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       scene.dispose();
       sceneRef.current = null;
     };
-  }, []);
+  }, [stops]);
 
   useEffect(() => {
     if (ready) sceneRef.current?.setStates(states);
@@ -192,7 +213,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       if (!ready) return;
       if (event.target instanceof HTMLInputElement || event.target instanceof HTMLSelectElement)
         return;
-      const last = STOPS.length - 1;
+      const last = stops.length - 1;
       if (event.code === 'ArrowUp' || event.code === 'KeyW') {
         event.preventDefault();
         setSelected((index) => (index === null ? currentIndex : Math.min(last, index + 1)));
@@ -211,24 +232,24 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     }
     window.addEventListener('keydown', handleKey);
     return () => window.removeEventListener('keydown', handleKey);
-  }, [currentIndex, enter, ready, selected]);
+  }, [currentIndex, enter, ready, selected, stops.length]);
 
   if (webglFailed) return <DojoMap />;
 
   const floorsCleared = states.filter(
-    (state, index) => state === 'cleared' && !STOPS[index].boss,
+    (state, index) => state === 'cleared' && !stops[index].boss,
   ).length;
   const objective =
     progress.stage === 'lesson'
       ? `Study floor ${progress.currentFloor}`
       : progress.stage === 'battle'
-        ? `Defeat ${STOPS[progress.currentFloor - 1].villain.name}`
+        ? `Defeat ${stops[progress.currentFloor - 1].villain.name}`
         : progress.stage === 'boss'
           ? `Challenge ${dojo.boss.name}`
           : 'Tower conquered';
 
   function actionLabel(index: number) {
-    const stop = STOPS[index];
+    const stop = stops[index];
     const state = states[index];
     if (state === 'locked')
       return stop.boss ? 'Clear every floor first' : `Clear floor ${index} first`;
@@ -242,14 +263,14 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
     const state = states[index];
     if (state === 'locked') return <LockKeyhole size={14} aria-label="Sealed" />;
     if (state === 'cleared') return <Check size={14} aria-label="Cleared" />;
-    return STOPS[index].boss || progress.stage === 'battle' ? (
+    return stops[index].boss || progress.stage === 'battle' ? (
       <Swords size={14} aria-label="Fight" />
     ) : (
       <BookOpen size={14} aria-label="Lesson" />
     );
   }
 
-  const stop = selected === null ? null : STOPS[selected];
+  const stop = selected === null ? null : stops[selected];
 
   return (
     <section ref={sectionRef} className={styles.tower} aria-busy={!ready}>
@@ -278,7 +299,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       </button>
 
       <nav ref={floorsRef} className={styles.floors} aria-label="Tower floors">
-        {STOPS.map((item, index) => (
+        {stops.map((item, index) => (
           <button
             key={item.id}
             type="button"
@@ -286,14 +307,14 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
             data-state={states[index]}
             data-hovered={hovered === index}
             aria-pressed={selected === index}
-            style={{ '--order': index, '--rank': STOPS.length - index } as CSSProperties}
+            style={{ '--order': index, '--rank': stops.length - index } as CSSProperties}
             onClick={() => setSelected(index)}
             onDoubleClick={() => enter(index)}
           >
             <b>{item.badge}</b>
             <span>
               <small>{item.arena.name}</small>
-              {stopTitle(dojo, index)}
+              {stops[index].title}
             </span>
             {stateIcon(index)}
           </button>
@@ -306,7 +327,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
             <p className={styles.eyebrow}>
               {stop.label.toUpperCase()} · {stop.arena.name.toUpperCase()}
             </p>
-            <h2>{stopTitle(dojo, selected)}</h2>
+            <h2>{stops[selected].title}</h2>
             <p className={styles.guardian}>
               Guardian{' '}
               <b
@@ -346,7 +367,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
             <div className={styles.progressTrack}>
               <i
                 style={{
-                  width: `${(states.filter((state) => state === 'cleared').length / STOPS.length) * 100}%`,
+                  width: `${(states.filter((state) => state === 'cleared').length / stops.length) * 100}%`,
                 }}
               />
             </div>
@@ -356,7 +377,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
                 type="button"
                 onClick={() => setSelected(currentIndex)}
               >
-                Go to {STOPS[currentIndex].label.toLowerCase()}
+                Go to {stops[currentIndex].label.toLowerCase()}
               </button>
             </div>
           </>
@@ -371,7 +392,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       <div ref={tipRef} className={styles.tip} hidden={hovered < 0}>
         {hovered >= 0 && (
           <>
-            {STOPS[hovered].label} · {STOPS[hovered].arena.name}{' '}
+            {stops[hovered].label} · {stops[hovered].arena.name}{' '}
             <em>{STATE_LABEL[states[hovered]]}</em>
           </>
         )}

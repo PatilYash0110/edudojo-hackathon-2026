@@ -8,7 +8,7 @@ import { SpriteFighter } from '@/teams/frontend/features/battle/SpriteFighter';
 import {
   FINAL_ARENA,
   HERO,
-  TOWER_LEVELS,
+  levelForOrder,
   villainForFloor,
 } from '@/teams/frontend/features/battle/fighter-roster';
 import styles from './TowerConquered.module.css';
@@ -52,15 +52,19 @@ export function TowerConquered({ dojo, dojoId, onReplay }: TowerConqueredProps) 
           the full topic.
         </p>
         <ul className={styles.defeated} aria-label="Defeated guardians">
-          {TOWER_LEVELS.map((level) => {
-            const villain = villainForFloor(level);
-            return (
-              <li key={level} style={{ '--element': villain.element } as CSSProperties}>
-                <b>{level === 'boss' ? '頂' : level}</b>
-                {villain.name}
-              </li>
-            );
-          })}
+          {[
+            ...dojo.floors.map((floor) => ({
+              key: floor.id,
+              badge: String(floor.order),
+              villain: levelForOrder(floor.order).villain,
+            })),
+            { key: 'boss', badge: '頂', villain: villainForFloor('boss') },
+          ].map(({ key, badge, villain }) => (
+            <li key={key} style={{ '--element': villain.element } as CSSProperties}>
+              <b>{badge}</b>
+              {villain.name}
+            </li>
+          ))}
         </ul>
         <div className={styles.actions}>
           <Link className={styles.primaryAction} href={`/dojo/${dojoId}`}>

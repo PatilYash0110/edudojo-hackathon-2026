@@ -24,22 +24,64 @@ export function DojoGate({ children }: { children: (dojo: Dojo, dojoId: string) 
       <section className={styles.gate}>
         <p className={styles.eyebrow}>UNKNOWN DOJO</p>
         <h1>This dojo does not exist.</h1>
-        <Link className={styles.secondaryAction} href="/dojo">
-          Open the demo tower
+        <div className={styles.lessonActions}>
+          <Link className={styles.primaryAction} href="/">
+            Enter a new topic
+          </Link>
+          <Link className={styles.secondaryAction} href={`/dojo/${DEMO_DOJO_ID}`}>
+            Open the demo tower
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
+  if (state.status === 'generating') {
+    const progress = Math.round(Math.min(100, Math.max(0, state.progress)));
+    return (
+      <section className={styles.gate} aria-busy="true">
+        <p className={styles.eyebrow}>BUILDING YOUR DOJO · {progress}%</p>
+        <h1>The Sensei is preparing your lessons.</h1>
+        <p>
+          Your topic becomes slides, narration, and one tower floor per section. This takes a few
+          minutes; the tower opens on its own when it is ready.
+        </p>
+        <div
+          className={styles.progressTrack}
+          role="progressbar"
+          aria-label="Dojo generation"
+          aria-valuenow={progress}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <i style={{ width: `${progress}%` }} />
+        </div>
+        <Link className={styles.secondaryAction} href={`/dojo/${DEMO_DOJO_ID}`}>
+          Train in the demo tower meanwhile
         </Link>
       </section>
     );
   }
 
-  if (state.status === 'error') {
+  if (state.status === 'failed' || state.status === 'error') {
     return (
       <section className={styles.gate}>
-        <p className={styles.eyebrow}>CONNECTION LOST</p>
+        <p className={styles.eyebrow}>
+          {state.status === 'failed' ? 'GENERATION FAILED' : 'CONNECTION LOST'}
+        </p>
         <h1>The dojo could not be loaded.</h1>
-        <p>{state.error.message}</p>
-        <button className={styles.primaryAction} onClick={state.retry} type="button">
-          Try again
-        </button>
+        <p>{state.status === 'failed' ? state.error : state.error.message}</p>
+        <div className={styles.lessonActions}>
+          <button className={styles.primaryAction} onClick={state.retry} type="button">
+            Try again
+          </button>
+          <Link className={styles.secondaryAction} href="/">
+            Enter a new topic
+          </Link>
+          <Link className={styles.secondaryAction} href={`/dojo/${DEMO_DOJO_ID}`}>
+            Play the demo tower
+          </Link>
+        </div>
       </section>
     );
   }
