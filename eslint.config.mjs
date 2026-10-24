@@ -632,6 +632,79 @@ const eslintConfig = defineConfig([
       ],
     },
   },
+  // DojoLearn team boundaries (teams/README.md). Core no-restricted-imports is
+  // not set by any other block for these paths, so nothing upstream is replaced.
+  {
+    files: ['teams/shared/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/teams/game/*', '@/teams/frontend/*', '@/teams/backend/*'],
+              message: 'teams/shared must not depend on a team folder.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['teams/game/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['react', 'react-dom', 'next', 'next/*'],
+              message: 'teams/game is pure TypeScript; UI belongs in teams/frontend.',
+            },
+            {
+              group: [
+                '@/teams/frontend/*',
+                '@/teams/backend/*',
+                '@/app/*',
+                '@/lib/*',
+                '@/components/*',
+              ],
+              message: 'teams/game may only import teams/shared.',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['teams/frontend/**/*.{ts,tsx}', 'app/(frontend)/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@/teams/backend/*'],
+              message: 'Frontend reaches the backend over HTTP (/api/dojo/*).',
+            },
+          ],
+        },
+      ],
+    },
+  },
+  {
+    files: ['teams/backend/**/*.{ts,tsx}', 'app/api/dojo/**/*.{ts,tsx}'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            { group: ['@/teams/frontend/*'], message: 'Backend must not import frontend code.' },
+          ],
+        },
+      ],
+    },
+  },
   // Same boundary, dynamic form. This block cannot match files covered by the
   // package and module boundary blocks above that also set no-restricted-syntax
   // (flat config replaces rule options per key, so it would drop their module
