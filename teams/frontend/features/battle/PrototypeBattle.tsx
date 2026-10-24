@@ -11,7 +11,6 @@ import {
   useState,
 } from 'react';
 import {
-  ArrowUpRight,
   Check,
   ChevronRight,
   Flame,
@@ -44,6 +43,14 @@ type ActiveChallenge =
   | { side: 'attack'; id: AttackTechnique }
   | { side: 'defense'; id: DefenseTechnique };
 type TimingSession = { technique: DefenseTechnique; knowledgeCorrect: boolean };
+type WeaponId = 'katana' | 'dragon';
+type PrototypeBattleProps = {
+  topicLabel?: string;
+  opponentName?: string;
+  opponentRole?: string;
+  boss?: boolean;
+  onVictory?: () => void;
+};
 type CombatFx = {
   kind: AttackTechnique | DefenseTechnique | 'hit';
   damage: number;
@@ -109,6 +116,17 @@ const defenses = [
   },
 ] as const;
 
+const impactSparks = [
+  { angle: -72, distance: 54 },
+  { angle: -34, distance: 68 },
+  { angle: 2, distance: 50 },
+  { angle: 38, distance: 63 },
+  { angle: 78, distance: 46 },
+] as const;
+
+const QUESTION_TIME_SECONDS = 12;
+const FEEDBACK_PAUSE_MS = 520;
+
 function ReactiveDefense({
   session,
   onResolve,
@@ -134,7 +152,7 @@ function ReactiveDefense({
       resolved.current = true;
       const success = timed && session.knowledgeCorrect;
       setPhase(success ? 'success' : 'miss');
-      resolveTimer.current = setTimeout(() => callback.current(success), 550);
+      resolveTimer.current = setTimeout(() => callback.current(success), 300);
     },
     [session.knowledgeCorrect],
   );
@@ -225,10 +243,10 @@ function CombatEffects({ fx }: { fx: CombatFx }) {
             style={
               {
                 '--cut-delay': `${
-                  (fx.kind === 'combo' ? 190 : Math.max(0, fx.impactMs - 245)) + index * 180
+                  (fx.kind === 'combo' ? 130 : Math.max(0, fx.impactMs - 245)) + index * 150
                 }ms`,
-                '--hit-delay': `${(fx.kind === 'combo' ? 360 : fx.impactMs) + index * 180}ms`,
-                '--cut-angle': `${index % 2 ? -18 : 18}deg`,
+                '--hit-delay': `${(fx.kind === 'combo' ? 300 : fx.impactMs) + index * 150}ms`,
+                '--cut-angle': `${index % 2 ? -8 : 8}deg`,
               } as CSSProperties
             }
           >
@@ -236,10 +254,10 @@ function CombatEffects({ fx }: { fx: CombatFx }) {
               <defs>
                 <linearGradient
                   id={`slash-${fx.kind}-${index}`}
-                  x1="40"
-                  y1="340"
-                  x2="360"
-                  y2="40"
+                  x1="320"
+                  y1="365"
+                  x2="320"
+                  y2="35"
                   gradientUnits="userSpaceOnUse"
                 >
                   <stop stopColor="currentColor" stopOpacity="0" />
@@ -250,7 +268,7 @@ function CombatEffects({ fx }: { fx: CombatFx }) {
                 <mask id={`slash-mask-${fx.kind}-${index}`}>
                   <path
                     className={styles.trailReveal}
-                    d="M42 350 C52 145 188 28 365 46"
+                    d="M320 365 C90 310 90 90 320 35"
                     fill="none"
                     stroke="white"
                     strokeWidth="150"
@@ -261,11 +279,11 @@ function CombatEffects({ fx }: { fx: CombatFx }) {
               </defs>
               <g mask={`url(#slash-mask-${fx.kind}-${index})`}>
                 <path
-                  d="M42 350 C52 145 188 28 365 46 C242 86 106 205 42 350Z"
+                  d="M320 365 C90 310 90 90 320 35 C168 122 168 278 320 365Z"
                   fill={`url(#slash-${fx.kind}-${index})`}
                 />
                 <path
-                  d="M42 350 C52 145 188 28 365 46"
+                  d="M320 365 C90 310 90 90 320 35"
                   fill="none"
                   stroke="currentColor"
                   strokeWidth="5"
@@ -274,7 +292,7 @@ function CombatEffects({ fx }: { fx: CombatFx }) {
               </g>
               <path
                 className={styles.slashHead}
-                d="M42 350 C52 145 188 28 365 46"
+                d="M320 365 C90 310 90 90 320 35"
                 fill="none"
                 stroke="white"
                 strokeWidth="9"
@@ -285,10 +303,41 @@ function CombatEffects({ fx }: { fx: CombatFx }) {
             <b className={styles.hitNumber}>
               {fx.kind === 'combo' ? BATTLE_BALANCE.comboDamagePerHit : fx.damage}
             </b>
+            <span className={styles.impactFlash} />
+            {impactSparks.map(({ angle, distance }) => (
+              <i
+                className={styles.impactSpark}
+                key={angle}
+                style={
+                  {
+                    '--spark-angle': `${angle}deg`,
+                    '--spark-distance': `${distance}px`,
+                  } as CSSProperties
+                }
+              />
+            ))}
           </div>
         ))}
       {fx.kind === 'quiz' && (
         <>
+          <span className={styles.chargeRings}>
+            <i />
+            <i />
+            <i />
+          </span>
+          <span className={styles.energyMotes}>
+            {Array.from({ length: 8 }, (_, index) => (
+              <i
+                key={index}
+                style={
+                  {
+                    '--mote-angle': `${index * 45}deg`,
+                    '--mote-delay': `${index * 90}ms`,
+                  } as CSSProperties
+                }
+              />
+            ))}
+          </span>
           <span className={styles.chargeOrb} />
           {fx.failed ? (
             <span className={styles.backlashBurst} />
@@ -308,7 +357,13 @@ function CombatEffects({ fx }: { fx: CombatFx }) {
   );
 }
 
-export default function PrototypeBattle() {
+export default function PrototypeBattle({
+  topicLabel,
+  opponentName = 'Tinten-Yokai',
+  opponentRole = 'FLOOR GUARDIAN',
+  boss = false,
+  onVictory,
+}: PrototypeBattleProps = {}) {
   const [battle, dispatch] = useReducer(battleReducer, undefined, createBattleState);
   const [active, setActive] = useState<ActiveChallenge | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -321,9 +376,15 @@ export default function PrototypeBattle() {
   const [selected, setSelected] = useState(0);
   const [fullMotion, setFullMotion] = useState(true);
   const [sampleLanguage, setSampleLanguage] = useState<'de' | 'en'>('de');
+  const [weapon, setWeapon] = useState<WeaponId>('katana');
   const [cameraYaw, setCameraYaw] = useState(0);
   const [isOrbiting, setIsOrbiting] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(QUESTION_TIME_SECONDS);
   const actionLock = useRef(false);
+  const answerLock = useRef(false);
+  const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const victoryReported = useRef(false);
+  const advanceChallengeRef = useRef<(correct: boolean) => void>(() => undefined);
   const orbitDrag = useRef<{ pointerId: number; startX: number; startYaw: number } | null>(null);
   const menu = useRef<HTMLDivElement>(null);
   const answerInput = useRef<HTMLInputElement>(null);
@@ -353,8 +414,21 @@ export default function PrototypeBattle() {
   }, [fx]);
 
   useEffect(() => {
+    if (battle.turn !== 'victory' || fx || victoryReported.current) return;
+    victoryReported.current = true;
+    onVictory?.();
+  }, [battle.turn, fx, onVictory]);
+
+  useEffect(() => {
     if (question?.kind === 'typed') answerInput.current?.focus();
   }, [question]);
+
+  useEffect(
+    () => () => {
+      if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    },
+    [],
+  );
 
   const beginChallenge = useCallback(
     (index: number) => {
@@ -371,6 +445,8 @@ export default function PrototypeBattle() {
       setTypedAnswer('');
       setCorrectAnswers(0);
       setFeedback(null);
+      setSecondsLeft(QUESTION_TIME_SECONDS);
+      answerLock.current = false;
     },
     [battle.cooldowns, choosing, isDefense],
   );
@@ -411,20 +487,21 @@ export default function PrototypeBattle() {
 
   function submitAnswer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!question || feedback !== null) return;
-    const value = question.kind === 'typed' ? typedAnswer : choice;
-    if (value.trim()) setFeedback(isPrototypeAnswerCorrect(question, value));
+    if (question?.kind !== 'typed') return;
+    resolveAnswer(typedAnswer);
   }
 
-  function continueChallenge() {
-    if (!active || !challenge || feedback === null || actionLock.current) return;
-    const score = correctAnswers + Number(feedback);
+  function advanceChallenge(correct: boolean) {
+    if (!active || !challenge || actionLock.current) return;
+    const score = correctAnswers + Number(correct);
     if (questionIndex < challenge.questions.length - 1) {
       setCorrectAnswers(score);
       setQuestionIndex((index) => index + 1);
       setChoice('');
       setTypedAnswer('');
       setFeedback(null);
+      setSecondsLeft(QUESTION_TIME_SECONDS);
+      answerLock.current = false;
       return;
     }
     if (active.side === 'attack') {
@@ -439,11 +516,11 @@ export default function PrototypeBattle() {
         target: backlash ? 'player' : 'enemy',
         impactMs:
           active.id === 'quiz'
-            ? 1400
+            ? 1050
             : active.id === 'combo'
-              ? 360 + Math.max(0, score - 1) * 180
-              : 460,
-        durationMs: active.id === 'quiz' ? 2200 : 1200,
+              ? 300 + Math.max(0, score - 1) * 150
+              : 380,
+        durationMs: active.id === 'quiz' ? 1700 : active.id === 'combo' ? 1150 : 950,
         event: {
           type: 'ATTACK_RESOLVED',
           technique: active.id,
@@ -460,6 +537,39 @@ export default function PrototypeBattle() {
     setActive(null);
     setFeedback(null);
   }
+
+  function resolveAnswer(value: string) {
+    if (!question || answerLock.current || !value.trim()) return;
+    answerLock.current = true;
+    const correct = isPrototypeAnswerCorrect(question, value);
+    setFeedback(correct);
+    feedbackTimer.current = setTimeout(
+      () => advanceChallengeRef.current(correct),
+      FEEDBACK_PAUSE_MS,
+    );
+  }
+
+  useEffect(() => {
+    advanceChallengeRef.current = advanceChallenge;
+  });
+
+  useEffect(() => {
+    if (!question || feedback !== null || answerLock.current || secondsLeft <= 0) return;
+    const timer = setTimeout(() => {
+      if (secondsLeft > 1) {
+        setSecondsLeft(secondsLeft - 1);
+        return;
+      }
+      answerLock.current = true;
+      setSecondsLeft(0);
+      setFeedback(false);
+      feedbackTimer.current = setTimeout(
+        () => advanceChallengeRef.current(false),
+        FEEDBACK_PAUSE_MS,
+      );
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, [feedback, question, secondsLeft]);
 
   function resolveDefense(success: boolean) {
     if (!timingSession || actionLock.current) return;
@@ -481,20 +591,24 @@ export default function PrototypeBattle() {
         success && technique === 'counter'
           ? battle.enemyHp - next.enemyHp
           : battle.playerHp - next.playerHp,
-      impactMs: 460,
-      durationMs: 1200,
+      impactMs: 360,
+      durationMs: 950,
       event,
     });
     setTimingSession(null);
   }
 
   function restart() {
+    if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
     setFx(null);
     setTimingSession(null);
     setActive(null);
     setFeedback(null);
     actionLock.current = false;
+    answerLock.current = false;
+    victoryReported.current = false;
     setSelected(0);
+    setSecondsLeft(QUESTION_TIME_SECONDS);
     dispatch({ type: 'RESET' });
   }
 
@@ -539,25 +653,34 @@ export default function PrototypeBattle() {
           : fx.kind === 'quiz'
             ? 'charge'
             : 'idle'
-    : 'idle';
+    : isFinished
+      ? battle.turn === 'victory'
+        ? 'victory'
+        : 'defeat'
+      : 'idle';
   const enemyMotion = fx
     ? fx.target === 'enemy' && !fx.failed
       ? 'hurt'
       : fx.target === 'player' && fx.kind !== 'quiz'
         ? 'lunge'
         : 'idle'
-    : isDefense
-      ? 'windup'
-      : 'idle';
+    : isFinished
+      ? battle.turn === 'victory'
+        ? 'defeat'
+        : 'victory'
+      : isDefense
+        ? 'windup'
+        : 'idle';
 
   return (
-    <div className={styles.shell} data-full-motion={fullMotion}>
+    <div className={styles.shell} data-full-motion={fullMotion} data-weapon={weapon}>
       <header className={styles.header}>
         <h1>
           EDUDOJO <small>Combat test · 1 vs 1</small>
         </h1>
         <span>
-          {sampleLanguage === 'de' ? 'Wortschatz' : 'English grammar'} · Round {battle.round}
+          {topicLabel ?? (sampleLanguage === 'de' ? 'Wortschatz' : 'English grammar')} · Round{' '}
+          {battle.round}
         </span>
         <label className={styles.devControl}>
           DEV SET
@@ -571,6 +694,17 @@ export default function PrototypeBattle() {
           >
             <option value="de">DE</option>
             <option value="en">EN</option>
+          </select>
+        </label>
+        <label className={styles.equipmentControl}>
+          EQUIPMENT
+          <select
+            aria-label="Player equipment"
+            value={weapon}
+            onChange={(event) => setWeapon(event.target.value as WeaponId)}
+          >
+            <option value="katana">Training Katana</option>
+            <option value="dragon">Dragon Fang</option>
           </select>
         </label>
         <label
@@ -621,14 +755,18 @@ export default function PrototypeBattle() {
             data-kind={fx?.kind ?? ''}
             style={
               {
-                '--first-impact': `${fx?.kind === 'combo' ? 360 : (fx?.impactMs ?? 0)}ms`,
+                '--first-impact': `${fx?.kind === 'combo' ? 300 : (fx?.impactMs ?? 0)}ms`,
                 '--hits': fx?.kind === 'combo' ? fx.hits : 1,
               } as CSSProperties
             }
           >
             <div className={styles.groundShadow} />
+            <span className={styles.actorAura} />
+            <span className={styles.motionDust} />
             <div className={styles.playerModel} role="img" aria-label="Player position placeholder">
-              <span className={styles.actorSword} />
+              <span className={styles.actorSword}>
+                <span className={styles.weaponSprite} />
+              </span>
             </div>
           </div>
           <div
@@ -637,14 +775,18 @@ export default function PrototypeBattle() {
             data-kind={fx?.kind ?? ''}
             style={
               {
-                '--first-impact': `${fx?.kind === 'combo' ? 360 : (fx?.impactMs ?? 0)}ms`,
+                '--first-impact': `${fx?.kind === 'combo' ? 300 : (fx?.impactMs ?? 0)}ms`,
                 '--hits': fx?.kind === 'combo' ? fx.hits : 1,
               } as CSSProperties
             }
           >
             <div className={styles.groundShadow} />
+            <span className={styles.actorAura} />
+            <span className={styles.motionDust} />
             <div className={styles.enemyModel} role="img" aria-label="Enemy position placeholder">
-              <span className={styles.actorSword} />
+              <span className={styles.actorSword}>
+                <span className={styles.weaponSprite} />
+              </span>
             </div>
           </div>
           {isDefense && !fx && (
@@ -658,10 +800,25 @@ export default function PrototypeBattle() {
         <span className={styles.orbitHint} aria-hidden="true">
           DRAG THE ARENA TO ORBIT
         </span>
+        {challenge && question && (
+          <div
+            className={styles.questionTimer}
+            data-low={secondsLeft <= 3}
+            data-locked={feedback !== null}
+            role="timer"
+            aria-live="polite"
+          >
+            <small>ANSWER TIMER</small>
+            <strong>{secondsLeft}</strong>
+            <span>
+              <i style={{ width: `${(secondsLeft / QUESTION_TIME_SECONDS) * 100}%` }} />
+            </span>
+          </div>
+        )}
 
         <div className={styles.enemyHud}>
-          <span>FLOOR GUARDIAN</span>
-          <h3>Tinten-Yokai</h3>
+          <span>{opponentRole}</span>
+          <h3>{opponentName}</h3>
           <div
             className={styles.hpTrack}
             role="progressbar"
@@ -769,7 +926,10 @@ export default function PrototypeBattle() {
                         name={question.id}
                         value={option}
                         checked={choice === option}
-                        onChange={() => setChoice(option)}
+                        onChange={() => {
+                          setChoice(option);
+                          resolveAnswer(option);
+                        }}
                       />
                       <span>{String.fromCharCode(65 + index)}</span>
                       <b>{option}</b>
@@ -806,22 +966,15 @@ export default function PrototypeBattle() {
             )}
             <div className={styles.questionActions}>
               <small>{challenge.subtitle}</small>
-              {feedback !== null ? (
-                <button type="button" className={styles.primaryButton} onClick={continueChallenge}>
-                  {questionIndex === challenge.questions.length - 1
-                    ? 'Release technique'
-                    : 'Next question'}
-                  <ArrowUpRight size={17} />
-                </button>
-              ) : (
-                <button
-                  type="submit"
-                  className={styles.primaryButton}
-                  disabled={question.kind === 'typed' ? !typedAnswer.trim() : !choice}
-                >
-                  Lock answer <ChevronRight size={17} />
-                </button>
-              )}
+              <span className={styles.autoAdvance}>
+                {feedback !== null
+                  ? questionIndex === challenge.questions.length - 1
+                    ? 'Releasing technique…'
+                    : 'Next question…'
+                  : question.kind === 'typed'
+                    ? 'ENTER TO ANSWER'
+                    : 'SELECT TO ANSWER'}
+              </span>
             </div>
           </form>
         )}
@@ -831,12 +984,18 @@ export default function PrototypeBattle() {
           <div className={styles.result}>
             <span>{battle.turn === 'victory' ? '勝' : '再'}</span>
             <p className={styles.eyebrow}>
-              {battle.turn === 'victory' ? 'FLOOR CLEARED' : 'THE LESSON CONTINUES'}
+              {battle.turn === 'victory'
+                ? boss
+                  ? 'TOPIC MASTERED'
+                  : 'FLOOR CLEARED'
+                : 'THE LESSON CONTINUES'}
             </p>
             <h2>{battle.turn === 'victory' ? 'Knowledge prevails.' : 'Rise. Learn. Return.'}</h2>
             <p>
               {battle.turn === 'victory'
-                ? 'Next in your journey: return to Sensei and study the next topic.'
+                ? boss
+                  ? 'You proved mastery across every subtopic in this input.'
+                  : 'Next in your journey: return to Sensei and study the next topic.'
                 : 'Study the explanations and try a different combination.'}
             </p>
             <button className={styles.primaryButton} onClick={restart}>

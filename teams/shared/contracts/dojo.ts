@@ -8,6 +8,12 @@
  */
 import type { Challenge } from './challenge';
 
+export interface OpenMaicLessonReference {
+  /** Runtime generated and served by the Backend Team's OpenMAIC integration. */
+  runtimeId: string;
+  sceneIds: string[];
+}
+
 export interface LearningObjective {
   id: string;
   title: string;
@@ -20,7 +26,9 @@ export interface Floor {
   title: string;
   objectives: LearningObjective[];
   challenges: Challenge[];
-  // TODO: lesson (OpenMAIC stageId/sceneIds), enemy, theme
+  /** Embedded lesson runtime from the Backend Team; never an external navigation target. */
+  lesson?: OpenMaicLessonReference;
+  // TODO: enemy, theme
 }
 
 export interface Boss {

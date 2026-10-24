@@ -1,2 +1,2 @@
-// Temporary playable handoff from Game Team. Frontend can replace this wiring with the final dojo list.
-export { default } from '@/teams/frontend/features/battle/PrototypeBattle';
+// The tower is the game entry point. Combat lives on each floor's battle route.
+export { default } from '@/teams/frontend/features/dojo-map/DojoMapPage';

@@ -1,5 +1,12 @@
 # EduDojo Team Handoff
 
+## Product boundary
+
+- **The Backend Team's OpenMAIC runtime remains the learning engine.** It owns generated lessons, narration, interactive learning, and lesson completion inside the game flow.
+- **The game layer wraps OpenMAIC.** It owns the tower map, floor locks, return-to-dojo loop, battles, and the Final Boss mastery gate.
+- One user input creates one Dojo topic. Its OpenMAIC learning sections become tower floors; the Final Boss draws from every objective in that input.
+- The prototype mock scenes occupy an embedded runtime slot. Replace that slot with the Backend Team's player and emit `LESSON_COMPLETED`; never navigate to the existing OpenMAIC course library from the game.
+
 ## What is already playable
 
 - One complete 1v1 turn loop with player and enemy HP.
@@ -8,6 +15,10 @@
 - Knowledge Blast: five questions; 3/5 releases the attack, otherwise the player takes backlash damage.
 - Block, Parry & Counter, and Dodge with knowledge checks and timing windows.
 - Cooldowns, victory, defeat, restart, German sample questions, and an English Dev Set.
+- A player equipment selector with a Training Katana and a transparent Dragon Fang test sprite.
+- A persistent tower flow: OpenMAIC lesson → floor battle → next OpenMAIC lesson → Final Boss.
+- A simple player marker that walks with `A/D`, changes floors with `W/S`, and enters an open door automatically on contact; locked doors remain inaccessible.
+- A room-entry transition where the guardian jumps into the dojo and combat starts automatically, plus automatic teleport to the next lesson after a win.
 - A fixed combat camera, simple capsule placeholders, and a clean reference sword-swipe effect for testing timing and direction.
 
 ## Game Team — remaining work
@@ -40,6 +51,7 @@
 15. **Profile before polish.** Test model size, texture memory, loading time, and frame time on a normal laptop. Keep post-processing disabled until the page holds 60 fps during Combo3.
 16. **Keep characters alive while idle.** Make a 1.8–2.5 second looping idle with a small weight shift or hop, slight squash/stretch, and a matching shadow change. Offset the enemy loop so both characters do not move in sync.
 17. **Replace the temporary drag orbit.** Add horizontal pointer/touch orbit around the fixed battle center. Clamp azimuth to ±10°, disable zoom and pan, keep the HUD screen-aligned, and preserve the selected angle between turns.
+18. **Replace the temporary equipment sprite.** Export each production weapon as GLB, keep its origin at the grip, attach it to `WeaponSocket_R`, and expose it through the same equipment selector. The current Dragon Fang PNG only proves swap, scale, and animation timing.
 
 ## Frontend asset contract
 

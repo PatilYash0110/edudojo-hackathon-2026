@@ -20,7 +20,7 @@ export const ATTACK_COOLDOWNS = {
 } as const;
 
 export const REACTIVE_TIMINGS = {
-  block: { windupMs: 900, windowMs: 1500 },
-  dodge: { windupMs: 1150, windowMs: 1200 },
-  counter: { windupMs: 1350, windowMs: 900 },
+  block: { windupMs: 650, windowMs: 850 },
+  dodge: { windupMs: 800, windowMs: 700 },
+  counter: { windupMs: 950, windowMs: 550 },
 } as const;
