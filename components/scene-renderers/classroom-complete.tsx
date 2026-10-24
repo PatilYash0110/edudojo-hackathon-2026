@@ -470,6 +470,9 @@ export function ClassroomCompletePage({
   // report an overflow the viewer no longer has. Scrolling is enabled only
   // when the scale floor was hit and something is genuinely out of view.
   const [fits, setFits] = useState(true);
+  // The column's unscaled height, kept so the scroll track can be sized to
+  // what is actually drawn rather than to the layout box behind it.
+  const [naturalHeight, setNaturalHeight] = useState(0);
   useEffect(() => {
     const section = sectionRef.current;
     const content = contentRef.current;
@@ -500,6 +503,7 @@ export function ClassroomCompletePage({
         );
         setScale(next);
         setFits(naturalHeight * next <= availableHeight + 1);
+        setNaturalHeight(naturalHeight);
       }
     };
     const observer = new ResizeObserver(measure);
@@ -568,233 +572,254 @@ export function ClassroomCompletePage({
           )}
         >
           <div className="min-h-full flex items-center justify-center">
-            {/* Content. Scaled to fill the stage: two spacing tiers cannot
+            {/* Scroll track. A scaled element keeps its unscaled layout box,
+                so without this the scrollable range was the full-size height
+                while only the scaled height was drawn — scrolling ran off the
+                end of the content into empty space. Sized only while
+                scrolling is in play; the height is never read back into the
+                measurement, which reads the column inside it. */}
+            <div
+              // items-start matters: a stretching flex child would take the
+              // track's height, and that height is derived from the child's
+              // own measurement — the column would measure itself.
+              className="w-full flex items-start justify-center"
+              style={fits ? undefined : { height: Math.round(naturalHeight * scale) }}
+            >
+              {/* Content. Scaled to fill the stage: two spacing tiers cannot
                 cover every viewport this page is embedded in — the classroom
                 stage is far shorter than a full window — so after the compact
                 token has done what it can, the whole column is scaled to the
                 room that is actually there. Scaling up as well as down keeps
                 the page filling the stage instead of floating in it. */}
-            <div
-              ref={contentRef}
-              style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}
-              className={cn(
-                'relative flex flex-col items-center max-w-3xl w-full',
-                compact ? 'gap-2 px-6 py-3' : 'gap-5 px-8 py-6',
-              )}
-            >
-              {/* Trophy + halo + sparkles */}
               <div
-                className="relative"
-                style={{ width: compact ? 88 : 168, height: compact ? 88 : 168 }}
-              >
-                <motion.div
-                  aria-hidden
-                  initial={{ scale: 0.6, opacity: 0 }}
-                  animate={{ scale: [0.9, 1.15, 0.95, 1.1], opacity: [0, 0.55, 0.4, 0.5] }}
-                  transition={{
-                    delay: 0.15,
-                    duration: 2.6,
-                    repeat: Infinity,
-                    repeatType: 'reverse',
-                    ease: 'easeInOut',
-                  }}
-                  className="absolute inset-0 rounded-full"
-                  style={{
-                    background:
-                      'radial-gradient(circle, color-mix(in oklab, var(--gold) 45%, transparent), color-mix(in oklab, var(--shu) 12%, transparent) 55%, transparent 72%)',
-                    filter: 'blur(14px)',
-                  }}
-                />
-                <motion.div
-                  aria-hidden
-                  initial={{ y: 44, scale: 0.4, opacity: 0 }}
-                  animate={{ y: 0, scale: 1, opacity: 1 }}
-                  transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.2 }}
-                  className="absolute inset-0 flex items-center justify-center"
-                >
-                  <motion.div
-                    animate={{ y: [0, -5, 0] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-                    style={{
-                      width: compact ? 66 : 124,
-                      height: compact ? 82 : 155,
-                    }}
-                  >
-                    <TrophySvg className="w-full h-full drop-shadow-[0_10px_18px_color-mix(in_oklab,var(--wood)_45%,transparent)]" />
-                  </motion.div>
-                </motion.div>
-                {!compact && <Sparkles />}
-              </div>
-
-              {/* Ribbon */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.7, y: 10 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                transition={{ delay: 0.65, type: 'spring', stiffness: 280, damping: 18 }}
+                ref={contentRef}
+                style={{
+                  transform: `scale(${scale})`,
+                  // Centred while it fits, so the page sits in the middle of the
+                  // stage. Once the scale floor is reached and scrolling takes
+                  // over, anchoring to the top is what makes the scroll usable:
+                  // a centred origin pushes the trophy up behind the scroll
+                  // origin, where it cannot be reached.
+                  transformOrigin: fits ? 'center center' : 'top center',
+                }}
                 className={cn(
-                  'dojo-seal inline-flex items-center gap-1.5 font-bold uppercase',
-                  compact ? 'px-3 py-1 text-[10px]' : 'px-4 py-1.5 text-xs',
+                  'relative flex flex-col items-center max-w-3xl w-full',
+                  compact ? 'gap-2 px-6 py-3' : 'gap-5 px-8 py-6',
                 )}
               >
-                <Sparkle className="w-3 h-3" />
-                {t('classroomComplete.title')}
-                <Sparkle className="w-3 h-3" />
-              </motion.div>
-
-              {/* Title + date */}
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.78, duration: 0.4, ease: 'easeOut' }}
-                className={cn('text-center', compact ? 'space-y-0.5' : 'space-y-1.5')}
-              >
-                <h2
-                  className={cn(
-                    'dojo-heading font-bold leading-tight text-foreground',
-                    compact ? 'text-xl md:text-2xl' : 'text-3xl md:text-4xl',
-                  )}
-                >
-                  {title || t('classroomComplete.title')}
-                </h2>
-                {/* Brush-stroke rule, as under the home page's headings. */}
-                <div aria-hidden className={cn('dojo-rule mx-auto', compact ? 'w-16' : 'w-24')} />
-                <p className={cn('text-muted-foreground', compact ? 'text-xs' : 'text-sm')}>
-                  {dateLabel}
-                </p>
-              </motion.div>
-
-              {/* Stats cards */}
-              {trailItems.length > 0 && (
+                {/* Trophy + halo + sparkles */}
                 <div
+                  className="relative"
+                  style={{ width: compact ? 88 : 168, height: compact ? 88 : 168 }}
+                >
+                  <motion.div
+                    aria-hidden
+                    initial={{ scale: 0.6, opacity: 0 }}
+                    animate={{ scale: [0.9, 1.15, 0.95, 1.1], opacity: [0, 0.55, 0.4, 0.5] }}
+                    transition={{
+                      delay: 0.15,
+                      duration: 2.6,
+                      repeat: Infinity,
+                      repeatType: 'reverse',
+                      ease: 'easeInOut',
+                    }}
+                    className="absolute inset-0 rounded-full"
+                    style={{
+                      background:
+                        'radial-gradient(circle, color-mix(in oklab, var(--gold) 45%, transparent), color-mix(in oklab, var(--shu) 12%, transparent) 55%, transparent 72%)',
+                      filter: 'blur(14px)',
+                    }}
+                  />
+                  <motion.div
+                    aria-hidden
+                    initial={{ y: 44, scale: 0.4, opacity: 0 }}
+                    animate={{ y: 0, scale: 1, opacity: 1 }}
+                    transition={{ type: 'spring', stiffness: 260, damping: 18, delay: 0.2 }}
+                    className="absolute inset-0 flex items-center justify-center"
+                  >
+                    <motion.div
+                      animate={{ y: [0, -5, 0] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+                      style={{
+                        width: compact ? 66 : 124,
+                        height: compact ? 82 : 155,
+                      }}
+                    >
+                      <TrophySvg className="w-full h-full drop-shadow-[0_10px_18px_color-mix(in_oklab,var(--wood)_45%,transparent)]" />
+                    </motion.div>
+                  </motion.div>
+                  {!compact && <Sparkles />}
+                </div>
+
+                {/* Ribbon */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.7, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  transition={{ delay: 0.65, type: 'spring', stiffness: 280, damping: 18 }}
                   className={cn(
-                    'grid w-full',
-                    compact ? 'gap-2' : 'gap-3',
-                    trailItems.length === 1 && 'grid-cols-1 max-w-[180px]',
-                    trailItems.length === 2 && 'grid-cols-2 max-w-md',
-                    trailItems.length === 3 && 'grid-cols-3',
-                    trailItems.length === 4 && 'grid-cols-2 sm:grid-cols-4',
+                    'dojo-seal inline-flex items-center gap-1.5 font-bold uppercase',
+                    compact ? 'px-3 py-1 text-[10px]' : 'px-4 py-1.5 text-xs',
                   )}
                 >
-                  {trailItems.map(({ type, count, Icon, label }, idx) => {
-                    const cardDelay = 0.96 + idx * 0.08;
-                    return (
-                      <motion.div
-                        key={type}
-                        initial={{ opacity: 0, y: 14, scale: 0.9 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        transition={{
-                          delay: cardDelay,
-                          type: 'spring',
-                          stiffness: 260,
-                          damping: 20,
-                        }}
-                        className={cn(
-                          'dojo-frame rounded-sm bg-card flex flex-col items-center',
-                          compact ? 'px-3 py-1.5 gap-0.5' : 'px-4 py-3 gap-1.5',
-                        )}
-                      >
-                        <Icon
-                          className={cn('text-[var(--shu)]', compact ? 'w-4 h-4' : 'w-6 h-6')}
-                          strokeWidth={1.8}
-                        />
-                        <div
-                          className={cn(
-                            'font-serif font-bold text-foreground leading-none',
-                            compact ? 'text-xl' : 'text-3xl',
-                          )}
-                        >
-                          <AnimatedCounter value={count} delay={cardDelay + 0.15} />
-                        </div>
-                        <div
-                          className={cn(
-                            'text-muted-foreground uppercase tracking-wider',
-                            compact ? 'text-[10px]' : 'text-[11px]',
-                          )}
-                        >
-                          {label}
-                        </div>
-                      </motion.div>
-                    );
-                  })}
-                </div>
-              )}
+                  <Sparkle className="w-3 h-3" />
+                  {t('classroomComplete.title')}
+                  <Sparkle className="w-3 h-3" />
+                </motion.div>
 
-              {/* Results card — score summary on the left, topic radar on the
+                {/* Title + date */}
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.78, duration: 0.4, ease: 'easeOut' }}
+                  className={cn('text-center', compact ? 'space-y-0.5' : 'space-y-1.5')}
+                >
+                  <h2
+                    className={cn(
+                      'dojo-heading font-bold leading-tight text-foreground',
+                      compact ? 'text-xl md:text-2xl' : 'text-3xl md:text-4xl',
+                    )}
+                  >
+                    {title || t('classroomComplete.title')}
+                  </h2>
+                  {/* Brush-stroke rule, as under the home page's headings. */}
+                  <div aria-hidden className={cn('dojo-rule mx-auto', compact ? 'w-16' : 'w-24')} />
+                  <p className={cn('text-muted-foreground', compact ? 'text-xs' : 'text-sm')}>
+                    {dateLabel}
+                  </p>
+                </motion.div>
+
+                {/* Stats cards */}
+                {trailItems.length > 0 && (
+                  <div
+                    className={cn(
+                      'grid w-full',
+                      compact ? 'gap-2' : 'gap-3',
+                      trailItems.length === 1 && 'grid-cols-1 max-w-[180px]',
+                      trailItems.length === 2 && 'grid-cols-2 max-w-md',
+                      trailItems.length === 3 && 'grid-cols-3',
+                      trailItems.length === 4 && 'grid-cols-2 sm:grid-cols-4',
+                    )}
+                  >
+                    {trailItems.map(({ type, count, Icon, label }, idx) => {
+                      const cardDelay = 0.96 + idx * 0.08;
+                      return (
+                        <motion.div
+                          key={type}
+                          initial={{ opacity: 0, y: 14, scale: 0.9 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          transition={{
+                            delay: cardDelay,
+                            type: 'spring',
+                            stiffness: 260,
+                            damping: 20,
+                          }}
+                          className={cn(
+                            'dojo-frame rounded-sm bg-card flex flex-col items-center',
+                            compact ? 'px-3 py-1.5 gap-0.5' : 'px-4 py-3 gap-1.5',
+                          )}
+                        >
+                          <Icon
+                            className={cn('text-[var(--shu)]', compact ? 'w-4 h-4' : 'w-6 h-6')}
+                            strokeWidth={1.8}
+                          />
+                          <div
+                            className={cn(
+                              'font-serif font-bold text-foreground leading-none',
+                              compact ? 'text-xl' : 'text-3xl',
+                            )}
+                          >
+                            <AnimatedCounter value={count} delay={cardDelay + 0.15} />
+                          </div>
+                          <div
+                            className={cn(
+                              'text-muted-foreground uppercase tracking-wider',
+                              compact ? 'text-[10px]' : 'text-[11px]',
+                            )}
+                          >
+                            {label}
+                          </div>
+                        </motion.div>
+                      );
+                    })}
+                  </div>
+                )}
+
+                {/* Results card — score summary on the left, topic radar on the
                   right. The radar only appears once the breakdown has at
                   least three axes; below that a radar reads as noise. */}
-              {summary.quiz && (
-                <motion.div
-                  initial={{ opacity: 0, y: 14, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  transition={{ delay: 1.2, type: 'spring', stiffness: 220, damping: 20 }}
-                  className={cn(
-                    'dojo-frame w-full rounded-sm bg-card',
-                    compact ? 'px-4 py-3' : 'px-6 py-4',
-                  )}
-                >
-                  <div className={cn('flex flex-col', compact ? 'gap-2.5' : 'gap-4')}>
-                    <div className={cn('flex items-center', compact ? 'gap-3' : 'gap-5')}>
-                      <QuizRing pct={summary.quiz.pct} delay={1.3} compact={compact} />
-                      <div className="flex-1 min-w-0">
-                        <div
-                          className={cn(
-                            'font-serif font-bold text-foreground',
-                            compact ? 'text-sm' : 'text-base',
-                          )}
-                        >
-                          {t('classroomComplete.quizScoreLabel', {
-                            correct: summary.quiz.correct,
-                            total: summary.quiz.total,
-                          })}
-                        </div>
-                        <div
-                          className={cn(
-                            'mt-1 text-muted-foreground',
-                            compact ? 'text-xs' : 'text-sm',
-                          )}
-                        >
-                          {t(
-                            `classroomComplete.encouragement.${encouragementKey(summary.quiz.pct)}`,
-                          )}
+                {summary.quiz && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 14, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    transition={{ delay: 1.2, type: 'spring', stiffness: 220, damping: 20 }}
+                    className={cn(
+                      'dojo-frame w-full rounded-sm bg-card',
+                      compact ? 'px-4 py-3' : 'px-6 py-4',
+                    )}
+                  >
+                    <div className={cn('flex flex-col', compact ? 'gap-2.5' : 'gap-4')}>
+                      <div className={cn('flex items-center', compact ? 'gap-3' : 'gap-5')}>
+                        <QuizRing pct={summary.quiz.pct} delay={1.3} compact={compact} />
+                        <div className="flex-1 min-w-0">
+                          <div
+                            className={cn(
+                              'font-serif font-bold text-foreground',
+                              compact ? 'text-sm' : 'text-base',
+                            )}
+                          >
+                            {t('classroomComplete.quizScoreLabel', {
+                              correct: summary.quiz.correct,
+                              total: summary.quiz.total,
+                            })}
+                          </div>
+                          <div
+                            className={cn(
+                              'mt-1 text-muted-foreground',
+                              compact ? 'text-xs' : 'text-sm',
+                            )}
+                          >
+                            {t(
+                              `classroomComplete.encouragement.${encouragementKey(summary.quiz.pct)}`,
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    {insights.length > 0 && (
-                      <div
-                        className={cn(
-                          'border-t border-[color-mix(in_oklab,var(--wood)_18%,transparent)]',
-                          compact ? 'pt-2.5' : 'pt-4',
-                        )}
-                      >
-                        <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
-                          {t('classroomComplete.topicBreakdown')}
-                        </div>
+                      {insights.length > 0 && (
                         <div
                           className={cn(
-                            'mt-1.5 flex items-center',
-                            // Side by side when there is a chart: the radar is
-                            // square and the list is short, so stacking them
-                            // spent height the viewport did not have while
-                            // leaving the card's width empty either side.
-                            // Without a chart the bars want the full width.
-                            showRadar ? 'flex-row' : 'flex-col',
-                            compact ? 'gap-2' : 'gap-5',
+                            'border-t border-[color-mix(in_oklab,var(--wood)_18%,transparent)]',
+                            compact ? 'pt-2.5' : 'pt-4',
                           )}
                         >
-                          {showRadar && (
-                            <CompleteRadar
-                              categories={insights}
-                              compact={compact}
-                              goalLabel={t('classroomComplete.radarGoal')}
-                              ariaLabel={t('classroomComplete.radarLabel', {
-                                scores: insights
-                                  .map((category) => `${category.label} ${category.score}%`)
-                                  .join(', '),
-                              })}
-                            />
-                          )}
-                          {/* The same numbers as text, beside the chart: the
+                          <div className="text-[11px] uppercase tracking-wider text-muted-foreground">
+                            {t('classroomComplete.topicBreakdown')}
+                          </div>
+                          <div
+                            className={cn(
+                              'mt-1.5 flex items-center',
+                              // Side by side when there is a chart: the radar is
+                              // square and the list is short, so stacking them
+                              // spent height the viewport did not have while
+                              // leaving the card's width empty either side.
+                              // Without a chart the bars want the full width.
+                              showRadar ? 'flex-row' : 'flex-col',
+                              compact ? 'gap-2' : 'gap-5',
+                            )}
+                          >
+                            {showRadar && (
+                              <CompleteRadar
+                                categories={insights}
+                                compact={compact}
+                                goalLabel={t('classroomComplete.radarGoal')}
+                                ariaLabel={t('classroomComplete.radarLabel', {
+                                  scores: insights
+                                    .map((category) => `${category.label} ${category.score}%`)
+                                    .join(', '),
+                                })}
+                              />
+                            )}
+                            {/* The same numbers as text, beside the chart: the
                               chart is never the only way to read a score, and
                               the list carries the untruncated topic names the
                               radar captions have to shorten.
@@ -804,52 +829,55 @@ export function ClassroomCompletePage({
                               read — so each row grows a bar instead. The score
                               still gets a visual length, which is all a radar
                               was giving it. */}
-                          <ul
-                            className={cn(
-                              'min-w-0 flex-1 grid grid-cols-1',
-                              showRadar ? 'gap-y-1' : 'w-full gap-y-3',
-                            )}
-                          >
-                            {insights.map((category, index) => (
-                              <li key={category.label} className="min-w-0 text-xs">
-                                <div className="flex items-baseline justify-between gap-3">
-                                  <span className="truncate text-foreground">{category.label}</span>
-                                  <span className="shrink-0 whitespace-nowrap text-muted-foreground">
-                                    <span className="font-serif font-bold text-foreground">
-                                      {category.score}%
-                                    </span>{' '}
-                                    {t(`classroomComplete.rating.${ratingKey(category.score)}`)}
-                                  </span>
-                                </div>
-                                {!showRadar && (
-                                  <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[color-mix(in_oklab,var(--wood)_14%,transparent)]">
-                                    <motion.div
-                                      className="h-full rounded-full bg-[var(--shu)]"
-                                      initial={{ width: 0 }}
-                                      animate={{ width: `${category.score}%` }}
-                                      transition={{
-                                        duration: prefersReducedMotion ? 0 : 0.6,
-                                        delay: prefersReducedMotion ? 0 : 1.4 + index * 0.1,
-                                        ease: [0.16, 1, 0.3, 1],
-                                      }}
-                                    />
-                                    {/* The same 85% the radar draws as a ring. */}
-                                    <div
-                                      className="absolute inset-y-0 w-px bg-[var(--gold)]"
-                                      style={{ left: '85%' }}
-                                      aria-hidden
-                                    />
+                            <ul
+                              className={cn(
+                                'min-w-0 flex-1 grid grid-cols-1',
+                                showRadar ? 'gap-y-1' : 'w-full gap-y-3',
+                              )}
+                            >
+                              {insights.map((category, index) => (
+                                <li key={category.label} className="min-w-0 text-xs">
+                                  <div className="flex items-baseline justify-between gap-3">
+                                    <span className="truncate text-foreground">
+                                      {category.label}
+                                    </span>
+                                    <span className="shrink-0 whitespace-nowrap text-muted-foreground">
+                                      <span className="font-serif font-bold text-foreground">
+                                        {category.score}%
+                                      </span>{' '}
+                                      {t(`classroomComplete.rating.${ratingKey(category.score)}`)}
+                                    </span>
                                   </div>
-                                )}
-                              </li>
-                            ))}
-                          </ul>
+                                  {!showRadar && (
+                                    <div className="relative mt-1 h-1.5 w-full overflow-hidden rounded-full bg-[color-mix(in_oklab,var(--wood)_14%,transparent)]">
+                                      <motion.div
+                                        className="h-full rounded-full bg-[var(--shu)]"
+                                        initial={{ width: 0 }}
+                                        animate={{ width: `${category.score}%` }}
+                                        transition={{
+                                          duration: prefersReducedMotion ? 0 : 0.6,
+                                          delay: prefersReducedMotion ? 0 : 1.4 + index * 0.1,
+                                          ease: [0.16, 1, 0.3, 1],
+                                        }}
+                                      />
+                                      {/* The same 85% the radar draws as a ring. */}
+                                      <div
+                                        className="absolute inset-y-0 w-px bg-[var(--gold)]"
+                                        style={{ left: '85%' }}
+                                        aria-hidden
+                                      />
+                                    </div>
+                                  )}
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
-                </motion.div>
-              )}
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
             </div>
           </div>
         </div>
