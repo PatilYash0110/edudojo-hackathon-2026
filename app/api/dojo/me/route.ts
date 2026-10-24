@@ -1,2 +1,2 @@
-// BACKEND TEAM. Wiring only: implement in teams/backend/api/me.ts
-export { GET, POST } from '@/teams/backend/api/me';
+// BACKEND TEAM. Wiring only: implemented in teams/backend/api/auth.ts
+export { getMe as GET } from '@/teams/backend/api/auth';

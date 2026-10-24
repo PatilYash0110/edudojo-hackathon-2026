@@ -1,0 +1,34 @@
+# DojoLearn model configuration (OpenMAIC format).
+# Use it: cp teams/backend/config/openmaic.dojo.yml openmaic.yml
+# Secrets come from .env.local, which git ignores. Never commit a key.
+#   DEEPSEEK_API_KEY=sk-...
+#   SPEACHES_BASE_URL=http://localhost:8000/v1   (Docker: http://speaches:8000/v1)
+providers:
+  deepseek:
+    preset: deepseek
+    apiKey: ${DEEPSEEK_API_KEY}
+    models: [deepseek-v4-pro, deepseek-flash]
+  # Free, open-source German TTS: Speaches running Piper (see docker-compose.dojo.yml).
+  speaches:
+    preset: openai-tts
+    baseUrl: ${SPEACHES_BASE_URL}
+    apiKey: not-needed
+    models: [speaches-ai/piper-de_DE-thorsten-high]
+    options:
+      defaultVoice: thorsten
+    voices:
+      - id: thorsten
+        name: Thorsten (Deutsch)
+
+slots:
+  # Fast + cheap: chat agents, guard, floors, quiz questions, grading.
+  llm: deepseek:deepseek-flash
+  # Quality: the classroom itself (outline, slides + quiz, narration script).
+  course.outline: deepseek:deepseek-v4-pro
+  course.content: deepseek:deepseek-v4-pro
+  course.actions: deepseek:deepseek-v4-pro
+  # Teacher narration of every slide.
+  tts: speaches:speaches-ai/piper-de_DE-thorsten-high
+
+# Users cannot bring their own keys or providers.
+allowUserKeys: false
