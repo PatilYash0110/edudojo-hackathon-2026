@@ -66,8 +66,9 @@
   color: var(--foreground);
   background: transparent;
   border: 1px solid var(--border);
+  border-radius: var(--radius);
   padding: 10px 16px;
-  font-size: 11px !important;
+  font-size: 13px !important;
 }
 .resetButton:hover {
   color: var(--foreground);
@@ -1080,8 +1081,9 @@
   color: var(--primary-foreground);
   background: var(--primary);
   border: 1px solid var(--primary);
-  font-size: 11px !important;
-  font-weight: 700 !important;
+  border-radius: var(--radius);
+  font-size: 13px !important;
+  font-weight: 600 !important;
   white-space: nowrap;
 }
 .primaryButton:hover:not(:disabled) {

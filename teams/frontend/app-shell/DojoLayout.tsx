@@ -31,7 +31,9 @@ export default function DojoLayout({ children }: { children: ReactNode }) {
   const NAV = navFor(pathname);
 
   return (
-    <div className="dojo-root dojo-paper min-h-screen text-foreground">
+    // `dark`: the whole game is the night dojo (the tower and arenas are painted at night), so
+    // every dojo page stays on the dark tokens whatever the site theme is.
+    <div className="dark dojo-root dojo-paper min-h-screen text-foreground">
       <nav
         aria-label="Dojo"
         className="sticky top-0 z-40 border-b border-border bg-card/90 shadow-sm backdrop-blur-sm"
