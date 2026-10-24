@@ -12,7 +12,7 @@ describe('DojoLearn openmaic.yml', () => {
       env: { DEEPSEEK_API_KEY: 'set', SPEACHES_BASE_URL: 'http://localhost:8000/v1' },
     });
     expect(config.slots?.llm).toBe('deepseek:deepseek-flash');
-    expect(config.slots?.tts).toBe('speaches:speaches-ai/piper-de_DE-thorsten-high');
+    expect(config.slots?.tts).toBe('speaches:speaches-ai/piper-de_DE-thorsten-medium');
     expect(config.allowUserKeys).toBe(false);
   });
 });

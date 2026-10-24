@@ -14,5 +14,5 @@ Element Inventory (from the generated widget HTML — prefer these real selector
 
 **Language Directive**: {{languageDirective}}
 
-Output as a JSON array directly (no explanation, no code fences, 3-8 speech/widget-action items):
+Output as a JSON array directly (no explanation, no code fences, 3-6 speech/widget-action items, at most 2 of them speech, each at most about 250 characters):
 [{"type":"text","content":"Opening speech content"},{"type":"action","name":"widget_highlight","params":{"target":"#main-control","content":"Focus on this control."}}]

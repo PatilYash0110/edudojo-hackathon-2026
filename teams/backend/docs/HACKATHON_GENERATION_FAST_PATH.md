@@ -1,6 +1,6 @@
 # Hackathon generation fast path
 
-Status: proposed for Claude to implement. No production behavior has changed yet.
+Status: implemented on `backend/fast-generation` (2026-10-24). See "Measured results" at the end.
 
 ## Decision
 
@@ -222,3 +222,42 @@ Run the PostgreSQL generation contract test when its test database is available.
 ## Stop condition
 
 Stop after the five-scene Piper run meets the 3-minute target twice on the presentation machine. If it does not, switch only the live demo to browser-native speech and keep the seeded Piper classroom for quality playback.
+
+## Measured results (2026-10-24, fixed photosynthesis prompt, dev server on the MacBook)
+
+What was built differs from the proposal in these ways:
+
+- Thinking stays on (the `deepseek-flash` default) for slide quality. Runs 1 to 5 measured it off
+  (`LLM_THINKING_DISABLED=true`): about 1m38s per classroom. Run 6 with thinking on took 4m55s, almost all
+  in slide content (78 s and 90 s per slide instead of about 3 s). For a faster live run, set
+  `LLM_THINKING_DISABLED=true` in `.env.local`.
+- The scene cap is prompt-only: `classroom.ts` appends a German five-scene profile to the requirement. No
+  `maxScenes` field. Add a server cap only if a run ever returns more than five scenes.
+- The action prompts also cap speech length (about 250 characters per speech), not only the count.
+  Piper time grows with characters (about 22 characters per second), not with clip count.
+
+| Run | Change | Total | Narration chars | Scenes |
+| --- | ------ | ----- | --------------- | ------ |
+| before | 8 scenes, thinking on, serial | over 17m32s (36% to 100% alone) | – | 8 |
+| 1 | thinking off + five-scene profile | 6m25s | 6268 | 5 |
+| 2 | + at most 2 short speeches per scene | 3m24s | 2305 | 5 |
+| 3 | + `PARALLEL_SCENE_CONCURRENCY=3` | 3m07s | 2506 | 5 |
+| 4 | + `piper-de_DE-thorsten-medium` voice | 1m40s | 2805 | 5 |
+| 5 | same as run 4 (repeat) | 1m36s | 2716 | 5 |
+| 6 | run 4 with thinking on (the committed default) | 4m55s | 2408 | 5 |
+
+Every run produced slide, slide, interactive, quiz, slide, with all narration voiced.
+
+Findings:
+
+- Narration is now about 60 percent of the run. Speaches handles one request at a time, so concurrency 3
+  does not speed up TTS. Its gain in run 3 comes from content prewarming, which hides the slow interactive
+  scene.
+- The first run after `pnpm dev` starts can fail at the outline with "No model is configured for
+  course.outline". The second run works. Before the demo, generate one throwaway classroom to warm up.
+- With the high voice, Piper took about 8 s for 183 characters. The medium voice takes 1.6 s for the
+  same text, and 3 parallel requests take 2.9 s. Runs 4 and 5 meet the 3-minute stop condition, so
+  the medium voice is the default now. The high voice stays listed in `openmaic.yml`: to switch back,
+  change only the `tts` slot.
+- Skipped: cloud TTS (no key, and it needs venue network), browser-native speech, and more Docker CPUs.
+

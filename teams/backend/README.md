@@ -15,6 +15,7 @@ Types for callers: `teams/shared/contracts/backend-api.ts`.
    DEEPSEEK_API_KEY=sk-...
    SPEACHES_BASE_URL=http://localhost:8000/v1   # in Docker: http://speaches:8000/v1
    OPENMAIC_SECRET_KEY=<openssl rand -base64 32>  # signs sessions; keep it stable
+   PARALLEL_SCENE_CONCURRENCY=3                    # scene content ahead + parallel TTS per scene
    ```
 3. **Model config:** `cp teams/backend/config/openmaic.dojo.yml openmaic.yml`. Classroom generation uses
    `deepseek-v4-pro`; chat, guard, quizzes and grading use `deepseek-flash`; narration uses Piper.
@@ -22,7 +23,7 @@ Types for callers: `teams/shared/contracts/backend-api.ts`.
    voices, OpenAI-compatible API):
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.dojo.yml up -d --build   # app + speaches
-   curl -X POST http://localhost:8000/v1/models/speaches-ai/piper-de_DE-thorsten-high   # once
+   curl -X POST http://localhost:8000/v1/models/speaches-ai/piper-de_DE-thorsten-medium   # once
    ```
    For `pnpm dev`, run only Speaches: `docker compose -f docker-compose.dojo.yml up -d speaches`.
 5. `pnpm install && pnpm dev`, then try `POST /api/dojo/auth/teacher/signup`.

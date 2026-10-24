@@ -13,7 +13,7 @@ providers:
     preset: openai-tts
     baseUrl: ${SPEACHES_BASE_URL}
     apiKey: not-needed
-    models: [speaches-ai/piper-de_DE-thorsten-high]
+    models: [speaches-ai/piper-de_DE-thorsten-medium, speaches-ai/piper-de_DE-thorsten-high]
     options:
       defaultVoice: thorsten
     voices:
@@ -27,8 +27,8 @@ slots:
   course.outline: deepseek:deepseek-flash
   course.content: deepseek:deepseek-flash
   course.actions: deepseek:deepseek-flash
-  # Teacher narration of every slide.
-  tts: speaches:speaches-ai/piper-de_DE-thorsten-high
+  # Teacher narration of every slide. medium synthesizes about 5x faster than high.
+  tts: speaches:speaches-ai/piper-de_DE-thorsten-medium
 
 # Users cannot bring their own keys or providers.
 allowUserKeys: false

@@ -3,7 +3,7 @@
 #
 #   docker compose -f docker-compose.yml -f docker-compose.dojo.yml up -d --build
 #   # once, download the German voice (~60 MB):
-#   curl -X POST http://localhost:8000/v1/models/speaches-ai/piper-de_DE-thorsten-high
+#   curl -X POST http://localhost:8000/v1/models/speaches-ai/piper-de_DE-thorsten-medium
 #
 # The app reaches it at http://speaches:8000/v1 (set SPEACHES_BASE_URL in .env.local).
 services:
