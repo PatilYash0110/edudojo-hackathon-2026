@@ -1,5 +1,6 @@
 import type { Scene, SceneType, QuizContent } from '@/lib/types/stage';
 import { gradeChoiceQuestions } from '@/lib/quiz/grading';
+import { PRACTICE_POINTS, practiceTopicOf } from '@/lib/classroom/practice';
 
 /** One graded choice question, kept so the radar can group them by topic. */
 export interface QuizAnswerResult {
@@ -9,9 +10,14 @@ export interface QuizAnswerResult {
   question: string;
   correct: boolean;
   /**
-   * What this question is worth. Course questions are worth 1; generated
-   * practice is worth half (`PRACTICE_POINTS`), so drilling a weak topic
-   * moves the score without letting it be farmed.
+   * What this question is worth to the summary. Course questions count 1 and
+   * generated practice counts half, so drilling a weak topic moves the score
+   * without letting it be farmed.
+   *
+   * Deliberately NOT `QuizQuestion.points`: the generator writes points on a
+   * scale of its own (10 and 15 are common), so using them turned a learner's
+   * "5 / 8 correct" into "40 / 95". Points are the quiz engine's scoring
+   * scale; this is a question count.
    */
   weight: number;
 }
@@ -90,11 +96,9 @@ export async function summarizeScenes(
     if (answers === undefined) continue;
     const graded = gradeChoiceQuestions(questions, answers);
     for (const r of graded) {
-      // `earned` is already the question's points when right and 0 when
-      // wrong, so the weighting costs nothing here.
-      const weight = questions.find((q) => q.id === r.questionId)?.points ?? 1;
+      const weight = practiceTopicOf(r.questionId) ? PRACTICE_POINTS : 1;
       total += weight;
-      correct += r.earned;
+      if (r.correct === true) correct += weight;
       results.push({
         questionId: r.questionId,
         sceneId: scene.id,

@@ -98,13 +98,18 @@ export function fallbackCategories(results: QuizAnswerResult[]): InsightCategory
 }
 
 /**
- * Turn the model's grouping into scored axes.
+ * Turn the model's reply into scored axes.
  *
- * The model returns which questions belong to each topic, by their 1-based
- * position in the list it was given, and the scoring is done here. Asking a
- * language model for `correct / total * 100` was asking it to do arithmetic
- * it has no reason to get right, and it could not weight practice answers at
- * all, since it does not know what a question is worth.
+ * Two shapes are accepted, because the model does not reliably produce the
+ * one we ask for. Asked to list which questions belong to each topic, smaller
+ * models answer with a topic and a score instead — and a rejected reply means
+ * no radar at all, which is worse than a less precise one.
+ *
+ * - `questions` present: the scores are computed here from the grouping. This
+ *   is the accurate path, and the only one that can weight a half-point
+ *   practice answer, since the model has no idea what a question is worth.
+ * - `score` only: the model's own figure is used. Practice answers are not
+ *   weighted in that case; the headline score, computed separately, still is.
  */
 export function normalizeCategories(raw: unknown, results: QuizAnswerResult[]): InsightCategory[] {
   if (!Array.isArray(raw)) return [];
@@ -113,11 +118,16 @@ export function normalizeCategories(raw: unknown, results: QuizAnswerResult[]): 
   const categories: InsightCategory[] = [];
   for (const entry of raw) {
     if (!entry || typeof entry !== 'object') continue;
-    const { label, questions } = entry as { label?: unknown; questions?: unknown };
+    const { label, questions, score } = entry as {
+      label?: unknown;
+      questions?: unknown;
+      score?: unknown;
+    };
     if (typeof label !== 'string' || !label.trim()) continue;
     const clean = trimLabel(label);
     const dedupeKey = clean.toLowerCase();
     if (seen.has(dedupeKey)) continue;
+
     // One question belongs to one topic: a model that lists the same question
     // under two topics would otherwise have it counted twice.
     const answers = (Array.isArray(questions) ? questions : [])
@@ -125,9 +135,17 @@ export function normalizeCategories(raw: unknown, results: QuizAnswerResult[]): 
       .filter((index) => Number.isInteger(index) && index >= 0 && index < results.length)
       .filter((index) => !claimed.has(index) && (claimed.add(index), true))
       .map((index) => results[index]!);
-    if (answers.length === 0) continue;
+
+    if (answers.length > 0) {
+      seen.add(dedupeKey);
+      categories.push({ label: clean, score: weightedScore(answers) });
+      continue;
+    }
+
+    const reported = Number(score);
+    if (!Number.isFinite(reported)) continue;
     seen.add(dedupeKey);
-    categories.push({ label: clean, score: weightedScore(answers) });
+    categories.push({ label: clean, score: Math.max(0, Math.min(100, Math.round(reported))) });
   }
   return clampAxes(categories, maxAxesFor(results.length));
 }

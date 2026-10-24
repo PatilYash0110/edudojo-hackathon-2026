@@ -78,6 +78,37 @@ describe('normalizeCategories', () => {
     expect(normalizeCategories([{ label: 'Topic', questions: [1, 2] }], mixed)[0]?.score).toBe(67);
   });
 
+  it("falls back to the model's own score when it ignores the grouping format", () => {
+    // Smaller models answer the grouping prompt with {label, score}. Rejecting
+    // that reply would mean no radar at all, which is worse than a score this
+    // code did not compute itself.
+    expect(
+      normalizeCategories(
+        [
+          { label: 'Tintenfluss', score: 100 },
+          { label: 'Klickmechanik', score: 0 },
+          { label: 'Tintentrocknung', score: 120 },
+          { label: 'Ergonomie', score: 'nope' },
+        ],
+        pool,
+      ),
+    ).toEqual([
+      { label: 'Tintenfluss', score: 100 },
+      { label: 'Klickmechanik', score: 0 },
+      { label: 'Tintentrocknung', score: 100 },
+    ]);
+  });
+
+  it('prefers a computed score over a reported one when both are present', () => {
+    // questions 1-2 are both correct, so the grouping wins over the claim.
+    expect(normalizeCategories([{ label: 'Topic', questions: [1, 2], score: 3 }], pool)[0]).toEqual(
+      {
+        label: 'Topic',
+        score: 100,
+      },
+    );
+  });
+
   it('ignores question numbers outside the list it was given', () => {
     expect(normalizeCategories([{ label: 'Topic', questions: [0, 99, 1] }], pool)[0]).toEqual({
       label: 'Topic',
