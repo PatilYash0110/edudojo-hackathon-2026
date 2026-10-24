@@ -1,17 +1,21 @@
+/* The feet anchor (--anchor-x across the frame) sits on the slot's x; mirroring happens around it,
+   so player and enemy stand on the same spot whichever way they face. Aspect comes from the art. */
 .fighter {
   position: absolute;
   bottom: 0;
-  aspect-ratio: 1;
-  transform: translateX(-50%) scaleX(var(--sprite-flip, 1));
+  aspect-ratio: var(--frame-aspect, 1);
+  transform: translateX(calc(var(--anchor-x, 0.5) * -100%)) scaleX(var(--sprite-flip, 1));
+  transform-origin: calc(var(--anchor-x, 0.5) * 100%) 100%;
   pointer-events: none;
 }
 
+/* Lean, squash and lunge pivot on the feet. */
 .body,
 .ghost {
   position: absolute;
   inset: 0;
   background-repeat: no-repeat;
-  transform-origin: 50% 100%;
+  transform-origin: calc(var(--anchor-x, 0.5) * 100%) 100%;
   will-change: transform, filter;
 }
 
@@ -21,12 +25,12 @@
   mix-blend-mode: screen;
 }
 
-/* Elemental burst at the leading fist on contact. */
+/* Elemental burst at the leading fist on contact (v2 frames: fist at ~80% across, 44% down). */
 .burst {
   position: absolute;
-  left: 82%;
-  top: 38%;
-  width: 64%;
+  left: 80%;
+  top: 44%;
+  width: 46%;
   aspect-ratio: 1;
   border-radius: 50%;
   opacity: 0;

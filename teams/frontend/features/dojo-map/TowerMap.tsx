@@ -2,7 +2,8 @@
 
 import { type CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { BookOpen, Check, LockKeyhole, RotateCcw, Swords } from 'lucide-react';
+import { BookOpen, Check, Hourglass, LockKeyhole, RotateCcw, Swords } from 'lucide-react';
+import { floorRetention, needsRepair } from '@/teams/game/mastery/decay';
 import type { DojoProgress } from '@/teams/game/progression/unlocks';
 import type { Dojo } from '@/teams/shared/contracts/dojo';
 import { DojoGate } from '@/teams/frontend/app-shell/DojoGate';
@@ -24,6 +25,7 @@ import {
   type TowerScene,
   type TowerSprite,
 } from './tower-scene';
+import { forgetDojo, useDojoMemory } from './useDojoMemory';
 import { useDojoProgress } from './useDojoProgress';
 import styles from './TowerMap.module.css';
 
@@ -80,6 +82,8 @@ function idleSprite(fighter: FighterArt): TowerSprite {
     fps: CLIPS.idle.fps,
     scale: fighter.scale,
     feetY: fighter.feetY,
+    aspect: fighter.frameAspect,
+    anchorX: fighter.anchorX,
   };
 }
 
@@ -112,6 +116,31 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   const stops = useMemo(() => buildStops(dojo), [dojo]);
   const states = useMemo(() => floorStates(stops, progress), [stops, progress]);
   const currentIndex = states.includes('current') ? states.indexOf('current') : stops.length - 1;
+  // Floors that decay: what is still remembered of each cleared learning floor.
+  const clearedObjectiveIds = useMemo(
+    () =>
+      ready
+        ? dojo.floors.flatMap((floor, index) =>
+            states[index] === 'cleared' ? floor.objectives.map((objective) => objective.id) : [],
+          )
+        : [],
+    [dojo.floors, ready, states],
+  );
+  const memory = useDojoMemory(dojoId, clearedObjectiveIds);
+  const retentions = useMemo(
+    () =>
+      stops.map((stop, index) => {
+        const floor = dojo.floors[index];
+        if (stop.boss || !floor || states[index] !== 'cleared' || !memory.ready) return null;
+        return floorRetention(
+          floor.objectives.map((objective) => objective.id),
+          memory.memory,
+          memory.now,
+        );
+      }),
+    [dojo.floors, memory, states, stops],
+  );
+  const fading = (index: number) => needsRepair(retentions[index] ?? null);
   const [selected, setSelected] = useState<number | null>(null);
   const [hovered, setHovered] = useState(-1);
   const [webglFailed, setWebglFailed] = useState(false);
@@ -128,11 +157,13 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       const stop = stops[index];
       if (states[index] === 'locked') return null;
       if (stop.boss) return `/dojo/${dojoId}/boss`;
+      if (states[index] === 'cleared' && needsRepair(retentions[index] ?? null))
+        return `/dojo/${dojoId}/floor/${stop.id}/battle?review=1`;
       if (states[index] === 'current' && progress.stage === 'battle')
         return `/dojo/${dojoId}/floor/${stop.id}/battle`;
       return `/dojo/${dojoId}/floor/${stop.id}`;
     },
-    [dojoId, progress.stage, states, stops],
+    [dojoId, progress.stage, retentions, states, stops],
   );
 
   const enter = useCallback(
@@ -184,6 +215,11 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   useEffect(() => {
     if (ready) sceneRef.current?.setStates(states);
   }, [ready, states]);
+
+  useEffect(() => {
+    if (ready && memory.ready)
+      sceneRef.current?.setDecay(retentions.map((value) => (value === null ? null : 1 - value)));
+  }, [memory.ready, ready, retentions]);
 
   // Arriving from a finished lesson (`?floor=<id>`): zoom onto that floor so the learner sees the
   // room and its guardian before stepping in.
@@ -279,6 +315,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       return stop.boss ? 'Clear every floor first' : `Clear floor ${index} first`;
     if (stop.boss)
       return state === 'cleared' ? 'View the victory' : `Challenge ${stop.villain.name}`;
+    if (state === 'cleared' && fading(index)) return `Repair: rematch ${stop.villain.name}`;
     if (state === 'cleared') return 'Review the lesson';
     return progress.stage === 'battle' ? `Fight ${stop.villain.name}` : 'Study the lesson';
   }
@@ -286,12 +323,22 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   function stateIcon(index: number) {
     const state = states[index];
     if (state === 'locked') return <LockKeyhole size={14} aria-label="Sealed" />;
+    if (state === 'cleared' && fading(index)) return <Hourglass size={14} aria-label="Fading" />;
     if (state === 'cleared') return <Check size={14} aria-label="Cleared" />;
     return stops[index].boss || progress.stage === 'battle' ? (
       <Swords size={14} aria-label="Fight" />
     ) : (
       <BookOpen size={14} aria-label="Lesson" />
     );
+  }
+
+  /** Map label, with how much of a cleared floor is still remembered. */
+  function stateLabel(index: number) {
+    const value = retentions[index];
+    if (states[index] !== 'cleared' || value === null || value === undefined)
+      return STATE_LABEL[states[index]];
+    const percent = `${Math.round(value * 100)}% remembered`;
+    return fading(index) ? `Fading · ${percent}` : `Cleared · ${percent}`;
   }
 
   const stop = selected === null ? null : stops[selected];
@@ -317,6 +364,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
           if (!window.confirm('Restart this dojo from floor 1? Your progress here is cleared.'))
             return;
           reset();
+          forgetDojo(dojoId);
           setSelected(null);
         }}
       >
@@ -331,6 +379,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
             type="button"
             className={styles.floorChip}
             data-state={states[index]}
+            data-fading={fading(index)}
             data-hovered={hovered === index}
             aria-pressed={selected === index}
             style={{ '--order': index, '--rank': stops.length - index } as CSSProperties}
@@ -361,8 +410,11 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
               >
                 {states[selected] === 'locked' ? '???' : stop.villain.name}
               </b>
-              <span className={styles.stateTag} data-state={states[selected]}>
-                {stateIcon(selected)} {STATE_LABEL[states[selected]]}
+              <span
+                className={styles.stateTag}
+                data-state={fading(selected) ? 'fading' : states[selected]}
+              >
+                {stateIcon(selected)} {stateLabel(selected)}
               </span>
             </p>
             <div className={styles.actions}>
@@ -419,8 +471,7 @@ function TowerMapView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
       <div ref={tipRef} className={styles.tip} hidden={hovered < 0}>
         {hovered >= 0 && (
           <>
-            {stops[hovered].label} · {stops[hovered].arena.name}{' '}
-            <em>{STATE_LABEL[states[hovered]]}</em>
+            {stops[hovered].label} · {stops[hovered].arena.name} <em>{stateLabel(hovered)}</em>
           </>
         )}
       </div>

@@ -111,29 +111,32 @@ function restPose(): Pose {
 
 /** Wind-up, lunge and follow-through around a contact at t = 0 (ms). */
 function applyStrike(pose: Pose, t: number) {
-  if (t < -200 || t > 260) return;
-  if (t < -70) {
-    const k = ease((t + 200) / 130);
-    Object.assign(pose, { rot: -6 * k, sx: 1 - 0.03 * k, sy: 1 + 0.03 * k, x: -2 * k });
+  if (t < -260 || t > 320) return;
+  if (t < -80) {
+    // Coil back before striking.
+    const k = ease((t + 260) / 180);
+    Object.assign(pose, { rot: -13 * k, sx: 1 - 0.06 * k, sy: 1 + 0.06 * k, x: -7 * k });
   } else if (t < 0) {
-    const k = ease((t + 70) / 70);
+    // Drive forward into the hit.
+    const k = ease((t + 80) / 80);
     Object.assign(pose, {
-      rot: lerp(-6, 10, k),
-      sx: lerp(0.97, 1.08, k),
-      sy: lerp(1.03, 0.94, k),
-      x: lerp(-2, 6, k),
+      rot: lerp(-13, 19, k),
+      sx: lerp(0.94, 1.15, k),
+      sy: lerp(1.06, 0.88, k),
+      x: lerp(-7, 19, k),
     });
   } else {
-    const k = ease(t / 260);
+    // Recover to the guard.
+    const k = ease(t / 320);
     Object.assign(pose, {
-      rot: lerp(10, 0, k),
-      sx: lerp(1.08, 1, k),
-      sy: lerp(0.94, 1, k),
-      x: lerp(6, 0, k),
+      rot: lerp(19, 0, k),
+      sx: lerp(1.15, 1, k),
+      sy: lerp(0.88, 1, k),
+      x: lerp(19, 0, k),
     });
-    pose.burst = t / 260;
+    pose.burst = t / 320;
   }
-  pose.ghost = Math.max(pose.ghost, clamp01(1 - Math.abs(t - 25) / 115));
+  pose.ghost = Math.max(pose.ghost, clamp01(1 - Math.abs(t - 30) / 150));
 }
 
 function applyHurt(pose: Pose, t: number, blocked: boolean) {
@@ -237,7 +240,10 @@ export function SpriteFighter({
       const position = `${(frame / (spec.frames - 1)) * 100}% 0`;
 
       const pose = poseAt(elapsed, motion, kind, hits, impactMs);
-      const transform = `translate(${pose.x}%, ${pose.y}%) rotate(${pose.rot}deg) scale(${pose.sx}, ${pose.sy})`;
+      // Pose offsets were tuned for a square frame the height of the slot; v2 frames are wider
+      // and taller around the same figure, so % of the frame would travel further on screen.
+      const reach = 1 / (art.frameAspect * art.scale);
+      const transform = `translate(${pose.x * reach}%, ${pose.y / art.scale}%) rotate(${pose.rot}deg) scale(${pose.sx}, ${pose.sy})`;
       const glowRadius = Math.round(6 + 22 * pose.aura);
       const aura =
         pose.aura > 0 || glow
@@ -250,7 +256,7 @@ export function SpriteFighter({
       ghosts.current.forEach((ghost, index) => {
         if (!ghost) return;
         ghost.style.backgroundPosition = position;
-        ghost.style.transform = `translateX(${-(index + 1) * 7}%) ${transform}`;
+        ghost.style.transform = `translateX(${-(index + 1) * 7 * reach}%) ${transform}`;
         ghost.style.opacity = String(pose.ghost * (index === 0 ? 0.4 : 0.2));
       });
 
@@ -285,6 +291,8 @@ export function SpriteFighter({
           bottom: `${-(1 - art.feetY) * heightPercent}%`,
           '--sprite-flip': flip ? -1 : 1,
           '--element': art.element,
+          '--frame-aspect': art.frameAspect,
+          '--anchor-x': art.anchorX,
         } as CSSProperties
       }
     >

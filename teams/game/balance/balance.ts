@@ -26,6 +26,20 @@ export const QUESTION_RULES = {
   masteryDeltaWrong: -0.05,
 } as const;
 
+/**
+ * Forgetting curve: retention = e^(-days since review / stability). A floor reviewed with the
+ * right answers holds twice as long next time; a missed objective starts over.
+ */
+export const DECAY = {
+  initialStabilityDays: 2,
+  stabilityGrowth: 2,
+  maxStabilityDays: 60,
+  /** Floors below this retention offer a repair rematch. */
+  repairBelow: 0.8,
+  /** The rematch guardian never has less HP than one combo hit. */
+  minRematchHp: 11,
+} as const;
+
 export const REACTIVE_TIMINGS = {
   block: { windupMs: 650, windowMs: 850 },
   dodge: { windupMs: 800, windowMs: 700 },

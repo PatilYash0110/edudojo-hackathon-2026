@@ -19,6 +19,22 @@ describe('battle engine', () => {
     );
   });
 
+  it('never leaves every technique on cooldown (Blast → Heavy → Combo)', () => {
+    const defend = { type: 'DEFENSE_RESOLVED', technique: 'block', correct: 1, total: 1 } as const;
+    let state = createBattleState();
+    for (const [technique, total] of [
+      ['quiz', 5],
+      ['heavy', 1],
+      ['combo', 3],
+    ] as const) {
+      state = battleReducer(state, { type: 'ATTACK_RESOLVED', technique, correct: total, total });
+      state = battleReducer(state, defend);
+      const ready = Object.values(state.cooldowns).filter((turns) => turns === 0);
+      expect(ready.length).toBeGreaterThan(0);
+    }
+    expect(state.turn).toBe('player');
+  });
+
   it('moves from an attack to enemy defense without mutating the previous state', () => {
     const start = createBattleState();
     const next = battleReducer(start, {

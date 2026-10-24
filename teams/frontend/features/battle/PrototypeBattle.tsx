@@ -54,10 +54,31 @@ type PrototypeBattleProps = {
   /** Arena map and ambience; defaults to floor 1. */
   arena?: Arena;
   boss?: boolean;
+  /** A decay rematch on a cleared floor: repairs the floor instead of advancing the tower. */
+  review?: boolean;
+  /** Guardian HP; a rematch passes the forgotten share. Defaults to the balance value. */
+  enemyHp?: number;
+  /** Objective ids, most forgotten first: their questions are asked first. */
+  objectivePriority?: readonly string[];
   onVictory?: () => void;
   /** Every graded answer, for mastery tracking. */
   onGraded?: (result: GradeResult) => void;
+  /** The duel restarted; answers graded so far belong to an abandoned attempt. */
+  onRestart?: () => void;
 };
+
+/** Stable sort: questions on higher-priority (more forgotten) objectives first. */
+function prioritize(questions: BattleQuestion[], priority: readonly string[] | undefined) {
+  if (!priority || priority.length === 0) return questions;
+  const rank = (q: BattleQuestion) => {
+    const index = priority.indexOf(q.objectiveId);
+    return index < 0 ? priority.length : index;
+  };
+  return questions
+    .map((question, index) => ({ question, index }))
+    .sort((a, b) => rank(a.question) - rank(b.question) || a.index - b.index)
+    .map(({ question }) => question);
+}
 type Mistake = { key: string; prompt: string; given: string; explanation: string };
 type CombatFx = {
   kind: AttackTechnique | DefenseTechnique | 'hit';
@@ -388,11 +409,21 @@ export default function PrototypeBattle({
   opponentFighter = levelFor('1').villain,
   arena = levelFor('1').arena,
   boss = false,
+  review = false,
+  enemyHp,
+  objectivePriority,
   onVictory,
   onGraded,
+  onRestart,
 }: PrototypeBattleProps) {
   const source = useDojoSource();
-  const [battle, dispatch] = useReducer(battleReducer, undefined, createBattleState);
+  const [battle, dispatch] = useReducer(battleReducer, enemyHp, (hp) =>
+    createBattleState({ enemyHp: hp }),
+  );
+  const priorityRef = useRef(objectivePriority);
+  useEffect(() => {
+    priorityRef.current = objectivePriority;
+  }, [objectivePriority]);
   const [active, setActive] = useState<ActiveChallenge | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [choice, setChoice] = useState('');
@@ -481,7 +512,7 @@ export default function PrototypeBattle({
     poolRequest.current.questions.then(
       (questions) => {
         if (cancelled) return;
-        setPool(questions);
+        setPool(prioritize(questions, priorityRef.current));
         setPoolFailed(questions.length === 0);
       },
       () => {
@@ -517,7 +548,10 @@ export default function PrototypeBattle({
         })
         .then(
           (more) => {
-            const added = more.filter((q) => !known.has(q.id));
+            const added = prioritize(
+              more.filter((q) => !known.has(q.id)),
+              priorityRef.current,
+            );
             // A source with nothing new (the small demo bank) stops asking.
             if (added.length === 0) poolExhausted.current = true;
             setPool((previous) => (previous ? [...previous, ...added] : previous));
@@ -826,6 +860,7 @@ export default function PrototypeBattle({
     setSelected(0);
     setDecisionMsLeft(DECISION_TIME_MS);
     dispatch({ type: 'RESET' });
+    onRestart?.();
   }
 
   const playerMotion = fx
@@ -859,7 +894,7 @@ export default function PrototypeBattle({
     // `dark`: the arena always uses the night-dojo tokens; glows and trails are tuned for a dark stage.
     <div className={`dark ${styles.shell}`} data-full-motion={fullMotion} data-weapon={weapon}>
       <header className={styles.header}>
-        <h1>{boss ? 'Final Boss' : 'Floor battle'}</h1>
+        <h1>{boss ? 'Final Boss' : review ? 'Rematch · repair this floor' : 'Floor battle'}</h1>
         <span>
           {topicLabel ?? 'Training duel'} · Round {battle.round}
         </span>
@@ -1224,7 +1259,9 @@ export default function PrototypeBattle({
               {battle.turn === 'victory'
                 ? boss
                   ? 'TOPIC MASTERED'
-                  : 'FLOOR CLEARED'
+                  : review
+                    ? 'FLOOR REPAIRED'
+                    : 'FLOOR CLEARED'
                 : 'THE LESSON CONTINUES'}
             </p>
             <h2>{battle.turn === 'victory' ? 'Knowledge prevails.' : 'Rise. Learn. Return.'}</h2>
@@ -1232,7 +1269,9 @@ export default function PrototypeBattle({
               {battle.turn === 'victory'
                 ? boss
                   ? 'You proved mastery across every subtopic in this input.'
-                  : 'Next in your journey: return to Sensei and study the next topic.'
+                  : review
+                    ? 'Your memory of this floor is restored. It will hold longer this time.'
+                    : 'Next in your journey: return to Sensei and study the next topic.'
                 : 'Study the explanations and try a different combination.'}
             </p>
             {mistakes.length > 0 && (

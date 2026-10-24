@@ -7,7 +7,16 @@
  * Plain three.js, no React: TowerMap.tsx owns the canvas and the HUD around it.
  */
 import * as THREE from 'three';
-import { box, canvasTexture, plane, rng, RoomFx, standard, TowerKit, type RoomDims } from './tower-kit';
+import {
+  box,
+  canvasTexture,
+  plane,
+  rng,
+  RoomFx,
+  standard,
+  TowerKit,
+  type RoomDims,
+} from './tower-kit';
 import { RING, ROOMS, type RoomTheme } from './tower-rooms';
 
 export type FloorState = 'locked' | 'current' | 'cleared';
@@ -19,6 +28,10 @@ export interface TowerSprite {
   fps: number;
   scale: number;
   feetY: number;
+  /** Frame width / height (1 when omitted). */
+  aspect?: number;
+  /** Feet position across the frame, facing right (0.5 when omitted). */
+  anchorX?: number;
 }
 
 export interface TowerFloorSpec {
@@ -40,6 +53,11 @@ export interface TowerSceneOptions {
 
 export interface TowerScene {
   setStates: (states: FloorState[]) => void;
+  /**
+   * Share forgotten per floor (0 = fresh, 1 = gone; null = no memory). Cleared floors dim and
+   * crack, and their beaten guardian gets back up as the value grows.
+   */
+  setDecay: (forgotten: (number | null)[]) => void;
   /** Fly the camera to a floor, or back to the whole tower with null. */
   focus: (index: number | null) => void;
   /** Pixels at the bottom of the canvas covered by HUD; the tower is framed above them. */
@@ -73,8 +91,15 @@ interface FloorRuntime {
   trim: THREE.MeshStandardMaterial;
   panel: THREE.MeshBasicMaterial;
   seal: THREE.Group;
+  /** Cracks over the opening; opacity follows how much of the floor is forgotten. */
+  crack: THREE.MeshBasicMaterial;
   villain: Fighter;
+  /** Translucent spirit of a beaten guardian, standing up out of it as the floor is forgotten. */
+  ghost: Fighter;
+  halo: THREE.MeshBasicMaterial;
+  ghostOpacity: number;
   state: FloorState;
+  forgotten: number;
   /** Camera target: centre of the opening. */
   cy: number;
   cz: number;
@@ -82,7 +107,10 @@ interface FloorRuntime {
   sh: number;
 }
 
-export function createTowerScene(canvas: HTMLCanvasElement, options: TowerSceneOptions): TowerScene {
+export function createTowerScene(
+  canvas: HTMLCanvasElement,
+  options: TowerSceneOptions,
+): TowerScene {
   // The prototype's palette was authored for three r128, which did no colour management.
   const colorManagement = THREE.ColorManagement.enabled;
   THREE.ColorManagement.enabled = false;
@@ -96,7 +124,11 @@ export function createTowerScene(canvas: HTMLCanvasElement, options: TowerSceneO
   }
 }
 
-function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, restore: () => void): TowerScene {
+function buildTower(
+  canvas: HTMLCanvasElement,
+  options: TowerSceneOptions,
+  restore: () => void,
+): TowerScene {
   const { floors, hero: heroSprite, reducedMotion } = options;
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true });
   renderer.setPixelRatio(0.7);
@@ -130,7 +162,12 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   const beam = standard(0x5c1714, { roughness: 0.5 });
   const wood = standard(0x2e2026, { roughness: 0.9 });
   const darkWood = standard(0x241a22, { roughness: 0.9 });
-  const gold = standard(0xd9a441, { roughness: 0.35, metalness: 0.5, emissive: 0x5a3a08, emissiveIntensity: 0.35 });
+  const gold = standard(0xd9a441, {
+    roughness: 0.35,
+    metalness: 0.5,
+    emissive: 0x5a3a08,
+    emissiveIntensity: 0.35,
+  });
   const roof = standard(0xffffff, {
     roughness: 0.65,
     metalness: 0.05,
@@ -193,7 +230,12 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     g.textBaseline = 'middle';
     g.fillText('封  印  ·  封  印  ·  封  印', w / 2, h / 2 + 2);
   });
-  const sealMaterial = standard(0xffffff, { map: sealTexture, emissive: 0x3a2a1a, emissiveIntensity: 0.6, roughness: 0.9 });
+  const sealMaterial = standard(0xffffff, {
+    map: sealTexture,
+    emissive: 0x3a2a1a,
+    emissiveIntensity: 0.6,
+    roughness: 0.9,
+  });
 
   const topY = 0.7 + (floors.length - 1) * STEP + H0 - 0.2 + ROOF_H + 2.4;
   const tower = new THREE.Group();
@@ -215,13 +257,30 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     texture.minFilter = THREE.LinearFilter;
     texture.repeat.set((flip ? -1 : 1) / sprite.frames, 1);
     texture.offset.x = flip ? 1 / sprite.frames : 0;
-    const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, alphaTest: 0.1 });
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      alphaTest: 0.1,
+    });
     const size = FIGHTER_SIZE * sprite.scale;
-    const body = new THREE.Mesh(new THREE.PlaneGeometry(size, size), material);
+    const aspect = sprite.aspect ?? 1;
+    const anchorX = sprite.anchorX ?? 0.5;
+    const width = size * aspect;
+    const body = new THREE.Mesh(new THREE.PlaneGeometry(width, size), material);
     body.position.y = size / 2 - (1 - sprite.feetY) * size;
+    // Put the feet on the pivot; a mirrored (flipped) frame has its feet on the other side.
+    body.position.x = (flip ? anchorX - 0.5 : 0.5 - anchorX) * width;
+    // v2 frames leave room around the figure: size the shadow by the figure, not the frame.
+    const figure = aspect === 1 ? size : size * 0.78;
     const shadow = new THREE.Mesh(
-      new THREE.PlaneGeometry(size * 0.55, size * 0.18),
-      new THREE.MeshBasicMaterial({ map: kit.glowTexture, color: 0x000000, transparent: true, opacity: 0.6, depthWrite: false }),
+      new THREE.PlaneGeometry(figure * 0.55, figure * 0.18),
+      new THREE.MeshBasicMaterial({
+        map: kit.glowTexture,
+        color: 0x000000,
+        transparent: true,
+        opacity: 0.6,
+        depthWrite: false,
+      }),
     );
     shadow.rotation.x = -Math.PI / 2;
     shadow.position.y = 0.005;
@@ -255,8 +314,22 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     shell.add(box(w + 0.5, 0.12, w + 0.5, wood, 0, 0.02, 0, true));
     shell.add(box(w, h, 0.25, plaster, 0, h / 2, backZ - 0.12, true));
     for (const side of [-1, 1]) {
-      shell.add(box(0.2, h, ID + RING, plaster, side * (w / 2 - 0.08), h / 2, (front + backZ) / 2, true));
-      shell.add(box(0.05, h * 0.5, ID * 0.7, shoji, side * (w / 2 - 0.02), h * 0.5, (front + backZ) / 2, false, false));
+      shell.add(
+        box(0.2, h, ID + RING, plaster, side * (w / 2 - 0.08), h / 2, (front + backZ) / 2, true),
+      );
+      shell.add(
+        box(
+          0.05,
+          h * 0.5,
+          ID * 0.7,
+          shoji,
+          side * (w / 2 - 0.02),
+          h * 0.5,
+          (front + backZ) / 2,
+          false,
+          false,
+        ),
+      );
       shell.add(box(0.34, h, 0.34, lacquer, side * (w / 2 - 0.04), h / 2, front, true));
     }
     shell.add(box(w, 0.18, ID + RING, soffit, 0, h - 0.09, (front + backZ) / 2, true));
@@ -264,13 +337,15 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     const fz = front - RING / 2 + 0.06;
     shell.add(box(w, topBar, RING, plaster, 0, h - topBar / 2, fz, true));
     shell.add(box(w, botBar, RING, plaster, 0, botBar / 2, fz, true));
-    for (const side of [-1, 1]) shell.add(box(sideBar, sh, RING, plaster, side * (sw / 2 + sideBar / 2), cyO, fz, true));
+    for (const side of [-1, 1])
+      shell.add(box(sideBar, sh, RING, plaster, side * (sw / 2 + sideBar / 2), cyO, fz, true));
     shell.add(box(w + 0.2, 0.2, w + 0.2, beam, 0, h - 0.12, 0, true));
     const trim = gold.clone();
     const tz = front + 0.04;
     shell.add(box(sw + 0.24, 0.11, 0.07, trim, 0, cyO + sh / 2 + 0.05, tz, false, false));
     shell.add(box(sw + 0.24, 0.11, 0.07, trim, 0, cyO - sh / 2 - 0.05, tz, false, false));
-    for (const side of [-1, 1]) shell.add(box(0.11, sh, 0.07, trim, side * (sw / 2 + 0.05), cyO, tz, false, false));
+    for (const side of [-1, 1])
+      shell.add(box(0.11, sh, 0.07, trim, side * (sw / 2 + 0.05), cyO, tz, false, false));
 
     /* room interior */
     const room = new THREE.Group();
@@ -279,7 +354,12 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     const dims: RoomDims = { sw, IW, IH: h, ID, front, backZ };
     const fx = new RoomFx(kit, room, dims);
     const lightSpec = ROOMS[spec.theme](fx);
-    const light = new THREE.PointLight(lightSpec.color, lightSpec.intensity * LIGHT, lightSpec.distance, 2);
+    const light = new THREE.PointLight(
+      lightSpec.color,
+      lightSpec.intensity * LIGHT,
+      lightSpec.distance,
+      2,
+    );
     light.position.set(0, y0 + h * 0.34, backZ + 0.6);
     scene.add(light);
 
@@ -308,9 +388,38 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     }
     room.add(seal);
 
+    // Cracks over the opening for a floor that is being forgotten (hidden until it fades).
+    const crack = new THREE.MeshBasicMaterial({
+      map: crackTexture(17 + i * 31),
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+    room.add(plane(sw, sh, crack, 0, cyO, front + 0.12));
+
     const villain = fighter(spec.villain, true);
     villain.pivot.position.set(FIGHTER_X, 0.1, FIGHTER_Z);
     room.add(villain.pivot);
+
+    // The guardian's spirit: same sprite, standing, pale and see-through, with a soft glow behind
+    // it so it reads against bright rooms too. No shadow.
+    const ghost = fighter(spec.villain, true);
+    Object.assign(ghost.material, { depthWrite: false, alphaTest: 0.01, opacity: 0 });
+    ghost.material.color.setHex(0xa6dcff);
+    ghost.pivot.children[0].visible = false;
+    const halo = new THREE.MeshBasicMaterial({
+      map: kit.glowTexture,
+      color: 0x5fd0ff,
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    });
+    const haloSize = FIGHTER_SIZE * spec.villain.scale * 1.15;
+    ghost.pivot.add(plane(haloSize, haloSize, halo, 0, haloSize * 0.42, -0.05));
+    ghost.pivot.position.set(FIGHTER_X, 0.1, FIGHTER_Z - 0.02);
+    ghost.pivot.visible = false;
+    room.add(ghost.pivot);
 
     /* roof */
     const roofGroup = new THREE.Group();
@@ -342,7 +451,8 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     tower.add(roofGroup);
     const eaveLanterns = new THREE.Group();
     eaveLanterns.position.y = y0;
-    for (let q = -1; q <= 1; q++) kit.lantern(eaveLanterns, q * w * 0.3, h + 0.05, front + 0.1, 0.2, 0xff6a4a, 0xff4a2a);
+    for (let q = -1; q <= 1; q++)
+      kit.lantern(eaveLanterns, q * w * 0.3, h + 0.05, front + 0.1, 0.2, 0xff6a4a, 0xff4a2a);
     tower.add(eaveLanterns);
     if (i === floors.length - 1) tower.add(finial(kit, gold, eave + ROOF_H));
 
@@ -354,8 +464,13 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
       trim,
       panel,
       seal,
+      crack,
       villain,
+      ghost,
+      halo,
+      ghostOpacity: 0,
       state: 'locked' as FloorState,
+      forgotten: 0,
       cy: y0 + cyO,
       cz: front + 0.08,
       sw,
@@ -400,7 +515,14 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   sun.target.position.set(0, 10, 4);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  Object.assign(sun.shadow.camera, { left: -22, right: 22, top: 34, bottom: -8, near: 1, far: 120 });
+  Object.assign(sun.shadow.camera, {
+    left: -22,
+    right: 22,
+    top: 34,
+    bottom: -8,
+    near: 1,
+    far: 120,
+  });
   sun.shadow.bias = -0.0006;
   scene.add(sun, sun.target);
   const rim = new THREE.DirectionalLight(0x7a5cff, 0.4 * LIGHT);
@@ -427,7 +549,8 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   function applyView() {
     camera.aspect = viewWidth / viewHeight;
     // Shift the projection so the scene's centre lands in the middle of the free area.
-    if (insetBottom > 0) camera.setViewOffset(viewWidth, viewHeight, 0, insetBottom / 2, viewWidth, viewHeight);
+    if (insetBottom > 0)
+      camera.setViewOffset(viewWidth, viewHeight, 0, insetBottom / 2, viewWidth, viewHeight);
     else camera.clearViewOffset();
     camera.updateProjectionMatrix();
   }
@@ -459,7 +582,10 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   const ndc = new THREE.Vector2();
   function floorAt(event: PointerEvent) {
     const rect = canvas.getBoundingClientRect();
-    ndc.set(((event.clientX - rect.left) / rect.width) * 2 - 1, -(((event.clientY - rect.top) / rect.height) * 2 - 1));
+    ndc.set(
+      ((event.clientX - rect.left) / rect.width) * 2 - 1,
+      -(((event.clientY - rect.top) / rect.height) * 2 - 1),
+    );
     raycaster.setFromCamera(ndc, camera);
     const hit = raycaster.intersectObjects(picks, false)[0];
     return hit ? (hit.object.userData.floor as number) : -1;
@@ -475,7 +601,11 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     const rect = canvas.getBoundingClientRect();
     if (down) {
       if (Math.hypot(event.clientX - down.x, event.clientY - down.y) > 6) dragging = true;
-      if (dragging) pointerX = Math.max(-1, Math.min(1, down.pointerX + ((event.clientX - down.x) / rect.width) * 2.6));
+      if (dragging)
+        pointerX = Math.max(
+          -1,
+          Math.min(1, down.pointerX + ((event.clientX - down.x) / rect.width) * 2.6),
+        );
       return;
     }
     if (event.pointerType !== 'mouse') return;
@@ -533,7 +663,18 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
     const pulse = reducedMotion ? 0.5 : 0.5 + 0.5 * Math.sin(t * 2.4);
     runtimes.forEach((floor, i) => {
       const highlighted = i === hovered || i === focused;
-      const lit = floor.state === 'locked' ? 0.18 : floor.state === 'current' ? 1 + 0.18 * pulse : 1;
+      const fade = floor.state === 'cleared' ? floor.forgotten : 0;
+      // A fading floor dims, and once badly forgotten its light starts to stutter.
+      const flicker =
+        fade > 0.4 && !reducedMotion
+          ? 0.82 + 0.18 * Math.sin(t * 7.3 + i * 1.7) * Math.sin(t * 3.1)
+          : 1;
+      const lit =
+        floor.state === 'locked'
+          ? 0.18
+          : floor.state === 'current'
+            ? 1 + 0.18 * pulse
+            : (1 - 0.62 * fade) * flicker;
       const lightTarget = floor.baseIntensity * lit * (highlighted ? 1.5 : 1);
       floor.light.intensity += (lightTarget - floor.light.intensity) * 0.15;
       const trimTarget = highlighted
@@ -541,11 +682,24 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
         : floor.state === 'current'
           ? 0.45 + 0.6 * pulse
           : floor.state === 'cleared'
-            ? 0.7
+            ? 0.7 * (1 - 0.7 * fade)
             : 0.2;
       floor.trim.emissiveIntensity += (trimTarget - floor.trim.emissiveIntensity) * 0.15;
       floor.fx.update(dt, t, speed);
-      animateFighter(floor.villain, floor.state === 'cleared' || reducedMotion);
+      // A beaten guardian lies still; one that has got back up breathes again.
+      animateFighter(
+        floor.villain,
+        (floor.state === 'cleared' && guardianStage(fade) !== 'up') || reducedMotion,
+      );
+      if (floor.ghost.pivot.visible) {
+        // The spirit hovers and breathes over the body.
+        animateFighter(floor.ghost, reducedMotion);
+        floor.ghost.pivot.position.y =
+          0.1 + (reducedMotion ? 0.04 : 0.04 + 0.05 * Math.sin(t * 1.7 + i));
+        floor.ghost.material.opacity =
+          floor.ghostOpacity * (reducedMotion ? 1 : 0.85 + 0.15 * Math.sin(t * 2.3 + i * 1.3));
+        floor.halo.opacity = floor.ghost.material.opacity * 0.75;
+      }
     });
     animateFighter(hero, reducedMotion);
     leaves.update(dt, t, speed);
@@ -554,23 +708,50 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   }
   frameRequest = requestAnimationFrame(frame);
 
+  /** Room look from its state and how much of it is forgotten. */
+  function applyFloor(floor: FloorRuntime) {
+    const locked = floor.state === 'locked';
+    const cleared = floor.state === 'cleared';
+    const fade = cleared ? floor.forgotten : 0;
+    const stage = cleared ? guardianStage(fade) : 'up';
+    floor.seal.visible = locked;
+    floor.fx.dim = locked ? 0.2 : 1 - 0.55 * fade;
+    if (locked) floor.panel.color.setHex(0x2b2833);
+    else floor.panel.color.setScalar(1 - 0.55 * fade);
+    if (locked) floor.villain.material.color.setHex(0x000000);
+    else floor.villain.material.color.setScalar(cleared && stage !== 'up' ? 0.55 : 1);
+    // Only two body poses, never a half-tilted sprite: a beaten guardian lies on the floor, toppled
+    // away from the hero, until the floor is mostly forgotten; then it stands again. In between,
+    // its spirit rises out of the body and grows stronger.
+    const lying = cleared && stage !== 'up';
+    floor.villain.pivot.rotation.z = lying ? -1.38 : 0;
+    floor.villain.pivot.position.x = lying ? 0.15 : FIGHTER_X;
+    floor.ghost.pivot.visible = stage === 'spirit';
+    floor.ghostOpacity =
+      stage === 'spirit'
+        ? 0.4 + 0.45 * Math.min(1, (fade - SPIRIT_FROM) / (STANDS_AT - SPIRIT_FROM))
+        : 0;
+    floor.ghost.material.opacity = floor.ghostOpacity;
+    floor.halo.opacity = floor.ghostOpacity * 0.75;
+    floor.crack.opacity = cleared ? Math.min(0.92, Math.max(0, (fade - 0.12) / 0.5)) : 0;
+  }
+
   return {
     setStates(states) {
       runtimes.forEach((floor, i) => {
-        const state = states[i] ?? 'locked';
-        const locked = state === 'locked';
-        const cleared = state === 'cleared';
-        floor.state = state;
-        floor.seal.visible = locked;
-        floor.fx.dim = locked ? 0.2 : 1;
-        floor.panel.color.setHex(locked ? 0x2b2833 : 0xffffff);
-        floor.villain.material.color.setHex(locked ? 0x000000 : cleared ? 0x8c8c8c : 0xffffff);
-        // A beaten guardian lies on the floor, toppled away from the hero.
-        floor.villain.pivot.rotation.z = cleared ? -1.38 : 0;
-        floor.villain.pivot.position.x = cleared ? 0.15 : FIGHTER_X;
+        floor.state = states[i] ?? 'locked';
+        applyFloor(floor);
       });
       const current = states.indexOf('current');
       runtimes[current >= 0 ? current : runtimes.length - 1].room.add(hero.pivot);
+    },
+    setDecay(forgotten) {
+      runtimes.forEach((floor, i) => {
+        const value = forgotten[i];
+        floor.forgotten =
+          value === null || value === undefined ? 0 : Math.min(1, Math.max(0, value));
+        applyFloor(floor);
+      });
     },
     focus(index) {
       focused = index ?? -1;
@@ -595,6 +776,99 @@ function buildTower(canvas: HTMLCanvasElement, options: TowerSceneOptions, resto
   };
 }
 
+/** 0 while a floor is fresh, easing to 1 (guardian fully back up) as it is forgotten. */
+/** Forgotten share where the spirit appears: the floor's repair threshold (retention 0.8). */
+const SPIRIT_FROM = 0.2;
+/** Forgotten share where the guardian has fully recovered and stands again. */
+const STANDS_AT = 0.75;
+
+/** Beaten and still; its spirit rising; or back on its feet. */
+function guardianStage(forgotten: number): 'down' | 'spirit' | 'up' {
+  if (forgotten >= STANDS_AT) return 'up';
+  return forgotten > SPIRIT_FROM ? 'spirit' : 'down';
+}
+
+/** Straight, splintering cracks radiating from an impact point (cracked glass), transparent canvas. */
+function crackTexture(seed: number) {
+  return canvasTexture(512, 384, (g, w, h) => {
+    const random = rng(seed);
+    g.clearRect(0, 0, w, h);
+    g.lineCap = 'round';
+    g.lineJoin = 'round';
+    const branch = (
+      x: number,
+      y: number,
+      angle: number,
+      length: number,
+      width: number,
+      depth: number,
+    ) => {
+      const points: [number, number][] = [[x, y]];
+      let cx = x;
+      let cy = y;
+      let heading = angle;
+      // Few long, nearly straight segments with sharp kinks: glass, not twigs.
+      const steps = 3 + Math.floor(random() * 3);
+      for (let s = 0; s < steps; s++) {
+        heading += (random() - 0.5) * 0.35;
+        cx += (Math.cos(heading) * length) / steps;
+        cy += (Math.sin(heading) * length) / steps;
+        points.push([cx, cy]);
+        if (depth < 1 && random() < 0.35) {
+          branch(
+            cx,
+            cy,
+            heading + (random() < 0.5 ? -1 : 1) * (0.5 + random() * 0.4),
+            length * 0.4,
+            width * 0.6,
+            depth + 1,
+          );
+        }
+      }
+      const stroke = (style: string, lineWidth: number, dx: number, dy: number) => {
+        g.strokeStyle = style;
+        g.lineWidth = lineWidth;
+        g.beginPath();
+        points.forEach(([px, py], index) =>
+          index ? g.lineTo(px + dx, py + dy) : g.moveTo(px + dx, py + dy),
+        );
+        g.stroke();
+      };
+      stroke('rgba(10, 8, 12, 0.85)', width, 0, 0);
+      stroke('rgba(235, 245, 255, 0.75)', Math.max(1, width * 0.4), 1.2, -1.2);
+    };
+    const ix = w * (0.35 + random() * 0.3);
+    const iy = h * (0.3 + random() * 0.35);
+    const rays = 8;
+    const angles = Array.from(
+      { length: rays },
+      (_, k) => (k / rays) * Math.PI * 2 + (random() - 0.5) * 0.5,
+    );
+    for (const angle of angles) branch(ix, iy, angle, 140 + random() * 150, 3, 0);
+    // Spider-web rings between neighbouring rays, like a struck pane.
+    for (const radius of [26, 58]) {
+      g.beginPath();
+      angles.forEach((angle, k) => {
+        if (random() < 0.25) return;
+        const next = angles[(k + 1) % rays];
+        const r1 = radius * (0.85 + random() * 0.3);
+        const r2 = radius * (0.85 + random() * 0.3);
+        g.moveTo(ix + Math.cos(angle) * r1, iy + Math.sin(angle) * r1);
+        g.lineTo(ix + Math.cos(next) * r2, iy + Math.sin(next) * r2);
+      });
+      g.strokeStyle = 'rgba(10, 8, 12, 0.8)';
+      g.lineWidth = 2;
+      g.stroke();
+    }
+    // A bright chip at the point of impact.
+    const chip = g.createRadialGradient(ix, iy, 0, ix, iy, 16);
+    chip.addColorStop(0, 'rgba(255, 255, 255, 0.7)');
+    chip.addColorStop(1, 'rgba(255, 255, 255, 0)');
+    g.fillStyle = chip;
+    g.fillRect(ix - 16, iy - 16, 32, 32);
+  });
+}
+
 function disposeScene(scene: THREE.Scene) {
   const textures = new Set<THREE.Texture>();
   const materials = new Set<THREE.Material>();
@@ -602,10 +876,12 @@ function disposeScene(scene: THREE.Scene) {
     const mesh = object as THREE.Mesh;
     mesh.geometry?.dispose();
     const material = mesh.material as THREE.Material | THREE.Material[] | undefined;
-    for (const item of Array.isArray(material) ? material : material ? [material] : []) materials.add(item);
+    for (const item of Array.isArray(material) ? material : material ? [material] : [])
+      materials.add(item);
   });
   for (const material of materials) {
-    for (const value of Object.values(material)) if (value instanceof THREE.Texture) textures.add(value);
+    for (const value of Object.values(material))
+      if (value instanceof THREE.Texture) textures.add(value);
     material.dispose();
   }
   for (const texture of textures) texture.dispose();
@@ -685,7 +961,12 @@ function buildBackdrop(scene: THREE.Scene, kit: TowerKit) {
     const layer = plane(
       width,
       height,
-      new THREE.MeshBasicMaterial({ map: texture, transparent: true, depthWrite: false, fog: false }),
+      new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        depthWrite: false,
+        fog: false,
+      }),
       0,
       -2 + height / 2,
       z,
@@ -732,7 +1013,14 @@ function buildGrounds(scene: THREE.Scene, kit: TowerKit) {
     },
     [1, 16],
   );
-  const path = plane(4.4, 70, standard(0xffffff, { map: pathTexture, roughness: 0.95 }), 0, 0.012, 42);
+  const path = plane(
+    4.4,
+    70,
+    standard(0xffffff, { map: pathTexture, roughness: 0.95 }),
+    0,
+    0.012,
+    42,
+  );
   path.rotation.x = -Math.PI / 2;
   path.receiveShadow = true;
   scene.add(path);
@@ -858,7 +1146,12 @@ function finial(kit: TowerKit, gold: THREE.Material, y: number) {
   group.add(orb);
   const tip = new THREE.Mesh(
     new THREE.ConeGeometry(0.15, 0.6, 10),
-    standard(0xffd45a, { emissive: 0xff9a2a, emissiveIntensity: 0.9, metalness: 0.4, roughness: 0.3 }),
+    standard(0xffd45a, {
+      emissive: 0xff9a2a,
+      emissiveIntensity: 0.9,
+      metalness: 0.4,
+      roughness: 0.3,
+    }),
   );
   tip.position.y = 2.6;
   group.add(tip);
@@ -892,7 +1185,10 @@ function mapleTree(kit: TowerKit, x: number, z: number, scale: number, seed: num
     ['#ff8a2b', '#f26a1f', '#ffb347', '#e5472a'],
     ['#d9302a', '#b3222a', '#f0502f', '#e5472a'],
     ['#ff9bb5', '#ff7a9c', '#ffc1d3', '#f06a8a'],
-  ].map((colors, k) => new THREE.SpriteMaterial({ map: kit.blobTexture(colors, 41 + k), transparent: true }));
+  ].map(
+    (colors, k) =>
+      new THREE.SpriteMaterial({ map: kit.blobTexture(colors, 41 + k), transparent: true }),
+  );
   for (let i = 0; i < 34; i++) {
     const angle = random() * Math.PI * 2;
     const distance = Math.sqrt(random());
