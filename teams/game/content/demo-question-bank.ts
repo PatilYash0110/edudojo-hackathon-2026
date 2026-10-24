@@ -353,13 +353,18 @@ export function toBattleQuestion(question: DemoBankQuestion): BattleQuestion {
   };
 }
 
+/** Drops trailing . ? ! with a linear scan (a `[.?!]+$` regex backtracks on long input). */
+function trimEndPunctuation(value: string): string {
+  let end = value.length;
+  while (end > 0 && '.?!'.includes(value[end - 1])) end -= 1;
+  return value.slice(0, end);
+}
+
 function normalizeAnswer(value: string): string {
-  return value
-    .trim()
-    .toLocaleLowerCase('en-US')
-    .replace(/[’]/g, "'")
-    .replace(/[.?!]+$/, '')
-    .replace(/\s+/g, ' ');
+  return trimEndPunctuation(value.trim().toLocaleLowerCase('en-US').replace(/[’]/g, "'")).replace(
+    /\s+/g,
+    ' ',
+  );
 }
 
 export function isDemoAnswerCorrect(question: DemoBankQuestion, value: string): boolean {
