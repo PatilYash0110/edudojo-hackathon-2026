@@ -17,9 +17,22 @@ export type DojoGenerationStatus =
   | { status: 'failed'; error: string }
   | { status: 'missing' };
 
+/** One row of the learner's dojo list, enough to resume without loading the dojo. */
+export interface DojoSummary {
+  id: string;
+  title: string;
+  status: 'generating' | 'ready' | 'failed';
+  /** 0–100 while generating. */
+  progress: number;
+  /** Floor ids in tower order (bottom first); empty until ready. */
+  floorIds: string[];
+}
+
 export interface DojoSource {
   readonly kind: DojoSourceKind;
   createDojo(input: CreateDojoInput): Promise<{ dojoId: string }>;
+  /** The learner's dojos, newest first. Never signs anyone in just to list. */
+  listDojos(): Promise<DojoSummary[]>;
   /** Resolves `null` until the dojo exists and is ready; `getStatus` says why. */
   getDojo(dojoId: string): Promise<Dojo | null>;
   getStatus(dojoId: string): Promise<DojoGenerationStatus>;
