@@ -33,6 +33,12 @@ const SCENE_TYPE_ICONS: Record<SceneType, typeof FileText> = {
   pbl: Puzzle,
 };
 
+/** How far the fit-to-stage scale may go in either direction. */
+const MIN_FIT_SCALE = 0.45;
+const MAX_FIT_SCALE = 1.35;
+/** Breathing room so the outermost card never sits flush against the stage. */
+const FIT_INSET = 16;
+
 const TYPE_ORDER: SceneType[] = ['slide', 'quiz', 'interactive', 'pbl'];
 
 // Dojo palette (app/globals.css): vermilion seal, kintsugi gold, hinoki
@@ -278,7 +284,13 @@ function AnimatedCounter({
       ease: [0.16, 1, 0.3, 1],
       onUpdate: (v) => setDisplay(Math.round(v)),
     });
-    return () => controls.stop();
+    return () => {
+      controls.stop();
+      // Land on the real number rather than wherever the animation was cut
+      // off. An interrupted count-up used to leave the card reading 0, which
+      // is not a slower truth but a wrong one.
+      setDisplay(value);
+    };
   }, [value, delay, duration, prefersReducedMotion]);
 
   return <>{prefersReducedMotion ? value : display}</>;
@@ -453,6 +465,11 @@ export function ClassroomCompletePage({
   const contentRef = useRef<HTMLDivElement | null>(null);
   const fullContentHeight = useRef<number>(0);
   const [compact, setCompact] = useState(false);
+  const [scale, setScale] = useState(1);
+  // Scaled content keeps its unscaled layout box, so the scroll layer would
+  // report an overflow the viewer no longer has. Scrolling is enabled only
+  // when the scale floor was hit and something is genuinely out of view.
+  const [fits, setFits] = useState(true);
   useEffect(() => {
     const section = sectionRef.current;
     const content = contentRef.current;
@@ -460,12 +477,30 @@ export function ClassroomCompletePage({
     // Enough to clear a rounding difference without inviting a flip-flop.
     const MARGIN = 24;
     const measure = () => {
-      const available = section.clientHeight;
+      const availableHeight = section.clientHeight;
+      const availableWidth = section.clientWidth;
+      // offsetWidth/offsetHeight are layout sizes, which a CSS transform does
+      // not affect — so reading them back while scaled cannot feed into
+      // itself.
+      const naturalHeight = content.offsetHeight;
+      const naturalWidth = content.offsetWidth;
       setCompact((prev) => {
-        if (prev) return available < fullContentHeight.current + MARGIN;
-        fullContentHeight.current = content.scrollHeight;
-        return content.scrollHeight > available;
+        if (prev) return availableHeight < fullContentHeight.current + MARGIN;
+        fullContentHeight.current = naturalHeight;
+        return naturalHeight > availableHeight;
       });
+      if (naturalHeight > 0 && naturalWidth > 0) {
+        const next = Math.max(
+          MIN_FIT_SCALE,
+          Math.min(
+            MAX_FIT_SCALE,
+            (availableHeight - FIT_INSET) / naturalHeight,
+            (availableWidth - FIT_INSET) / naturalWidth,
+          ),
+        );
+        setScale(next);
+        setFits(naturalHeight * next <= availableHeight + 1);
+      }
     };
     const observer = new ResizeObserver(measure);
     observer.observe(section);
@@ -524,12 +559,24 @@ export function ClassroomCompletePage({
         {/* Confetti — pinned to section */}
         <Confetti />
 
-        {/* Scroll layer: only this part scrolls when content overflows. */}
-        <div className="absolute inset-0 overflow-y-auto overflow-x-hidden">
+        {/* Scroll layer: only this part scrolls, and only when scaling alone
+            could not make the content fit. */}
+        <div
+          className={cn(
+            'absolute inset-0 overflow-x-hidden',
+            fits ? 'overflow-y-hidden' : 'overflow-y-auto',
+          )}
+        >
           <div className="min-h-full flex items-center justify-center">
-            {/* Content */}
+            {/* Content. Scaled to fill the stage: two spacing tiers cannot
+                cover every viewport this page is embedded in — the classroom
+                stage is far shorter than a full window — so after the compact
+                token has done what it can, the whole column is scaled to the
+                room that is actually there. Scaling up as well as down keeps
+                the page filling the stage instead of floating in it. */}
             <div
               ref={contentRef}
+              style={{ transform: `scale(${scale})`, transformOrigin: 'center center' }}
               className={cn(
                 'relative flex flex-col items-center max-w-3xl w-full',
                 compact ? 'gap-2 px-6 py-3' : 'gap-5 px-8 py-6',
