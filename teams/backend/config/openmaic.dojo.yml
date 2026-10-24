@@ -24,9 +24,9 @@ slots:
   # Fast + cheap: chat agents, guard, floors, quiz questions, grading.
   llm: deepseek:deepseek-flash
   # Quality: the classroom itself (outline, slides + quiz, narration script).
-  course.outline: deepseek:deepseek-v4-pro
-  course.content: deepseek:deepseek-v4-pro
-  course.actions: deepseek:deepseek-v4-pro
+  course.outline: deepseek:deepseek-flash
+  course.content: deepseek:deepseek-flash
+  course.actions: deepseek:deepseek-flash
   # Teacher narration of every slide.
   tts: speaches:speaches-ai/piper-de_DE-thorsten-high
 
