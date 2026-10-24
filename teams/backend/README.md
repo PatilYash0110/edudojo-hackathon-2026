@@ -24,7 +24,7 @@ Types for callers: `teams/shared/contracts/backend-api.ts`.
    voices, OpenAI-compatible API):
    ```bash
    docker compose -f docker-compose.yml -f docker-compose.dojo.yml up -d --build   # app + speaches
-   curl -X POST http://localhost:8000/v1/models/speaches-ai/piper-de_DE-thorsten-high   # once
+   curl -X POST http://localhost:8000/v1/models/speaches-ai/piper-de_DE-thorsten-medium   # once
    ```
    For `pnpm dev`, run only Speaches: `docker compose -f docker-compose.dojo.yml up -d speaches`.
 5. `pnpm install && pnpm dev`, then try `POST /api/dojo/auth/teacher/signup`.

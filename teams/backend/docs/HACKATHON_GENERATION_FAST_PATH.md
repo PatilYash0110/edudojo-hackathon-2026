@@ -240,6 +240,8 @@ What was built differs from the proposal in three ways:
 | 1 | thinking off + five-scene profile | 6m25s | 6268 | 5 |
 | 2 | + at most 2 short speeches per scene | 3m24s | 2305 | 5 |
 | 3 | + `PARALLEL_SCENE_CONCURRENCY=3` | 3m07s | 2506 | 5 |
+| 4 | + `piper-de_DE-thorsten-medium` voice | 1m40s | 2805 | 5 |
+| 5 | same as run 4 (repeat) | 1m36s | 2716 | 5 |
 
 Every run produced slide, slide, interactive, quiz, slide, with all narration voiced.
 
@@ -250,5 +252,9 @@ Findings:
   scene.
 - The first run after `pnpm dev` starts can fail at the outline with "No model is configured for
   course.outline". The second run works. Before the demo, generate one throwaway classroom to warm up.
-- Next steps if 3 minutes must be beaten: give Docker more CPUs, or try `piper-de_DE-thorsten-medium`.
+- With the high voice, Piper took about 8 s for 183 characters. The medium voice takes 1.6 s for the
+  same text, and 3 parallel requests take 2.9 s. Runs 4 and 5 meet the 3-minute stop condition, so
+  the medium voice is the default now. The high voice stays listed in `openmaic.yml`: to switch back,
+  change only the `tts` slot.
+- Skipped: cloud TTS (no key, and it needs venue network), browser-native speech, and more Docker CPUs.
 
