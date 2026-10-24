@@ -839,6 +839,15 @@ export function ClassroomCompletePage({
                                 <li key={category.label} className="min-w-0 text-xs">
                                   <div className="flex items-baseline justify-between gap-3">
                                     <span className="truncate text-foreground">
+                                      {/* Matches the numbered marker on the
+                                          chart, which is the only way to tell
+                                          the axes apart once the captions are
+                                          too small to carry names. */}
+                                      {showRadar && compact && (
+                                        <span className="mr-1.5 tabular-nums text-muted-foreground">
+                                          {index + 1}
+                                        </span>
+                                      )}
                                       {category.label}
                                     </span>
                                     <span className="shrink-0 whitespace-nowrap text-muted-foreground">

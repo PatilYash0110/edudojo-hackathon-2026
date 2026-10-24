@@ -17,6 +17,8 @@ const CENTER = 180;
 const RADIUS = 92;
 /** Where captions sit, outside the outer ring. */
 const CAPTION_RADIUS = 112;
+/** Where the numbered markers sit when captions are too small to read. */
+const MARKER_RADIUS = 106;
 /** Caption glyphs average a little over half the font size in width. */
 const CAPTION_CHAR_WIDTH = 5.6;
 const CAPTION_FONT_SIZE = 11;
@@ -42,10 +44,13 @@ function captionPoint(index: number, count: number): [number, number] {
  */
 function contentBox(labels: string[], withCaptions: boolean): string {
   const count = labels.length;
-  let minX = CENTER - RADIUS;
-  let maxX = CENTER + RADIUS;
-  let minY = CENTER - RADIUS;
-  let maxY = CENTER + RADIUS;
+  // The markers sit outside the ring in both modes; captions are wide and
+  // need measuring, index numbers are a fixed glyph or two.
+  const marker = withCaptions ? 0 : MARKER_RADIUS - RADIUS + CAPTION_FONT_SIZE;
+  let minX = CENTER - RADIUS - marker;
+  let maxX = CENTER + RADIUS + marker;
+  let minY = CENTER - RADIUS - marker;
+  let maxY = CENTER + RADIUS + marker;
 
   if (withCaptions)
     labels.forEach((label, index) => {
@@ -63,6 +68,11 @@ function contentBox(labels: string[], withCaptions: boolean): string {
   const x0 = minX - BOX_PADDING;
   const y0 = minY - BOX_PADDING;
   return `${x0} ${y0} ${maxX - minX + BOX_PADDING * 2} ${maxY - minY + BOX_PADDING * 2}`;
+}
+
+function markerPoint(index: number, count: number): [number, number] {
+  const angle = ((index * 360) / count - 90) * (Math.PI / 180);
+  return [CENTER + Math.cos(angle) * MARKER_RADIUS, CENTER + Math.sin(angle) * MARKER_RADIUS];
 }
 
 function polygon(values: number[]): string {
@@ -257,6 +267,43 @@ export function CompleteRadar({ categories, goalLabel, ariaLabel, compact }: Com
                 >
                   {category.label}
                 </motion.text>
+              );
+            })}
+
+          {/* Without captions the axes would be anonymous: these numbers key
+              each vertex to its row in the score list beside the chart. Two
+              digits stay legible at a scale where a topic name would not. */}
+          {!withCaptions &&
+            categories.map((category, index) => {
+              const [x, y] = markerPoint(index, count);
+              return (
+                <motion.g
+                  key={`marker-${category.label}`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: duration(0.3), delay: delay(0.75 + index * 0.04) }}
+                >
+                  <circle
+                    cx={x}
+                    cy={y}
+                    r="8.5"
+                    fill="color-mix(in oklab, var(--washi-deep) 70%, transparent)"
+                    stroke="color-mix(in oklab, var(--wood) 24%, transparent)"
+                    strokeWidth="1"
+                  />
+                  <text
+                    x={x}
+                    y={y}
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                    fill="var(--muted-foreground, currentColor)"
+                    fontSize="10"
+                    fontWeight="600"
+                    fontFamily="inherit"
+                  >
+                    {index + 1}
+                  </text>
+                </motion.g>
               );
             })}
 
