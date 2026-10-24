@@ -29,13 +29,9 @@ import {
   type BattleEvent,
   type DefenseTechnique,
 } from '@/teams/game/battle/battle-engine';
-import {
-  ATTACK_CHALLENGES,
-  DEFENSE_CHALLENGES,
-  ENGLISH_ATTACK_CHALLENGES,
-  ENGLISH_DEFENSE_CHALLENGES,
-  isPrototypeAnswerCorrect,
-} from '@/teams/game/content/prototype-battle';
+import { drawQuestions, TECHNIQUE_QUESTIONS } from '@/teams/game/battle/question-draw';
+import type { BattleQuestion, GradeResult, QuestionScope } from '@/teams/shared/contracts/battle';
+import { useDojoSource } from '@/teams/frontend/lib/dojo-source/DojoSourceProvider';
 import styles from './PrototypeBattle.module.css';
 import stageStyles from './SpriteStage.module.css';
 import { SpriteFighter } from './SpriteFighter';
@@ -47,6 +43,9 @@ type ActiveChallenge =
 type TimingSession = { technique: DefenseTechnique; knowledgeCorrect: boolean };
 type WeaponId = 'katana' | 'dragon';
 type PrototypeBattleProps = {
+  dojoId: string;
+  /** Floor battles ask that floor's questions; the boss (`boss`) asks across every floor. */
+  floorId?: string;
   topicLabel?: string;
   opponentName?: string;
   opponentRole?: string;
@@ -56,6 +55,8 @@ type PrototypeBattleProps = {
   arena?: Arena;
   boss?: boolean;
   onVictory?: () => void;
+  /** Every graded answer, for mastery tracking. */
+  onGraded?: (result: GradeResult) => void;
 };
 type CombatFx = {
   kind: AttackTechnique | DefenseTechnique | 'hit';
@@ -71,24 +72,24 @@ type CombatFx = {
 const attacks = [
   {
     id: 'heavy',
-    label: 'Schwerer Hieb',
-    subtitle: 'HEAVY STRIKE',
+    label: 'Heavy Strike',
+    subtitle: 'ONE TYPED ANSWER',
     detail: 'One answer. One devastating slash.',
     stat: '34 damage · 2-turn cooldown',
     Icon: Swords,
   },
   {
     id: 'combo',
-    label: 'Dreier-Kombo',
-    subtitle: 'THREE-HIT COMBO',
+    label: 'Three-Hit Combo',
+    subtitle: 'THREE QUESTIONS',
     detail: 'Each correct answer becomes a sword strike.',
     stat: '11 damage per hit · 1-turn cooldown',
     Icon: Zap,
   },
   {
     id: 'quiz',
-    label: 'Wissensstrahl',
-    subtitle: 'KNOWLEDGE BLAST',
+    label: 'Knowledge Blast',
+    subtitle: 'FIVE QUESTIONS',
     detail: 'Charge five answers. Reach 3/5 or take backlash.',
     stat: '24–40 damage · 3-turn cooldown',
     Icon: Flame,
@@ -98,24 +99,24 @@ const attacks = [
 const defenses = [
   {
     id: 'block',
-    label: 'Blocken',
-    subtitle: 'GUARD',
+    label: 'Block',
+    subtitle: 'ONE QUESTION',
     detail: 'Answer, then brace as the golden ring closes.',
     stat: 'Wide timing window · take 20% damage',
     Icon: Shield,
   },
   {
     id: 'counter',
-    label: 'Parade & Konter',
-    subtitle: 'PARRY & COUNTER',
+    label: 'Parry & Counter',
+    subtitle: 'TWO QUESTIONS',
     detail: 'Two answers. A precise parry. Strike back.',
     stat: 'Tight timing window · return 14 damage',
     Icon: Swords,
   },
   {
     id: 'dodge',
-    label: 'Ausweichen',
-    subtitle: 'DODGE',
+    label: 'Dodge',
+    subtitle: 'ONE TYPED ANSWER',
     detail: 'A typed answer and a well-timed sidestep.',
     stat: 'Medium timing window · avoid all damage',
     Icon: Footprints,
@@ -130,9 +131,14 @@ const impactSparks = [
   { angle: 78, distance: 46 },
 ] as const;
 
-const QUESTION_TIME_SECONDS = 9;
+/** Questions requested once per battle; techniques then draw from this pool. */
+const QUESTION_POOL_SIZE = 40;
 const DECISION_TIME_MS = 3200;
 const FEEDBACK_PAUSE_MS = 520;
+
+function questionSeconds(question: BattleQuestion | undefined): number {
+  return Math.max(1, Math.round((question?.timeoutMs ?? 9000) / 1000));
+}
 
 function ReactiveDefense({
   session,
@@ -365,14 +371,18 @@ function CombatEffects({ fx, color }: { fx: CombatFx; color: string }) {
 }
 
 export default function PrototypeBattle({
+  dojoId,
+  floorId,
   topicLabel,
-  opponentName = 'Tinten-Yokai',
+  opponentName = 'Ink Guardian',
   opponentRole = 'FLOOR GUARDIAN',
   opponentFighter = levelFor('1').villain,
   arena = levelFor('1').arena,
   boss = false,
   onVictory,
-}: PrototypeBattleProps = {}) {
+  onGraded,
+}: PrototypeBattleProps) {
+  const source = useDojoSource();
   const [battle, dispatch] = useReducer(battleReducer, undefined, createBattleState);
   const [active, setActive] = useState<ActiveChallenge | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -380,36 +390,71 @@ export default function PrototypeBattle({
   const [typedAnswer, setTypedAnswer] = useState('');
   const [correctAnswers, setCorrectAnswers] = useState(0);
   const [feedback, setFeedback] = useState<boolean | null>(null);
+  const [explanation, setExplanation] = useState('');
+  const [grading, setGrading] = useState(false);
+  const [pool, setPool] = useState<BattleQuestion[] | null>(null);
+  const [poolFailed, setPoolFailed] = useState(false);
+  const [poolAttempt, setPoolAttempt] = useState(0);
+  const [challengeQuestions, setChallengeQuestions] = useState<BattleQuestion[]>([]);
   const [timingSession, setTimingSession] = useState<TimingSession | null>(null);
   const [fx, setFx] = useState<CombatFx | null>(null);
   const [selected, setSelected] = useState(0);
   const [fullMotion, setFullMotion] = useState(true);
-  const [sampleLanguage, setSampleLanguage] = useState<'de' | 'en'>('de');
   const [weapon, setWeapon] = useState<WeaponId>('katana');
-  const [secondsLeft, setSecondsLeft] = useState(QUESTION_TIME_SECONDS);
+  const [secondsLeft, setSecondsLeft] = useState(0);
   const [decisionMsLeft, setDecisionMsLeft] = useState(DECISION_TIME_MS);
   const actionLock = useRef(false);
   const answerLock = useRef(false);
   const decisionLock = useRef(false);
   const feedbackTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const victoryReported = useRef(false);
+  const questionUsage = useRef(new Map<string, number>());
+  /** Bumped on restart so a late grade from an abandoned duel is ignored. */
+  const gradeToken = useRef(0);
   const advanceChallengeRef = useRef<(correct: boolean) => void>(() => undefined);
   const beginChallengeRef = useRef<(index: number) => void>(() => undefined);
   const selectedRef = useRef(0);
   const menu = useRef<HTMLDivElement>(null);
   const answerInput = useRef<HTMLInputElement>(null);
   const isFinished = battle.turn === 'victory' || battle.turn === 'defeat';
-  const choosing = !active && !timingSession && !fx && !isFinished;
+  const poolReady = pool !== null && pool.length > 0;
+  const choosing = poolReady && !active && !timingSession && !fx && !isFinished;
   const isDefense = battle.turn === 'enemy';
   const commands = isDefense ? defenses : attacks;
   const selectedCommand = commands[selected];
-  const challenge = active
-    ? active.side === 'attack'
-      ? (sampleLanguage === 'de' ? ATTACK_CHALLENGES : ENGLISH_ATTACK_CHALLENGES)[active.id]
-      : (sampleLanguage === 'de' ? DEFENSE_CHALLENGES : ENGLISH_DEFENSE_CHALLENGES)[active.id]
-    : null;
+  const activeCommand = active
+    ? [...attacks, ...defenses].find((command) => command.id === active.id)
+    : undefined;
+  const challenge =
+    activeCommand && challengeQuestions.length > 0
+      ? {
+          title: activeCommand.label,
+          subtitle: activeCommand.detail,
+          questions: challengeQuestions,
+        }
+      : null;
   const question = challenge?.questions[questionIndex];
   const stanceVariant = (battle.round + Number(isDefense)) % 3;
+
+  useEffect(() => {
+    let cancelled = false;
+    const scope: QuestionScope = boss
+      ? { kind: 'boss' }
+      : { kind: 'floor', floorId: floorId ?? '' };
+    source.getQuestions({ dojoId, scope, count: QUESTION_POOL_SIZE }).then(
+      (questions) => {
+        if (cancelled) return;
+        setPool(questions);
+        setPoolFailed(questions.length === 0);
+      },
+      () => {
+        if (!cancelled) setPoolFailed(true);
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [boss, dojoId, floorId, poolAttempt, source]);
 
   useEffect(() => {
     if (!fx) return;
@@ -431,7 +476,7 @@ export default function PrototypeBattle({
   }, [battle.turn, fx, onVictory]);
 
   useEffect(() => {
-    if (question?.kind === 'typed') answerInput.current?.focus();
+    if (question?.answerType === 'typed') answerInput.current?.focus();
   }, [question]);
 
   useEffect(
@@ -443,9 +488,18 @@ export default function PrototypeBattle({
 
   const beginChallenge = useCallback(
     (index: number) => {
-      if (!choosing || actionLock.current || decisionLock.current) return;
+      if (!choosing || !pool || actionLock.current || decisionLock.current) return;
       if (!isDefense && battle.cooldowns[attacks[index].id] > 0) return;
       decisionLock.current = true;
+      const technique = isDefense ? defenses[index].id : attacks[index].id;
+      const drawn = drawQuestions(pool, questionUsage.current, TECHNIQUE_QUESTIONS[technique]);
+      for (const drawnQuestion of drawn) {
+        questionUsage.current.set(
+          drawnQuestion.id,
+          (questionUsage.current.get(drawnQuestion.id) ?? 0) + 1,
+        );
+      }
+      setChallengeQuestions(drawn);
       setSelected(index);
       setActive(
         isDefense
@@ -457,10 +511,11 @@ export default function PrototypeBattle({
       setTypedAnswer('');
       setCorrectAnswers(0);
       setFeedback(null);
-      setSecondsLeft(QUESTION_TIME_SECONDS);
+      setExplanation('');
+      setSecondsLeft(questionSeconds(drawn[0]));
       answerLock.current = false;
     },
-    [battle.cooldowns, choosing, isDefense],
+    [battle.cooldowns, choosing, isDefense, pool],
   );
 
   useEffect(() => {
@@ -536,7 +591,7 @@ export default function PrototypeBattle({
 
   function submitAnswer(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (question?.kind !== 'typed') return;
+    if (question?.answerType !== 'typed') return;
     resolveAnswer(typedAnswer);
   }
 
@@ -549,7 +604,8 @@ export default function PrototypeBattle({
       setChoice('');
       setTypedAnswer('');
       setFeedback(null);
-      setSecondsLeft(QUESTION_TIME_SECONDS);
+      setExplanation('');
+      setSecondsLeft(questionSeconds(challenge.questions[questionIndex + 1]));
       answerLock.current = false;
       return;
     }
@@ -587,14 +643,31 @@ export default function PrototypeBattle({
     setFeedback(null);
   }
 
-  function resolveAnswer(value: string) {
-    if (!question || answerLock.current || !value.trim()) return;
-    answerLock.current = true;
-    const correct = isPrototypeAnswerCorrect(question, value);
+  function showFeedback(correct: boolean, text: string) {
+    setGrading(false);
     setFeedback(correct);
+    setExplanation(text);
     feedbackTimer.current = setTimeout(
       () => advanceChallengeRef.current(correct),
       FEEDBACK_PAUSE_MS,
+    );
+  }
+
+  function resolveAnswer(value: string) {
+    if (!question || answerLock.current || !value.trim()) return;
+    answerLock.current = true;
+    setGrading(true);
+    const token = gradeToken.current;
+    source.grade({ dojoId, questionId: question.id, answer: value }).then(
+      (result) => {
+        if (token !== gradeToken.current) return;
+        onGraded?.(result);
+        showFeedback(result.correct, result.explanation);
+      },
+      () => {
+        if (token !== gradeToken.current) return;
+        showFeedback(false, 'This answer could not be graded, so it counts as a miss.');
+      },
     );
   }
 
@@ -611,11 +684,7 @@ export default function PrototypeBattle({
       }
       answerLock.current = true;
       setSecondsLeft(0);
-      setFeedback(false);
-      feedbackTimer.current = setTimeout(
-        () => advanceChallengeRef.current(false),
-        FEEDBACK_PAUSE_MS,
-      );
+      showFeedback(false, 'Time is up.');
     }, 1000);
     return () => clearTimeout(timer);
   }, [feedback, question, secondsLeft]);
@@ -649,6 +718,9 @@ export default function PrototypeBattle({
 
   function restart() {
     if (feedbackTimer.current) clearTimeout(feedbackTimer.current);
+    gradeToken.current += 1;
+    setGrading(false);
+    setExplanation('');
     setFx(null);
     setTimingSession(null);
     setActive(null);
@@ -659,7 +731,6 @@ export default function PrototypeBattle({
     victoryReported.current = false;
     selectedRef.current = 0;
     setSelected(0);
-    setSecondsLeft(QUESTION_TIME_SECONDS);
     setDecisionMsLeft(DECISION_TIME_MS);
     dispatch({ type: 'RESET' });
   }
@@ -699,23 +770,8 @@ export default function PrototypeBattle({
           EDUDOJO <small>Combat test · 1 vs 1</small>
         </h1>
         <span>
-          {topicLabel ?? (sampleLanguage === 'de' ? 'Wortschatz' : 'English grammar')} · Round{' '}
-          {battle.round}
+          {topicLabel ?? 'Training duel'} · Round {battle.round}
         </span>
-        <label className={styles.devControl}>
-          DEV SET
-          <select
-            aria-label="Question sample language"
-            value={sampleLanguage}
-            onChange={(event) => {
-              setSampleLanguage(event.target.value as 'de' | 'en');
-              restart();
-            }}
-          >
-            <option value="de">DE</option>
-            <option value="en">EN</option>
-          </select>
-        </label>
         <label className={styles.equipmentControl}>
           EQUIPMENT
           <select
@@ -854,7 +910,7 @@ export default function PrototypeBattle({
             <small>ANSWER TIMER</small>
             <strong>{secondsLeft}</strong>
             <span>
-              <i style={{ width: `${(secondsLeft / QUESTION_TIME_SECONDS) * 100}%` }} />
+              <i style={{ width: `${(secondsLeft / questionSeconds(question)) * 100}%` }} />
             </span>
           </div>
         )}
@@ -891,6 +947,29 @@ export default function PrototypeBattle({
             <b>{battle.enemyHp}</b> / {battle.enemyMaxHp} HP
           </small>
         </div>
+
+        {!poolReady && !isFinished && (
+          <div className={styles.commandArea} role="status">
+            {poolFailed ? (
+              <>
+                <p className={styles.eyebrow}>NO QUESTIONS READY</p>
+                <p>The questions for this battle could not be loaded.</p>
+                <button
+                  className={styles.primaryButton}
+                  onClick={() => {
+                    setPoolFailed(false);
+                    setPool(null);
+                    setPoolAttempt((value) => value + 1);
+                  }}
+                >
+                  Try again
+                </button>
+              </>
+            ) : (
+              <p className={styles.eyebrow}>PREPARING QUESTIONS…</p>
+            )}
+          </div>
+        )}
 
         {choosing && (
           <div className={styles.commandArea}>
@@ -951,7 +1030,7 @@ export default function PrototypeBattle({
         )}
 
         {challenge && question && (
-          <form className={styles.questionPanel} onSubmit={submitAnswer} lang={sampleLanguage}>
+          <form className={styles.questionPanel} onSubmit={submitAnswer}>
             <div className={styles.questionHeader}>
               <div>
                 <p className={styles.eyebrow}>
@@ -978,9 +1057,9 @@ export default function PrototypeBattle({
                 <small>3 / 5 TO RELEASE</small>
               </div>
             )}
-            <fieldset disabled={feedback !== null}>
+            <fieldset disabled={feedback !== null || grading}>
               <legend>{question.prompt}</legend>
-              {question.kind === 'mcq' ? (
+              {question.answerType === 'multiple-choice' ? (
                 <div className={styles.options}>
                   {question.options?.map((option, index) => (
                     <label key={option} className={choice === option ? styles.optionSelected : ''}>
@@ -1007,7 +1086,7 @@ export default function PrototypeBattle({
                   aria-label={question.prompt}
                   value={typedAnswer}
                   onChange={(event) => setTypedAnswer(event.target.value)}
-                  placeholder={sampleLanguage === 'de' ? 'Deine Antwort…' : 'Your answer…'}
+                  placeholder="Your answer…"
                   autoComplete="off"
                 />
               )}
@@ -1017,26 +1096,22 @@ export default function PrototypeBattle({
                 className={feedback ? styles.feedbackCorrect : styles.feedbackWrong}
                 role="status"
               >
-                <strong>
-                  {feedback
-                    ? sampleLanguage === 'de'
-                      ? 'Richtig. Energie gesammelt.'
-                      : 'Correct. Energy gained.'
-                    : `${sampleLanguage === 'de' ? 'Antwort' : 'Answer'}: ${question.answer}`}
-                </strong>
-                <span>{question.explanation}</span>
+                <strong>{feedback ? 'Correct. Energy gained.' : 'Not this time.'}</strong>
+                <span>{explanation}</span>
               </div>
             )}
             <div className={styles.questionActions}>
               <small>{challenge.subtitle}</small>
               <span className={styles.autoAdvance}>
-                {feedback !== null
-                  ? questionIndex === challenge.questions.length - 1
-                    ? 'Releasing technique…'
-                    : 'Next question…'
-                  : question.kind === 'typed'
-                    ? 'ENTER TO ANSWER'
-                    : 'SELECT TO ANSWER'}
+                {grading
+                  ? 'Checking…'
+                  : feedback !== null
+                    ? questionIndex === challenge.questions.length - 1
+                      ? 'Releasing technique…'
+                      : 'Next question…'
+                    : question.answerType === 'typed'
+                      ? 'ENTER TO ANSWER'
+                      : 'SELECT TO ANSWER'}
               </span>
             </div>
           </form>
@@ -1070,7 +1145,7 @@ export default function PrototypeBattle({
         <div className={styles.playerHud}>
           <div>
             <span>THE APPRENTICE</span>
-            <h3>Sprachschüler</h3>
+            <h3>{HERO.name}</h3>
             <div
               className={styles.hpTrack}
               role="progressbar"
@@ -1094,10 +1169,7 @@ export default function PrototypeBattle({
         </p>
       </section>
       <footer className={styles.footer}>
-        <p>
-          Game Team · 1v1 combat sandbox · {sampleLanguage === 'de' ? 'German' : 'English'}
-          sample questions · Temporary art for motion testing
-        </p>
+        <p>Game Team · 1v1 combat sandbox · Questions come from this dojo&apos;s lessons</p>
       </footer>
     </div>
   );

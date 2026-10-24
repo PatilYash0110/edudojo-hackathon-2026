@@ -70,7 +70,8 @@ function BossIntroView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
   return (
     <PrototypeBattle
       boss
-      topicLabel="All English subtopics"
+      dojoId={dojoId}
+      topicLabel={`Every subtopic · ${dojo.title}`}
       opponentName={FINAL_BOSS.name}
       opponentRole="FINAL BOSS · SENSEI"
       opponentFighter={BOSS}

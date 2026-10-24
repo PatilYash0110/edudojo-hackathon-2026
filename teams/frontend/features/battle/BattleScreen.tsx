@@ -96,6 +96,8 @@ function BattleScreenView({ dojo, dojoId }: { dojo: Dojo; dojoId: string }) {
 
   return (
     <PrototypeBattle
+      dojoId={dojoId}
+      floorId={floor.id}
       topicLabel={`Floor ${floor.order} · ${floor.title}`}
       opponentName={villainForFloor(floor.id).name}
       opponentRole={`FLOOR ${floor.order} GUARDIAN`}
