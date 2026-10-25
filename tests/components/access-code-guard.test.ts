@@ -3,6 +3,9 @@ import { act, createElement, useEffect } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 
+const navigation = vi.hoisted(() => ({ pathname: '/' }));
+vi.mock('next/navigation', () => ({ usePathname: () => navigation.pathname }));
+
 const modal = vi.hoisted(() => ({ onSuccess: null as null | (() => void) }));
 vi.mock('@/components/access-code-modal', () => ({
   AccessCodeModal: ({ onSuccess }: { onSuccess: () => void }) => {
@@ -22,6 +25,7 @@ import { AccessCodeGuard } from '@/components/access-code-guard';
 
 let host: HTMLDivElement;
 beforeEach(() => {
+  navigation.pathname = '/';
   modal.onSuccess = null;
   legacyImport.resume.mockClear();
   host = document.createElement('div');
@@ -76,6 +80,19 @@ it('mounts the page once when no access code is required', async () => {
   await act(async () => render());
   expect(mounts.count).toBe(1);
   expect(modal.onSuccess).toBeNull();
+  expect(legacyImport.resume).not.toHaveBeenCalled();
+  await act(async () => root.unmount());
+});
+
+it('keeps the privacy notice readable without an access code and restores the gate on navigation', async () => {
+  stubStatus({ enabled: true, authenticated: false });
+  navigation.pathname = '/privacy';
+  const { root, render } = renderGuardedPage();
+  await act(async () => render());
+  expect(modal.onSuccess).toBeNull();
+  navigation.pathname = '/dojo';
+  await act(async () => render());
+  expect(modal.onSuccess).not.toBeNull();
   expect(legacyImport.resume).not.toHaveBeenCalled();
   await act(async () => root.unmount());
 });
