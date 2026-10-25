@@ -1038,6 +1038,13 @@ function HomePage() {
           </div>
         </div>
 
+        <p className="mt-3 text-sm text-muted-foreground">
+          Use a nickname. Do not send private information. AI services process your text.{' '}
+          <Link href="/privacy" className="underline">
+            Privacy notice for students and teachers
+          </Link>
+        </p>
+
         {showVocationalTestUi && (
           <motion.div
             initial={{ opacity: 0, y: -4 }}

@@ -1,12 +1,14 @@
 'use client';
 
 import { Fragment, useEffect, useState, ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import { AccessCodeModal } from '@/components/access-code-modal';
 import { importLegacyModelSettings } from '@/components/model-settings-init';
 import { modelSettingsClient } from '@/lib/model-settings/client';
 import { reloadAgentRegistry } from '@/lib/orchestration/registry/store';
 
 export function AccessCodeGuard({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
   const [status, setStatus] = useState<{
     enabled: boolean;
     authenticated: boolean;
@@ -41,7 +43,8 @@ export function AccessCodeGuard({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const needsAuth = !status.loading && status.enabled && !status.authenticated;
+  const needsAuth =
+    pathname !== '/privacy' && !status.loading && status.enabled && !status.authenticated;
 
   return (
     <>

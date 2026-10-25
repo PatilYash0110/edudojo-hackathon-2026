@@ -18,6 +18,7 @@ function navFor(pathname: string): [href: string, label: string][] {
   const items: [string, string][] = [
     ['/dojo', 'My dojos'],
     ['/', 'New topic'],
+    ['/privacy', 'Privacy'],
   ];
   const dojoId = pathname.match(/^\/dojo\/([^/]+)/)?.[1];
   if (dojoId) {

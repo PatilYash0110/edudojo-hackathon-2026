@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Link from 'next/link';
 import { motion, AnimatePresence } from 'motion/react';
 import { useI18n } from '@/lib/hooks/use-i18n';
 import { ArrowRight, ShieldCheck, LoaderCircle } from 'lucide-react';
@@ -101,6 +102,12 @@ export function AccessCodeModal({ open, onSuccess }: AccessCodeModalProps) {
               >
                 <ShieldCheck className="h-7 w-7 text-primary" strokeWidth={1.5} />
               </motion.div>
+
+              <p className="mb-4 text-center text-sm text-muted-foreground">
+                <Link href="/privacy" className="underline">
+                  Privacy notice for students and teachers
+                </Link>
+              </p>
 
               {/* Title */}
               <motion.h1
