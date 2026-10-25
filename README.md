@@ -34,4 +34,4 @@ Find open work with `grep -rn TODO teams`.
 
 ## License
 
-This project keeps OpenMAIC's MIT license. See [LICENSE](LICENSE) and the [upstream project](https://github.com/THU-MAIC/OpenMAIC).
+This project keeps OpenMAIC's MIT license. See [LICENSE](LICENSE) .
