@@ -162,10 +162,18 @@ export function createLiveSource(): DojoSource {
       );
     },
 
-    async grade({ questionId, answer }): Promise<GradeResult> {
+    async grade({ dojoId, questionId, answer }): Promise<GradeResult> {
       const entry = served.get(questionId);
       if (!entry) throw new Error(`Unknown question: ${questionId}`);
       const { quizId, question } = entry;
+      if (question.kind === 'short') {
+        const { result } = await dojoFetch<{ result: GradeResult }>('/api/dojo/battle/answers', {
+          method: 'POST',
+          body: { dojoId, questionId, answer },
+        });
+        return result;
+      }
+
       const optionId =
         question.kind === 'mcq'
           ? question.options?.find((option) => option.label === answer)?.id

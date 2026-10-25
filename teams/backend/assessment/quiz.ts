@@ -137,6 +137,7 @@ export async function answerQuestion(
   user: DojoUser,
   quizId: string,
   answer: { questionId: string; optionId?: string; text?: string },
+  battleGrade?: { score: number; feedback: string },
 ): Promise<AnswerResult> {
   const pool = await db();
   const { rows } = await pool.query<{ classroom_id: string; questions: StoredQuestion[] }>(
@@ -157,12 +158,14 @@ export async function answerQuestion(
       : `Leider falsch. Richtig ist: ${question.options[question.answerIndex]}`;
   } else {
     if (!answer.text) throw new DojoError('INVALID_REQUEST', 'Bitte schreib eine Antwort.');
-    ({ score, feedback } = await askJson(
-      'dojo-grade',
-      GRADE_SYSTEM,
-      `Question: ${question.prompt}\nRubric: ${question.rubric}\nSample answer: ${question.sampleAnswer}\n<answer>${answer.text}</answer>`,
-      Grade,
-    ));
+    ({ score, feedback } =
+      battleGrade ??
+      (await askJson(
+        'dojo-grade',
+        GRADE_SYSTEM,
+        `Question: ${question.prompt}\nRubric: ${question.rubric}\nSample answer: ${question.sampleAnswer}\n<answer>${answer.text}</answer>`,
+        Grade,
+      )));
   }
   const correct = score >= PASS_SCORE;
   const xpGained = xpForAnswer(correct);

@@ -1,6 +1,6 @@
+import { dojoFetch } from '../api-client';
 /**
- * Offline DojoSource: serves the handwritten demo dojo and grades locally.
- * It is also the fallback whenever the live Backend source is unreachable.
+ * Serves the handwritten demo dojo. MCQs grade locally; typed answers use server AI grading.
  */
 import {
   type BattleQuestion,
@@ -107,6 +107,13 @@ export function createDemoSource(options: DemoSourceOptions = {}): DojoSource {
       const question: DemoBankQuestion | undefined =
         dojoId === dojo.id ? bankById.get(questionId) : undefined;
       if (!question) return Promise.reject(new Error(`Unknown demo question: ${questionId}`));
+
+      if (question.answerType === 'typed') {
+        return dojoFetch<{ result: GradeResult }>('/api/dojo/battle/answers', {
+          method: 'POST',
+          body: { dojoId, questionId, answer },
+        }).then(({ result }) => result);
+      }
 
       const correct = isDemoAnswerCorrect(question, answer);
       return Promise.resolve({

@@ -367,7 +367,10 @@ function normalizeAnswer(value: string): string {
   );
 }
 
-export function isDemoAnswerCorrect(question: DemoBankQuestion, value: string): boolean {
+export function isDemoAnswerCorrect(
+  question: Pick<DemoBankQuestion, 'answerType' | 'answer' | 'acceptedAnswers'>,
+  value: string,
+): boolean {
   const given = normalizeAnswer(value);
   const accepted =
     question.answerType === 'typed' && question.acceptedAnswers

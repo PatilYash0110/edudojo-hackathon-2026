@@ -40,7 +40,7 @@ import { HERO, levelFor, type Arena, type FighterArt } from './fighter-roster';
 type ActiveChallenge =
   | { side: 'attack'; id: AttackTechnique }
   | { side: 'defense'; id: DefenseTechnique };
-type TimingSession = { technique: DefenseTechnique; knowledgeCorrect: boolean };
+type TimingSession = { technique: DefenseTechnique; knowledgeScore: number };
 type WeaponId = 'katana' | 'dragon';
 type PrototypeBattleProps = {
   dojoId: string;
@@ -193,11 +193,11 @@ function ReactiveDefense({
     (timed: boolean) => {
       if (resolved.current) return;
       resolved.current = true;
-      const success = timed && session.knowledgeCorrect;
+      const success = timed && session.knowledgeScore > 0;
       setPhase(success ? 'success' : 'miss');
       resolveTimer.current = setTimeout(() => callback.current(success), 300);
     },
-    [session.knowledgeCorrect],
+    [session.knowledgeScore],
   );
 
   const attempt = useCallback(() => {
@@ -232,7 +232,7 @@ function ReactiveDefense({
       <p className={styles.eyebrow}>Incoming strike</p>
       <h2>{action.label}</h2>
       <p>
-        {session.knowledgeCorrect
+        {session.knowledgeScore > 0
           ? 'Wait for gold. Then react.'
           : 'Knowledge seal broken. This defense will fail.'}
       </p>
@@ -429,7 +429,7 @@ export default function PrototypeBattle({
   const [choice, setChoice] = useState('');
   const [typedAnswer, setTypedAnswer] = useState('');
   const [correctAnswers, setCorrectAnswers] = useState(0);
-  const [feedback, setFeedback] = useState<boolean | null>(null);
+  const [feedback, setFeedback] = useState<number | null>(null);
   const [explanation, setExplanation] = useState('');
   const [grading, setGrading] = useState(false);
   const [pool, setPool] = useState<BattleQuestion[] | null>(null);
@@ -468,8 +468,8 @@ export default function PrototypeBattle({
   const poolExhausted = useRef(false);
   /** Bumped on restart so a late grade from an abandoned duel is ignored. */
   const gradeToken = useRef(0);
-  const advanceChallengeRef = useRef<(correct: boolean) => void>(() => undefined);
-  const showFeedbackRef = useRef<(correct: boolean, text: string) => void>(() => undefined);
+  const advanceChallengeRef = useRef<(correct: number) => void>(() => undefined);
+  const showFeedbackRef = useRef<(correct: number, text: string) => void>(() => undefined);
   const beginChallengeRef = useRef<(index: number) => void>(() => undefined);
   const selectedRef = useRef(0);
   const menu = useRef<HTMLDivElement>(null);
@@ -713,9 +713,9 @@ export default function PrototypeBattle({
     resolveAnswer(typedAnswer);
   }
 
-  function advanceChallenge(correct: boolean) {
+  function advanceChallenge(correct: number) {
     if (!active || !challenge || actionLock.current) return;
-    const score = correctAnswers + Number(correct);
+    const score = correctAnswers + correct;
     if (questionIndex < challenge.questions.length - 1) {
       setCorrectAnswers(score);
       setQuestionIndex((index) => index + 1);
@@ -733,7 +733,7 @@ export default function PrototypeBattle({
       const backlash = active.id === 'quiz' && score < 3;
       setFx({
         kind: active.id,
-        hits: score,
+        hits: Math.ceil(score),
         damage: backlash ? BATTLE_BALANCE.quizBacklashDamage : damage,
         failed: damage === 0,
         target: backlash ? 'player' : 'enemy',
@@ -754,18 +754,23 @@ export default function PrototypeBattle({
     } else {
       setTimingSession({
         technique: active.id,
-        knowledgeCorrect: score === challenge.questions.length,
+        knowledgeScore:
+          score === challenge.questions.length
+            ? 1
+            : !challenge.questions.some((item) => item.answerType === 'typed')
+              ? 0
+              : score / challenge.questions.length,
       });
     }
     setActive(null);
     setFeedback(null);
   }
 
-  function showFeedback(correct: boolean, text: string, given = '') {
+  function showFeedback(correct: number, text: string, given = '') {
     setGrading(false);
     setFeedback(correct);
     setExplanation(text);
-    if (!correct && question) {
+    if (correct < 1 && question) {
       const missed = question;
       setMistakes((list) => [
         ...list,
@@ -787,11 +792,13 @@ export default function PrototypeBattle({
       (result) => {
         if (token !== gradeToken.current) return;
         onGraded?.(result);
-        showFeedback(result.correct, result.explanation, value);
+        showFeedback(result.score, result.explanation, value);
       },
       () => {
         if (token !== gradeToken.current) return;
-        showFeedback(false, 'This answer could not be graded, so it counts as a miss.', value);
+        setGrading(false);
+        answerLock.current = false;
+        setExplanation('Grading is unavailable. Submit your answer again.');
       },
     );
   }
@@ -802,7 +809,7 @@ export default function PrototypeBattle({
   });
 
   useEffect(() => {
-    if (!question || feedback !== null || answerLock.current || secondsLeft <= 0) return;
+    if (!question || feedback !== null || grading || answerLock.current || secondsLeft <= 0) return;
     const timer = setTimeout(() => {
       if (secondsLeft > 1) {
         setSecondsLeft(secondsLeft - 1);
@@ -810,10 +817,10 @@ export default function PrototypeBattle({
       }
       answerLock.current = true;
       setSecondsLeft(0);
-      showFeedbackRef.current(false, 'Time is up.');
+      showFeedbackRef.current(0, 'Time is up.');
     }, 1000);
     return () => clearTimeout(timer);
-  }, [feedback, question, secondsLeft]);
+  }, [feedback, grading, question, secondsLeft]);
 
   function resolveDefense(success: boolean) {
     if (!timingSession || actionLock.current) return;
@@ -822,7 +829,7 @@ export default function PrototypeBattle({
     const event: BattleEvent = {
       type: 'DEFENSE_RESOLVED',
       technique,
-      correct: Number(success),
+      correct: success ? timingSession.knowledgeScore : 0,
       total: 1,
     };
     const next = battleReducer(battle, event);
@@ -1163,7 +1170,15 @@ export default function PrototypeBattle({
           <form
             className={styles.questionPanel}
             onSubmit={submitAnswer}
-            data-feedback={feedback === null ? undefined : feedback ? 'correct' : 'wrong'}
+            data-feedback={
+              feedback === null
+                ? undefined
+                : feedback === 1
+                  ? 'correct'
+                  : feedback === 0.5
+                    ? 'partial'
+                    : 'wrong'
+            }
           >
             <div className={styles.questionHeader}>
               <div>
@@ -1180,13 +1195,10 @@ export default function PrototypeBattle({
             {active?.id === 'quiz' && (
               <div
                 className={styles.chargeMeter}
-                aria-label={`Charge: ${correctAnswers + Number(feedback === true)} of 5`}
+                aria-label={`Charge: ${correctAnswers + (feedback ?? 0)} of 5`}
               >
                 {Array.from({ length: 5 }, (_, index) => (
-                  <i
-                    key={index}
-                    data-charged={index < correctAnswers + Number(feedback === true)}
-                  />
+                  <i key={index} data-charged={index < correctAnswers + (feedback ?? 0)} />
                 ))}
                 <small>3 / 5 TO RELEASE</small>
               </div>
@@ -1225,12 +1237,26 @@ export default function PrototypeBattle({
                 />
               )}
             </fieldset>
-            {feedback !== null && (
+            {(feedback !== null || explanation) && (
               <div
-                className={feedback ? styles.feedbackCorrect : styles.feedbackWrong}
+                className={
+                  feedback === 0.5
+                    ? styles.feedbackPartial
+                    : feedback === 1
+                      ? styles.feedbackCorrect
+                      : styles.feedbackWrong
+                }
                 role="status"
               >
-                <strong>{feedback ? 'Correct. Energy gained.' : 'Not this time.'}</strong>
+                <strong>
+                  {feedback === null
+                    ? 'Please retry.'
+                    : feedback === 1
+                      ? 'Correct. Energy gained.'
+                      : feedback === 0.5
+                        ? 'Partly correct. Half effect.'
+                        : 'Not this time.'}
+                </strong>
                 <span>{explanation}</span>
               </div>
             )}
