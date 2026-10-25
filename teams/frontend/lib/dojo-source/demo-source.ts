@@ -66,6 +66,9 @@ export function createDemoSource(options: DemoSourceOptions = {}): DojoSource {
           status: 'ready' as const,
           progress: 100,
           floorIds: dojo.floors.map((floor) => floor.id),
+          // Hand-written, never generated: there is no run and no course.
+          runId: null,
+          stageId: null,
         },
       ]);
     },

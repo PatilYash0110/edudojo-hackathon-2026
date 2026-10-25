@@ -45,6 +45,8 @@ import { courseGenerationUsable } from '@/lib/model-settings/capabilities';
 import { discardGenerationRun } from '@/lib/generation-run-client/api';
 import { DojoApiError } from '@/teams/frontend/lib/api-client';
 import { useDojoSource } from '@/teams/frontend/lib/dojo-source/DojoSourceProvider';
+import { dojoHref, type CourseIds } from '@/teams/frontend/lib/dojo-source/dojo-href';
+import type { DojoSummary } from '@/teams/shared/contracts/dojo-source';
 import { LessonsPanel } from '@/teams/frontend/features/dojo-map/LessonsPanel';
 import {
   useCourseMaterials,
@@ -233,6 +235,29 @@ function HomePage() {
       cancelled = true;
     };
   }, [workbenchBuildEnabled]);
+  // The learner's dojos, so a course card can open the tower that owns it
+  // rather than the upstream generation preview. Listed once: it never signs
+  // anyone in, and an empty list just leaves the upstream hrefs in place.
+  const [dojos, setDojos] = useState<DojoSummary[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    void dojoSource
+      .listDojos()
+      .then((summaries) => {
+        if (!cancelled) setDojos(summaries);
+      })
+      .catch(() => {
+        // No dojos reachable: the cards keep their upstream destinations.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [dojoSource]);
+  /** The dojo tower for a course card, falling back to OpenMAIC's own screens. */
+  const openCourse = (ids: CourseIds, fallback: string) => {
+    router.push(dojoHref(dojos, ids) ?? fallback);
+  };
+
   const workbenchEntryEnabled = workbenchBuildEnabled && workbenchRuntimeEnabled;
   const enterWorkbench = () => {
     const href = workspaceResumeHref(readLastWorkspaceSessionId());
@@ -1363,7 +1388,12 @@ function HomePage() {
                               confirmingDelete={pendingDeleteId === run.id}
                               onConfirmDelete={() => confirmDelete(run.id)}
                               onCancelDelete={() => setPendingDeleteId(null)}
-                              onClick={() => router.push(courseRunHref(run))}
+                              onClick={() =>
+                                openCourse(
+                                  { runId: run.id, stageId: run.stageId },
+                                  courseRunHref(run),
+                                )
+                              }
                             />
                           </motion.div>
                         ))}
@@ -1392,7 +1422,10 @@ function HomePage() {
                             onCancelDelete={() => setPendingDeleteId(null)}
                             onClick={() => {
                               const run = runByStageId.get(classroom.id);
-                              router.push(run ? courseRunHref(run) : `/classroom/${classroom.id}`);
+                              openCourse(
+                                { runId: run?.id, stageId: classroom.id },
+                                run ? courseRunHref(run) : `/classroom/${classroom.id}`,
+                              );
                             }}
                             overlay={
                               <>

@@ -110,6 +110,8 @@ export function createLiveSource(): DojoSource {
           status: classroom.status,
           progress: classroom.progress,
           floorIds: classroomToDojo(classroom).floors.map((floor) => floor.id),
+          runId: classroom.runId,
+          stageId: classroom.stageId,
         }));
       } catch (error) {
         // A first visit has no session yet, so there is nothing to list.

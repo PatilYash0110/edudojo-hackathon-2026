@@ -71,6 +71,7 @@ export function toClassroom(row: ClassroomRow, progress = 100): Classroom {
     error: row.error,
     classId: row.class_id,
     stageId: row.stage_id,
+    runId: row.run_id,
     playerUrl: ready && row.stage_id ? `/classroom/${row.stage_id}` : null,
     floors: row.floors,
     agents: row.agents,
