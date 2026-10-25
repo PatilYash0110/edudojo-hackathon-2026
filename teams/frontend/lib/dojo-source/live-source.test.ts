@@ -15,6 +15,7 @@ const classroom = (overrides: Partial<Classroom> = {}): Classroom => ({
   error: null,
   classId: null,
   stageId: 'stage-1',
+  runId: 'run-1',
   playerUrl: '/classroom/stage-1',
   floors: [
     {

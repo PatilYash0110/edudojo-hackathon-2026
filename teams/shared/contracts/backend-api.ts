@@ -136,6 +136,13 @@ export interface Classroom {
   classId: string | null;
   /** OpenMAIC course id once ready. */
   stageId: string | null;
+  /**
+   * The OpenMAIC generation run building this classroom. Set from the start,
+   * unlike `stageId`, so a course still generating can be traced back to its
+   * dojo — which is how the course list knows to open the tower rather than
+   * OpenMAIC's own generation preview.
+   */
+  runId: string;
   /** OpenMAIC player (slides + teacher narration) once ready, e.g. `/classroom/<stageId>`. */
   playerUrl: string | null;
   floors: Floor[];
