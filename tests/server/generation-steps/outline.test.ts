@@ -95,11 +95,10 @@ describe('outline step', () => {
       languageDirective: 'Teach in English.',
       courseTitle: 'Fractions',
       taskEngineMode: false,
-      outlines: [
-        { id: 'o1', order: 1, title: 'Halves' },
-        { id: 'o2', order: 2, title: 'Check' },
-      ],
     });
+    // The model's outlines stay; the step pads the course to its minimum and keeps the quiz last.
+    expect(result.outlines[0]).toMatchObject({ id: 'o1', order: 1, title: 'Halves' });
+    expect(result.outlines.at(-1)).toMatchObject({ id: 'o2', type: 'quiz', title: 'Check' });
     expect(mocks.capabilities).toHaveBeenCalledWith(null);
   });
 
@@ -121,7 +120,9 @@ describe('outline step', () => {
     const events: OutlineEvent[] = [];
     const result = await generateOutlines({ ...body, model }, stepContext(events));
     expect(events[0]).toEqual({ type: 'retry', attempt: 1, maxAttempts: 3 });
-    expect(result.outlines).toHaveLength(2);
+    expect(result.outlines.map((outline) => outline.id)).toEqual(
+      expect.arrayContaining(['o1', 'o2']),
+    );
   });
 
   it('stops without retrying once the caller goes away', async () => {

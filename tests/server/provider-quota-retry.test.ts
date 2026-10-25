@@ -170,8 +170,9 @@ describe('explicit provider quota stops retries', () => {
             },
             context,
           )
-        ).outlines,
-      ).toHaveLength(1);
+        ).outlines[0],
+        // The authored outline comes from the fallback; the step pads the course after it.
+      ).toMatchObject({ title: 'Intro' });
     }
     expect(primary.fetch).toHaveBeenCalledTimes(1);
     expect(fallback.fetch).toHaveBeenCalledTimes(1);

@@ -265,6 +265,35 @@ const ROUTES: RouteCase[] = [
       ),
   },
   {
+    path: 'classroom-insights',
+    invoke: async (m) =>
+      (await import('@/app/api/classroom-insights/route')).POST(
+        request(
+          '/api/classroom-insights',
+          {
+            model: `openai:${m}`,
+            // Enough questions for a radar, so the route reaches the model.
+            results: Array.from({ length: 6 }, (_, i) => ({
+              question: `Q${i}`,
+              correct: i % 2 === 0,
+            })),
+          },
+          { 'x-model': `openai:${m}` },
+        ),
+      ),
+  },
+  {
+    path: 'classroom-practice',
+    invoke: async (m) =>
+      (await import('@/app/api/classroom-practice/route')).POST(
+        request(
+          '/api/classroom-practice',
+          { model: `openai:${m}`, topic: 'Fractions', results: [] },
+          { 'x-model': `openai:${m}` },
+        ),
+      ),
+  },
+  {
     path: 'generate/image',
     invoke: async (m) =>
       (await import('@/app/api/generate/image/route')).POST(
