@@ -41,7 +41,7 @@ services:
       - key: PORT
         value: '8000'
       - key: PRELOAD_MODELS
-        value: '["speaches-ai/piper-de_DE-thorsten-high"]'
+        value: '["speaches-ai/piper-de_DE-thorsten-medium"]' # the voice in openmaic.dojo.yml slots.tts
       - key: API_KEY
         generateValue: true
       - key: ENABLE_UI
