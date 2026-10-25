@@ -16,7 +16,7 @@ concurrency:
 
 jobs:
   check:
-    name: Typecheck, lint, tests
+    name: Typecheck, lint
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -27,16 +27,30 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: tsc, eslint, vitest (parallel)
+      - name: tsc, eslint (parallel)
         run: |
           scripts/ci-run-parallel.sh \
             'tsc' 'NODE_OPTIONS=--max-old-space-size=6144 npx tsc --noEmit' \
-            'eslint' 'pnpm lint' \
-            'vitest' 'pnpm test'
+            'eslint' 'pnpm lint'
+
+  # Own runner: next to tsc + eslint the 5s-timeout UI tests flake from CPU starvation.
+  test:
+    name: Unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
 
   deploy:
     name: Deploy production
-    needs: check
+    needs: [check, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 20

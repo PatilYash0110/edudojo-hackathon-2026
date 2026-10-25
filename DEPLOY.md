@@ -2,8 +2,8 @@
 
 | Event | What runs |
 | --- | --- |
-| PR into `development` or `main` | `check`: tsc + eslint + vitest (`.github/workflows/ci.yml`) |
-| Merge into `main` | `check`, then deploy: Render (API + TTS voice) and Vercel (pages) |
+| PR into `development` or `main` | `check` (tsc + eslint) and `test` (vitest), on two runners (`.github/workflows/ci.yml`) |
+| Merge into `main` | `check` + `test`, then deploy: Render (API + TTS voice) and Vercel (pages) |
 
 ```
 browser ─▶ Vercel (pages) ──/api/*──▶ Render dojolearn-api ──▶ Supabase PROD (Postgres)
@@ -53,11 +53,10 @@ breaks the locks the migrations take. URL-encode special characters in the passw
 Repo → **Settings → Secrets and variables → Actions** → add `RENDER_DEPLOY_HOOK_URL`, `VERCEL_TOKEN`, `VERCEL_ORG_ID`,
 `VERCEL_PROJECT_ID`.
 
-### 5. Backend config (one line, backend team)
+### 5. Local dev after this change
 
-The TTS service is public and requires `API_KEY`. Render passes the key to the API as `SPEACHES_API_KEY`. In
-`teams/backend/config/openmaic.dojo.yml`, change `apiKey: not-needed` to `apiKey: ${SPEACHES_API_KEY}`. Without this
-change, narration returns 401.
+`openmaic.dojo.yml` now reads `apiKey: ${SPEACHES_API_KEY}` (the deployed TTS requires a key). Add
+`SPEACHES_API_KEY=local` to `.env.local`: any value works locally, and the server refuses to boot while it is unset.
 
 ## Demo day
 
@@ -68,7 +67,7 @@ change, narration returns 401.
 
 ## When something breaks
 
-- **CI red**: open the `check` job; each tool (tsc, eslint, vitest) prints its own log group.
+- **CI red**: open the failed job. `check` prints one log group per tool (tsc, eslint); `test` is plain vitest.
 - **Merged, site not updated**: check Render → `dojolearn-api` → **Events** (the workflow does not wait for Render),
   and Vercel → **Deployments**.
 - **API 502 on Vercel**: Render is asleep or still building. Wait, or check `https://<api>/api/health`.

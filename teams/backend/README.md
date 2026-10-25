@@ -14,6 +14,7 @@ Types for callers: `teams/shared/contracts/backend-api.ts`.
    DATABASE_URL=postgresql://postgres.<ref>:<password>@<host>:5432/postgres
    DEEPSEEK_API_KEY=sk-...
    SPEACHES_BASE_URL=http://localhost:8000/v1   # in Docker: http://speaches:8000/v1
+   SPEACHES_API_KEY=local                       # any value locally; Render sets the real one
    OPENMAIC_SECRET_KEY=<openssl rand -base64 32>  # signs sessions; keep it stable
    PARALLEL_SCENE_CONCURRENCY=3                    # scene content ahead + parallel TTS per scene
    ```
