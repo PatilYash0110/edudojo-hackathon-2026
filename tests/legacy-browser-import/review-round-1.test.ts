@@ -348,7 +348,7 @@ describe('legacy sources', () => {
       documents: {
         loadDocument: async () => {
           // A record the DSL cannot migrate: unusable, not a storage failure.
-          throw new Error('@openmaic/dsl: no migration path from "9.9.9" to "0.1.0"');
+          throw new Error('@dojolearn/dsl: no migration path from "9.9.9" to "0.1.0"');
         },
         listDocuments: async () => [],
       },

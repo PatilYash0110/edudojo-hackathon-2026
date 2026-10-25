@@ -15,7 +15,7 @@ import { setDeploymentConfigForTests } from '@/lib/server/model-config/runtime';
  */
 import type { AgentEvent, AgentMessage } from '@earendil-works/pi-agent-core';
 import { InMemorySessionRepo, Session } from '@earendil-works/pi-agent-core';
-import type { AgentSessionMaterial, ClaimedAgentSession } from '@openmaic/storage';
+import type { AgentSessionMaterial, ClaimedAgentSession } from '@dojolearn/storage';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({

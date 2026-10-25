@@ -1,7 +1,7 @@
 /**
  * Owner-level extraction state for library sources (RFC #1716 §2–3).
  *
- * The session chain (`@openmaic/storage/material/pg`) keeps queueing, leases
+ * The session chain (`@dojolearn/storage/material/pg`) keeps queueing, leases
  * and results on each conversation's copy of a material, so a second
  * conversation extracts the same upload again. This module keeps them on the
  * owner's `owner_material` row instead, so every conversation shares one
@@ -60,8 +60,8 @@ import {
   extractionReasonCodeOf,
   type MaterialExtractionReasonCode,
 } from '@/lib/types/material-extraction-failure';
-import type { Queryable, WithTransaction } from '@openmaic/storage/document/pg';
-import { encodeJson } from '@openmaic/storage/pg-json';
+import type { Queryable, WithTransaction } from '@dojolearn/storage/document/pg';
+import { encodeJson } from '@dojolearn/storage/pg-json';
 
 import { CLASSIC_EXTRACTION_SQL, libraryExtractionStatus } from './material-extraction-format';
 import { MATERIAL_ROOT_KIND, withMaterialRoots } from './material-roots';

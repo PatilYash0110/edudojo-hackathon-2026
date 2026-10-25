@@ -6,7 +6,7 @@
  * means a shipped migration changed: revert it and add a new migration. Only
  * a NEW migration (or a new store) adds a row here.
  */
-import { schemaMigrationChecksum } from '@openmaic/storage/pg-migrations';
+import { schemaMigrationChecksum } from '@dojolearn/storage/pg-migrations';
 import { describe, expect, it } from 'vitest';
 
 import { APP_SCHEMA_STORES } from '@/lib/persistence/schema-stores';

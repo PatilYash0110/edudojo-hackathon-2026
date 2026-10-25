@@ -2,8 +2,8 @@
 import { act, createElement, useRef } from 'react';
 import { createRoot } from 'react-dom/client';
 import { afterEach, expect, it, vi } from 'vitest';
-import type { Slide } from '@openmaic/dsl';
-import { SlideCanvas } from '@openmaic/renderer';
+import type { Slide } from '@dojolearn/dsl';
+import { SlideCanvas } from '@dojolearn/renderer';
 import { SlideThumbnail } from '@/components/slide-renderer/SlideThumbnail';
 import { useNearViewport } from '@/lib/hooks/use-near-viewport';
 

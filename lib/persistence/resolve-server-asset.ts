@@ -10,7 +10,7 @@
  * owner's own entries, legacy shared entries, and other owners' committed
  * entries that a live course references.
  */
-import { AssetNotFoundError, toAssetId } from '@openmaic/storage';
+import { AssetNotFoundError, toAssetId } from '@dojolearn/storage';
 
 import { assetPrincipalForOwner, createOwnerAssetStore } from './owner-assets';
 import { getServerPersistenceProvider } from './server-provider';

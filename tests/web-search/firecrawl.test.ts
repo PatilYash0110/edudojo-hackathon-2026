@@ -21,9 +21,9 @@ describe('searchWithFirecrawl', () => {
           data: {
             web: [
               {
-                title: 'OpenMAIC',
-                url: 'https://github.com/THU-MAIC/OpenMAIC',
-                description: '  ## OpenMAIC\n\nOpen multi-agent   interactive classroom.  ',
+                title: 'DojoLearn',
+                url: 'https://github.com/PatilYash0110/edudojo-hackathon-2026',
+                description: '  ## DojoLearn\n\nOpen multi-agent   interactive classroom.  ',
                 position: 1,
               },
               {
@@ -45,7 +45,7 @@ describe('searchWithFirecrawl', () => {
     );
 
     const result = await searchWithFirecrawl({
-      query: '  OpenMAIC web search  ',
+      query: '  DojoLearn web search  ',
       apiKey: 'fc-key',
       maxResults: 5,
     });
@@ -59,20 +59,20 @@ describe('searchWithFirecrawl', () => {
           Authorization: 'Bearer fc-key',
         },
         body: JSON.stringify({
-          query: 'OpenMAIC web search',
+          query: 'DojoLearn web search',
           limit: 5,
-          origin: 'openmaic',
+          origin: 'dojolearn',
         }),
       }),
     );
     expect(result).toMatchObject({
       answer: '',
-      query: 'OpenMAIC web search',
+      query: 'DojoLearn web search',
       sources: [
         {
-          title: 'OpenMAIC',
-          url: 'https://github.com/THU-MAIC/OpenMAIC',
-          content: '## OpenMAIC Open multi-agent interactive classroom.',
+          title: 'DojoLearn',
+          url: 'https://github.com/PatilYash0110/edudojo-hackathon-2026',
+          content: '## DojoLearn Open multi-agent interactive classroom.',
           score: 1,
         },
         {

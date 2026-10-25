@@ -6,7 +6,7 @@ import {
   PgAgentSessionStore,
   type Queryable,
   type WithTransaction,
-} from '../../packages/@openmaic/storage/src/agent-session/pg';
+} from '../../packages/@dojolearn/storage/src/agent-session/pg';
 
 const contractUrl = process.env.PG_CONTRACT_URL;
 const TEST_SCHEMA = `openmaic_park_attempts_${process.pid}`;

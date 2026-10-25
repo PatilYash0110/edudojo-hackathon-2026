@@ -42,7 +42,7 @@ import {
 import { randomBytes } from 'node:crypto';
 
 import type { AgentTool } from '@earendil-works/pi-agent-core';
-import type { AgentSessionMaterial } from '@openmaic/storage';
+import type { AgentSessionMaterial } from '@dojolearn/storage';
 import { Type } from 'typebox';
 
 import { ensureOwnerMaterialExtraction } from '@/lib/persistence/owner-material-extraction';

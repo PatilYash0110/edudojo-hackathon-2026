@@ -6,14 +6,14 @@
 import { randomUUID } from 'node:crypto';
 
 import { PGlite } from '@electric-sql/pglite';
-import { AssetRootTargetError } from '@openmaic/storage/asset/pg';
+import { AssetRootTargetError } from '@dojolearn/storage/asset/pg';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 // Every input the wrapper hands the storage root API, so a test can check the
 // principals exactly rather than only that one wrong partition is refused.
 const rootCalls = vi.hoisted(() => [] as Array<{ principals: readonly string[] }>);
-vi.mock('@openmaic/storage/asset/pg', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@openmaic/storage/asset/pg')>();
+vi.mock('@dojolearn/storage/asset/pg', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@dojolearn/storage/asset/pg')>();
   return {
     ...actual,
     changeAssetRoots: (...args: Parameters<typeof actual.changeAssetRoots>) => {

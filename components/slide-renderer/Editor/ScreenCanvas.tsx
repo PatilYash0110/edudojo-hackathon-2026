@@ -11,13 +11,13 @@ import { useSyncCanvasViewportFromSlide } from '@/lib/store/sync-canvas-viewport
 import { useSceneSelector } from '@/lib/contexts/scene-context';
 import { findElementGeometry } from '@/lib/utils/geometry';
 import type { SlideContent } from '@/lib/types/stage';
-import type { PPTElement, SlideBackground } from '@openmaic/dsl';
+import type { PPTElement, SlideBackground } from '@dojolearn/dsl';
 import type { PercentageGeometry } from '@/lib/types/action';
 import { useViewportSize } from './Canvas/hooks/useViewportSize';
 import { useRef, useMemo } from 'react';
 import { AnimatePresence } from 'motion/react';
 import { isPlaybackRendererEnabled } from '@/lib/config/feature-flags';
-import { createTextProseStyles } from '@openmaic/renderer';
+import { createTextProseStyles } from '@dojolearn/renderer';
 
 const LEGACY_SHAPE_PROSE_STYLES = createTextProseStyles(
   '.legacy-screen-canvas .screen-element .slide-renderer-prose',

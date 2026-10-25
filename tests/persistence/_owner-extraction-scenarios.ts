@@ -13,11 +13,11 @@ import { OwnerMaterialBytesUnavailableError } from '@/lib/server/materials/owner
 import { MaterialExtractionError } from '@/lib/server/material-extraction/errors';
 import { createHash, randomUUID } from 'node:crypto';
 
-import { ensureAgentSessionSchema } from '@openmaic/storage/agent-session/pg';
-import { AssetCollector } from '@openmaic/storage/asset/collector';
-import { AssetRootTargetError, changeAssetRoots } from '@openmaic/storage/asset/pg';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
-import { ensureUserSkillSchema } from '@openmaic/storage/skill/pg';
+import { ensureAgentSessionSchema } from '@dojolearn/storage/agent-session/pg';
+import { AssetCollector } from '@dojolearn/storage/asset/collector';
+import { AssetRootTargetError, changeAssetRoots } from '@dojolearn/storage/asset/pg';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
+import { ensureUserSkillSchema } from '@dojolearn/storage/skill/pg';
 import { expect, vi } from 'vitest';
 import * as imageParser from '@/lib/server/material-extraction/document-image-parser';
 

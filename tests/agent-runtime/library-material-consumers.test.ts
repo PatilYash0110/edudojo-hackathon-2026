@@ -8,7 +8,7 @@
 import { randomUUID } from 'node:crypto';
 
 import { PGlite } from '@electric-sql/pglite';
-import type { PPTTextElement, Slide } from '@openmaic/dsl';
+import type { PPTTextElement, Slide } from '@dojolearn/dsl';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import type { AppDocumentOutline } from '@/lib/document-store/persistence-types';

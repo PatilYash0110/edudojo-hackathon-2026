@@ -18,8 +18,8 @@
  * this schema alone, so `CREATE TABLE IF NOT EXISTS` cannot resolve to another
  * suite's table and provision nothing here.
  */
-import type { Scene, Stage } from '@openmaic/dsl';
-import type { MaicDocument } from '@openmaic/storage';
+import type { Scene, Stage } from '@dojolearn/dsl';
+import type { MaicDocument } from '@dojolearn/storage';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 

@@ -5,7 +5,7 @@ import path from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 
 import {
   ensureWorkspaceModelConfigSchema,
@@ -207,7 +207,7 @@ describe('workspace model configuration store', () => {
 describe('instance secret file', () => {
   it('is created once in the data directory and reused', async () => {
     const { instanceKey } = await import('@/lib/server/secret-box');
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openmaic-secret-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dojolearn-secret-'));
     try {
       resetInstanceKeyForTests();
       const first = instanceKey({}, dir);
@@ -232,7 +232,7 @@ describe('a damaged instance secret file', () => {
     ['not base64', `${'!'.repeat(43)}=`],
   ])('is refused when %s', async (_label, contents) => {
     const { instanceKey } = await import('@/lib/server/secret-box');
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openmaic-secret-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dojolearn-secret-'));
     try {
       fs.writeFileSync(path.join(dir, 'instance-secret.key'), contents);
       resetInstanceKeyForTests();
@@ -259,7 +259,7 @@ describe('sealed values', () => {
 
   it('leave no temporary file behind when the secret cannot be written', async () => {
     const { instanceKey } = await import('@/lib/server/secret-box');
-    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openmaic-secret-'));
+    const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dojolearn-secret-'));
     const write = vi.spyOn(fs, 'fsyncSync').mockImplementation(() => {
       throw Object.assign(new Error('disk full'), { code: 'ENOSPC' });
     });

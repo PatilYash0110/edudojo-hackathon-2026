@@ -454,7 +454,7 @@ describe('runtime and assets are keyed by the resolved owner', () => {
     });
 
     it('refuses every generic path to replace or delete the owner’s own entry while a root holds it', async () => {
-      const { changeAssetRoots, AssetRootedError } = await import('@openmaic/storage/asset/pg');
+      const { changeAssetRoots, AssetRootedError } = await import('@dojolearn/storage/asset/pg');
       const { getServerPersistenceProvider } = await import('@/lib/persistence/server-provider');
       const { assetPrincipalForOwner, createOwnerAssetStore } =
         await import('@/lib/persistence/owner-assets');
@@ -597,7 +597,7 @@ describe('runtime and assets are keyed by the resolved owner', () => {
     });
 
     it('keeps a rooted entry private: a reference root keeps it alive, not readable', async () => {
-      const { changeAssetRoots } = await import('@openmaic/storage/asset/pg');
+      const { changeAssetRoots } = await import('@dojolearn/storage/asset/pg');
       const id = await allocate('alice');
       // Alice's own partition, as the route allocated it.
       const holder = await pool.query('SELECT principal FROM asset_entries WHERE id = $1', [id]);
@@ -692,7 +692,7 @@ describe('runtime and assets are keyed by the resolved owner', () => {
     });
 
     it('cannot be mutated by anyone while a reference root holds it', async () => {
-      const { changeAssetRoots } = await import('@openmaic/storage/asset/pg');
+      const { changeAssetRoots } = await import('@dojolearn/storage/asset/pg');
       const { LEGACY_SHARED_ASSET_PRINCIPAL } = await import('@/lib/persistence/owner-assets');
       const id = await legacyEntry('legacy-rooted');
       await saveCourse('alice', 'stage-legacy-rooted', [id]);

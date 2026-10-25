@@ -1,4 +1,4 @@
-import type { AICallFn } from '@openmaic/generation';
+import type { AICallFn } from '@dojolearn/generation';
 
 import { backgroundWorkspaceId } from '@/lib/server/model-config/runtime';
 import { callLLM } from '@/lib/ai/llm';

@@ -1,5 +1,5 @@
 /**
- * Classrooms: start OpenMAIC's generation run (slides + narration script +
+ * Classrooms: start DojoLearn's generation run (slides + narration script +
  * quiz, narrated with the configured TTS), then — when the run completes —
  * split it into floors with learning objectives and publish class classrooms
  * so students can open the player.
@@ -120,7 +120,7 @@ export async function createClassroom(
   await consumeQuota(user, 'classroom');
   const goal = await gateLearningPrompt(body.prompt);
 
-  // The run belongs to the browser's OpenMAIC owner, like the uploaded materials.
+  // The run belongs to the browser's DojoLearn owner, like the uploaded materials.
   return withRequestOwner(req, async (principal, headers) => {
     const respond = (res: Response) => {
       headers.forEach((value, key) => res.headers.append(key, value));
@@ -133,7 +133,7 @@ export async function createClassroom(
       requirement: goal + DEMO_SCENE_PROFILE,
       materialIds: body.materialIds ?? [],
       outlineReview: 'auto',
-      // OpenMAIC's teacher narrates the slides; chat agents are ours (see personas.ts).
+      // DojoLearn's teacher narrates the slides; chat agents are ours (see personas.ts).
       agents: { mode: 'preset', agentIds: ['default-1'] },
     });
     if (!input.ok) return respond(fail('INVALID_REQUEST', input.message));
@@ -198,7 +198,7 @@ export async function refreshClassroom(row: ClassroomRow): Promise<Classroom> {
   };
   if (!run || run.state === 'ended')
     return setStatus('failed', 'Die Generierung wurde abgebrochen.');
-  // shortcut: a paused run (a step failed after retries) is shown as failed; OpenMAIC's
+  // shortcut: a paused run (a step failed after retries) is shown as failed; DojoLearn's
   // POST /api/generation-runs/<runId>/retry could resume it.
   if (run.state === 'paused')
     return setStatus('failed', 'Die Generierung ist fehlgeschlagen. Bitte erneut versuchen.');

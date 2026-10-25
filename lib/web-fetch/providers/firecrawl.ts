@@ -14,7 +14,7 @@ export function firecrawlScrapeEndpoint(baseUrl: string): string {
 /**
  * Firecrawl Scrape (`POST /v2/scrape`): returns the page's main content as Markdown.
  * It shares the `firecrawl` provider (key and base URL) with Firecrawl web search.
- * Docs: https://docs.firecrawl.dev/features/scrape?utm_source=openmaic&utm_medium=integration
+ * Docs: https://docs.firecrawl.dev/features/scrape?utm_source=dojolearn&utm_medium=integration
  */
 export const firecrawl: Extract<WebFetchProvider, { hosted: true }> = {
   id: 'firecrawl',
@@ -62,7 +62,7 @@ export const firecrawl: Extract<WebFetchProvider, { hosted: true }> = {
               onlyMainContent: true,
               // Stop the scrape server-side at the same deadline the caller enforces.
               timeout: bodyTimeoutMs,
-              origin: 'openmaic',
+              origin: 'dojolearn',
             }),
             signal,
             dispatcher: agent,

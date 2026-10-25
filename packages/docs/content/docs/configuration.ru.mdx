@@ -3,7 +3,7 @@ title: Конфигурация
 description: Модели и провайдеры (openmaic.yml и настройки моделей), контроль доступа, feature flags и другие серверные опции.
 ---
 
-У OpenMAIC три источника конфигурации, и у каждого одна задача:
+У DojoLearn три источника конфигурации, и у каждого одна задача:
 
 | Источник | Кто пишет | Что содержит | Когда применяется |
 | --- | --- | --- | --- |
@@ -11,7 +11,7 @@ description: Модели и провайдеры (openmaic.yml и настро�
 | Настройки моделей в веб-приложении | Пользователи рабочего пространства | Их собственные провайдеры и назначения для всех слотов, которые `openmaic.yml` не закрепляет; хранятся в базе данных | Сразу |
 | Переменные окружения (`.env.local`, секрет контейнера) | Администратор | Секреты, на которые ссылается `openmaic.yml`, и все остальные серверные опции | При запуске |
 
-`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/THU-MAIC/OpenMAIC/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/THU-MAIC/OpenMAIC/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
+`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
 
 В прежних версиях модели настраивались только через переменные окружения провайдеров, `server-providers.yml`, `DEFAULT_MODEL` и `MODEL_ROUTES`. Кроме `MODEL_ROUTES`, всё это пока работает, но устарело; см. [Миграция со старой конфигурации](#миграция-со-старой-конфигурации).
 
@@ -238,7 +238,7 @@ allowUserKeys: false
 
 ```bash
 OPENMAIC_SECRET_KEY=...        # секрет экземпляра для ключей из настроек моделей
-OPENMAIC_CONFIG=/etc/openmaic/openmaic.yml   # необязательно: другой путь к openmaic.yml
+OPENMAIC_CONFIG=/etc/dojolearn/openmaic.yml   # необязательно: другой путь к openmaic.yml
 ```
 
 ### Что могут добавлять рабочие пространства
@@ -417,7 +417,7 @@ slots:
 
 ```yaml
 services:
-  openmaic:
+  dojolearn:
     volumes:
       - ./openmaic.yml:/app/openmaic.yml:ro
 ```
@@ -530,7 +530,7 @@ AZURE_OPENAI_MODELS=your-deployment-name
 
 Чтобы подключить другой OpenAI-совместимый LLM-сервис, объявите в `openmaic.yml` провайдера `openai-compatible` с его `baseUrl` и `models` или добавьте его кнопкой **Добавить провайдера** в **Настройки → Сервисы моделей → Языковые модели**.
 
-Для взаимодействия с Gemini в классе используйте нативный пресет `google`: добавьте Google в **Настройки → Сервисы моделей** и выберите его для **Класс** в **Настройка моделей курса**. Pi заранее отклоняет официальный OpenAI-совместимый адрес Google (`https://generativelanguage.googleapis.com/v1beta/openai`) с подсказкой по переходу; поддержка вызова инструментов через совместимый протокол отслеживается в [#1556](https://github.com/THU-MAIC/OpenMAIC/issues/1556). Проверка распознаёт только этот официальный адрес и не определяет провайдера за произвольным сторонним шлюзом.
+Для взаимодействия с Gemini в классе используйте нативный пресет `google`: добавьте Google в **Настройки → Сервисы моделей** и выберите его для **Класс** в **Настройка моделей курса**. Pi заранее отклоняет официальный OpenAI-совместимый адрес Google (`https://generativelanguage.googleapis.com/v1beta/openai`) с подсказкой по переходу; поддержка вызова инструментов через совместимый протокол отслеживается в #1556. Проверка распознаёт только этот официальный адрес и не определяет провайдера за произвольным сторонним шлюзом.
 
 ### Локальные модели (Ollama и Lemonade)
 
@@ -655,7 +655,7 @@ slots:
   image: comfyui
 ```
 
-Поместите JSON рабочего процесса, экспортированный в формате API, в каталог `public/` OpenMAIC. Имена файлов должны соответствовать `comfyui-*.json` или содержать `workflow`; OpenMAIC автоматически находит эти файлы и предлагает их как рабочие процессы. В Docker добавьте рабочий процесс до сборки образа или смонтируйте отдельный файл в `/app/public/` контейнера. Поскольку провайдер объявлен развёртыванием, серверу ComfyUI на хосте или в частной сети не нужен `ALLOW_LOCAL_NETWORKS`.
+Поместите JSON рабочего процесса, экспортированный в формате API, в каталог `public/` DojoLearn. Имена файлов должны соответствовать `comfyui-*.json` или содержать `workflow`; DojoLearn автоматически находит эти файлы и предлагает их как рабочие процессы. В Docker добавьте рабочий процесс до сборки образа или смонтируйте отдельный файл в `/app/public/` контейнера. Поскольку провайдер объявлен развёртыванием, серверу ComfyUI на хосте или в частной сети не нужен `ALLOW_LOCAL_NETWORKS`.
 
 ### Провайдеры генерации видео
 
@@ -684,7 +684,7 @@ ALIDOCMIND_ACCESS_KEY_SECRET=
 ALIDOCMIND_BASE_URL=       # опциональное переопределение
 ```
 
-`unpdf` встроен в OpenMAIC и подходит для базового разбора PDF. Для Office-документов, изображений и материалов с OCR, таблицами, формулами или сложной версткой рекомендуется MinerU или AliDocMind.
+`unpdf` встроен в DojoLearn и подходит для базового разбора PDF. Для Office-документов, изображений и материалов с OCR, таблицами, формулами или сложной версткой рекомендуется MinerU или AliDocMind.
 
 AliDocMind поддерживает PDF, DOCX, PPTX, XLSX, а также PNG, JPG/JPEG, BMP, GIF. Текущая поддержка аудио/видео через AliDocMind: видео форматы MP4, MOV, AVI, MKV, WMV; аудио MP3, WAV, AAC. M4A не поддерживается.
 

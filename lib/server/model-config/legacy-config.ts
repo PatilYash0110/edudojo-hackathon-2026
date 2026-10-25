@@ -21,7 +21,7 @@ import {
   providerSchema,
   type ModelConfigFile,
   type SlotAssignment,
-} from '@/lib/server/model-config/openmaic-yml';
+} from '@/lib/server/model-config/dojolearn-yml';
 import type { ServerConfig, ServerProviderEntry } from '@/lib/server/provider-config';
 
 export interface LegacyModelSettings {

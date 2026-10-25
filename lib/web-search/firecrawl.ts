@@ -4,7 +4,7 @@
  * Uses Firecrawl Search (`/v2/search`) and returns result descriptions only,
  * without scraping the result pages. Shares the `firecrawl` provider (key and
  * base URL) with Firecrawl web fetch.
- * Docs: https://docs.firecrawl.dev/features/search?utm_source=openmaic&utm_medium=integration
+ * Docs: https://docs.firecrawl.dev/features/search?utm_source=dojolearn&utm_medium=integration
  */
 
 import { proxyFetch } from '@/lib/server/proxy-fetch';
@@ -56,7 +56,7 @@ export async function searchWithFirecrawl(params: {
     body: JSON.stringify({
       query,
       limit,
-      origin: 'openmaic',
+      origin: 'dojolearn',
     }),
     ...(signal ? { signal } : {}),
   });

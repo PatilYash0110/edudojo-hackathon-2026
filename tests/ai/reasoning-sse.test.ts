@@ -225,7 +225,7 @@ describe('Kimi reasoning preservation', () => {
 });
 
 describe('empty reasoning markers', () => {
-  const EMPTY_MARKER = String.fromCharCode(0) + 'openmaic:kimi-reasoning:';
+  const EMPTY_MARKER = String.fromCharCode(0) + 'dojolearn:kimi-reasoning:';
 
   it('restore sets an empty reasoning_content and removes the marker', () => {
     const body = {

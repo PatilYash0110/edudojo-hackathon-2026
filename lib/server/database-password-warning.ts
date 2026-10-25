@@ -17,7 +17,7 @@ import { declaredPublishAddress, isLoopbackAddress } from '@/lib/server/publish-
 const log = createLogger('Persistence');
 
 /** The development password `docker-compose.yml` uses when none is configured. */
-export const COMPOSE_DEFAULT_POSTGRES_PASSWORD = 'openmaic-dev';
+export const COMPOSE_DEFAULT_POSTGRES_PASSWORD = 'dojolearn-dev';
 
 function databasePassword(connectionString: string): string | undefined {
   try {

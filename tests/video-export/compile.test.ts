@@ -35,9 +35,9 @@ describe('compileVideoTimeline — end-to-end golden', () => {
 
   it('stamps the envelope + config', () => {
     expect(ir).toMatchObject({
-      schema: 'openmaic.videoTimeline',
+      schema: 'dojolearn.videoTimeline',
       version: 4,
-      compiler: 'openmaic-video-timeline',
+      compiler: 'dojolearn-video-timeline',
       stage: { id: 'stg', name: 'Demo' },
       config: { playbackSpeed: 1, ttsEnabled: true, whiteboardInitiallyOpen: false },
       totalDurationMs: 7500,

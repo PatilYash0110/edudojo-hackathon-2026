@@ -50,7 +50,7 @@ re-run the failed workflow on `main` (**Actions** → the run → **Re-run faile
 
 ### 5. Local dev
 
-`openmaic.dojo.yml` reads `apiKey: ${SPEACHES_API_KEY}`, because the deployed TTS requires a key. Add
+`dojolearn.dojo.yml` reads `apiKey: ${SPEACHES_API_KEY}`, because the deployed TTS requires a key. Add
 `SPEACHES_API_KEY=local` to `.env.local`. Any value works locally, and the server refuses to boot while it is unset.
 
 ## Demo day

@@ -7,7 +7,7 @@ import '@/lib/persistence/bootstrap';
  * backend. Server code must not import this without injecting its own
  * `RuntimeStore`.
  */
-import type { RuntimeStore } from '@openmaic/storage';
+import type { RuntimeStore } from '@dojolearn/storage';
 
 import { registerRuntimeStorageResetHook, resolveConfiguredRuntimeStore } from './config';
 

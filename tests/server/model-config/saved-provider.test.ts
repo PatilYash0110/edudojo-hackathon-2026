@@ -47,7 +47,7 @@ const { WorkspaceEndpointError } = await import('@/lib/server/model-config/media
 const { savedProviderRef, savedProviderResponse, savedMediaConnection, SavedProviderError } =
   await import('@/lib/server/model-config/saved-provider');
 
-type Config = import('@/lib/server/model-config/openmaic-yml').ModelConfigFile;
+type Config = import('@/lib/server/model-config/dojolearn-yml').ModelConfigFile;
 const workspaces = new Map<string, Config>();
 const request = (body?: unknown) =>
   new Request('http://localhost/api/test', {

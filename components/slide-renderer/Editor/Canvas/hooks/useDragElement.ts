@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useCanvasStore, useKeyboardStore } from '@/lib/store';
 import { useHistorySnapshot } from '@/lib/hooks/use-history-snapshot';
-import type { PPTElement } from '@openmaic/dsl';
+import type { PPTElement } from '@dojolearn/dsl';
 import type { AlignmentLineProps } from '@/lib/types/edit';
 import {
   getElementRange,

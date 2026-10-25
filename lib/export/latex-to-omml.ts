@@ -1,5 +1,5 @@
 import temml from 'temml';
-import { safeKatexOptions } from '@openmaic/dsl';
+import { safeKatexOptions } from '@dojolearn/dsl';
 import { mml2omml } from 'mathml2omml';
 import { createLogger } from '@/lib/logger';
 

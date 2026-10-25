@@ -21,7 +21,7 @@ import { freshStageId } from '@/lib/legacy-browser-import/ids';
 import { ensureLedger, LEDGER_KEY, loadLedger } from '@/lib/legacy-browser-import/ledger';
 import { loadCursorValue } from '@/lib/playback/cursor';
 import { loadCurrentSceneValue } from '@/lib/document-store/current-scene';
-import { BrowserKVStore } from '@openmaic/storage';
+import { BrowserKVStore } from '@dojolearn/storage';
 import { loadChatSessions } from '@/lib/utils/chat-storage';
 
 import {
@@ -216,7 +216,7 @@ describe('a browser-only browser, imported into an empty server', () => {
   it('announces the library change so an open library lists the courses', async () => {
     await seedLatestBrowser(storage);
     const listener = vi.fn();
-    (window as unknown as EventTarget).addEventListener('openmaic:library-changed', listener);
+    (window as unknown as EventTarget).addEventListener('dojolearn:library-changed', listener);
 
     await runLegacyBrowserImport(server.options(storage));
 

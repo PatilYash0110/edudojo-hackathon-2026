@@ -13,7 +13,7 @@ import {
   buildVisionUserContent,
   type SceneGenerationContext,
   type AgentInfo,
-} from '@openmaic/generation';
+} from '@dojolearn/generation';
 import type {
   SceneOutline,
   GeneratedSlideContent,

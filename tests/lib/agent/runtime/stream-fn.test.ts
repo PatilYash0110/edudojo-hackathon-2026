@@ -405,7 +405,7 @@ describe('createCallLlmStreamFn — reasoning round-trip on the driver wire', ()
       (message) => message.role === 'assistant',
     );
     expect(assistant?.reasoning_content).toBeUndefined();
-    expect(String(assistant?.content ?? '')).not.toContain('openmaic:kimi-reasoning');
+    expect(String(assistant?.content ?? '')).not.toContain('dojolearn:kimi-reasoning');
   });
 
   it('round-trips an empty prior thinking block as an empty field without the marker', async () => {
@@ -416,7 +416,7 @@ describe('createCallLlmStreamFn — reasoning round-trip on the driver wire', ()
       (message) => message.role === 'assistant',
     );
     expect(assistant?.reasoning_content).toBe('');
-    expect(String(assistant?.content ?? '')).not.toContain('openmaic:kimi-reasoning');
+    expect(String(assistant?.content ?? '')).not.toContain('dojolearn:kimi-reasoning');
   });
 
   it('drops an empty prior thinking block without a trace on a disabled turn', async () => {
@@ -427,6 +427,6 @@ describe('createCallLlmStreamFn — reasoning round-trip on the driver wire', ()
       (message) => message.role === 'assistant',
     );
     expect(assistant?.reasoning_content).toBeUndefined();
-    expect(String(assistant?.content ?? '')).not.toContain('openmaic:kimi-reasoning');
+    expect(String(assistant?.content ?? '')).not.toContain('dojolearn:kimi-reasoning');
   });
 });

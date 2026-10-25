@@ -15,7 +15,7 @@
  */
 import 'fake-indexeddb/auto';
 
-import type { RuntimeRecordInit, RuntimeSession } from '@openmaic/dsl';
+import type { RuntimeRecordInit, RuntimeSession } from '@dojolearn/dsl';
 import {
   BrowserAssetStore,
   BrowserDocumentStore,
@@ -24,9 +24,9 @@ import {
   type DocumentStore,
   type RuntimeStore,
   type RuntimeSessionInit,
-} from '@openmaic/storage';
-import { HttpAssetStoreError } from '@openmaic/storage';
-import { HttpRuntimeStoreError } from '@openmaic/storage/runtime/http';
+} from '@dojolearn/storage';
+import { HttpAssetStoreError } from '@dojolearn/storage';
+import { HttpRuntimeStoreError } from '@dojolearn/storage/runtime/http';
 import Dexie from 'dexie';
 import { IDBFactory } from 'fake-indexeddb';
 

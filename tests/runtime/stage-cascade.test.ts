@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import type { RuntimeStore } from '@openmaic/storage';
+import type { RuntimeStore } from '@dojolearn/storage';
 
 import {
   configureRuntimeStorage,

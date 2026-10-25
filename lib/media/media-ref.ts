@@ -1,1 +1,1 @@
-export { isGeneratedMediaPlaceholder } from '@openmaic/dsl';
+export { isGeneratedMediaPlaceholder } from '@dojolearn/dsl';

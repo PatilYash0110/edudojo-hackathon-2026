@@ -1,12 +1,12 @@
 {
-  "projectRoot": "/var/lib/openmaic/renders",
+  "projectRoot": "/var/lib/dojolearn/renders",
   "stateRoot": "/run/openmaic-resource",
   "owner": {
     "workerUid": 1001,
     "workerGid": 1001,
     "cleanupTimeoutMs": 10000,
     "taskPidsMax": 256,
-    "browserPath": "/opt/openmaic/chrome/headless_shell",
+    "browserPath": "/opt/dojolearn/chrome/headless_shell",
     "ffmpegPath": "/usr/bin/ffmpeg"
   },
   "task": {

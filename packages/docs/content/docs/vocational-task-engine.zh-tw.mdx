@@ -5,7 +5,7 @@ description: 啟用實驗性的職教課件生成，透過實作步驟、判斷�
 
 職教任務引擎圍繞一項工作任務生成課件：學習者需要完成什麼、使用哪些工具、何時繼續或停止，以及如何確認任務完成。課件結合任務說明投影片、互動式步驟訓練、原理解釋與任務挑戰。
 
-此功能目前屬於實驗性功能，預設關閉。先參考[快速上手](./getting-started.mdx)設定 OpenMAIC 與 LLM provider，再於自己的部署中啟用下述開關。
+此功能目前屬於實驗性功能，預設關閉。先參考[快速上手](./getting-started.mdx)設定 DojoLearn 與 LLM provider，再於自己的部署中啟用下述開關。
 
 ## 適用任務
 
@@ -15,7 +15,7 @@ description: 啟用實驗性的職教課件生成，透過實作步驟、判斷�
 
 ## 啟用功能
 
-在 OpenMAIC 應用的 `.env.local` 中加入：
+在 DojoLearn 應用的 `.env.local` 中加入：
 
 ```bash
 OPENMAIC_ENABLE_VOCATIONAL=true
@@ -27,13 +27,13 @@ NEXT_PUBLIC_SHOW_VOCATIONAL_TEST_UI=true
 | `OPENMAIC_ENABLE_VOCATIONAL`          | 允許伺服器使用職教任務規劃與實作元件內容生成。 | 執行時讀取；修改程序環境變數後重新啟動應用。 |
 | `NEXT_PUBLIC_SHOW_VOCATIONAL_TEST_UI` | 在首頁顯示實驗性的職教開關。                   | 建置時讀取；正式環境修改後需要重新建置應用。 |
 
-兩個開關均接受 `true` 或 `1`，未設定時關閉。本機修改設定後重新啟動 `pnpm dev`。正式環境應在 `pnpm build` 前設定前端開關，並在啟動應用時提供伺服器開關。這些設定屬於 OpenMAIC 應用，而非文件站服務。完整設定見[設定說明](./configuration.mdx)。
+兩個開關均接受 `true` 或 `1`，未設定時關閉。本機修改設定後重新啟動 `pnpm dev`。正式環境應在 `pnpm build` 前設定前端開關，並在啟動應用時提供伺服器開關。這些設定屬於 DojoLearn 應用，而非文件站服務。完整設定見[設定說明](./configuration.mdx)。
 
 顯示開關本身不會啟用伺服器功能。職教生成需要伺服器開關開啟，且生成請求包含 `requirements.taskEngineMode`。伺服器開關關閉時，請求沿用一般或互動模式的生成流程。
 
 ## 生成職教課件
 
-1. 開啟 OpenMAIC 首頁並設定要使用的模型。
+1. 開啟 DojoLearn 首頁並設定要使用的模型。
 2. 開啟標示為 **职教任务** 的實驗性開關。
 3. 描述工作任務、學習者基礎、工具、判斷點與完成標準；有相關課程材料時可一併上傳。
 4. 生成並檢查大綱，接著繼續生成課堂。
@@ -66,16 +66,16 @@ NEXT_PUBLIC_SHOW_VOCATIONAL_TEST_UI=true
 
 ## 實作說明
 
-[PR #685](https://github.com/THU-MAIC/OpenMAIC/pull/685) 引入的職教功能沿用現有生成與互動渲染流程。當前 `main` 的主要組成如下：
+PR #685 引入的職教功能沿用現有生成與互動渲染流程。當前 `main` 的主要組成如下：
 
 | 組成                                                                                                                                                                                                                      | 職責                                                                                                                                 |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
-| [功能開關](https://github.com/THU-MAIC/OpenMAIC/blob/main/lib/config/feature-flags.ts)                                                                                                                                    | `resolveVocationalActive` 同時判斷請求中的 `taskEngineMode` 與伺服器開關；前端顯示開關獨立處理。                                     |
-| [大綱介面](https://github.com/THU-MAIC/OpenMAIC/blob/main/app/api/generate/scene-outlines-stream/route.ts)與[任務引擎提示詞](https://github.com/THU-MAIC/OpenMAIC/tree/main/lib/prompts/templates/task-engine-outlines)   | 選擇職教規劃器，並在串流完成事件中回傳實際生效的模式。                                                                               |
-| [場景內容介面](https://github.com/THU-MAIC/OpenMAIC/blob/main/app/api/generate/scene-content/route.ts)與[生成套件](https://github.com/THU-MAIC/OpenMAIC/blob/main/packages/%40openmaic/generation/src/scene-generator.ts) | 再次檢查伺服器開關，將任務欄位傳入實作內容提示詞。未啟用時，大綱回退可將實作場景降級為示意圖，元件生成器也會拒絕未獲允許的實作內容。 |
-| [預覽模式輔助模組](https://github.com/THU-MAIC/OpenMAIC/blob/main/app/generation-preview/vocational-mode.ts)與[場景生成 Hook](https://github.com/THU-MAIC/OpenMAIC/blob/main/lib/hooks/use-scene-generator.ts)            | 儲存實際生效的課程模式，並在後續場景與重試中繼續傳遞；包含 [PR #716](https://github.com/THU-MAIC/OpenMAIC/pull/716) 的後續修正。     |
+| [功能開關](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/lib/config/feature-flags.ts)                                                                                                                                    | `resolveVocationalActive` 同時判斷請求中的 `taskEngineMode` 與伺服器開關；前端顯示開關獨立處理。                                     |
+| [大綱介面](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/app/api/generate/scene-outlines-stream/route.ts)與[任務引擎提示詞](https://github.com/PatilYash0110/edudojo-hackathon-2026/tree/main/lib/prompts/templates/task-engine-outlines)   | 選擇職教規劃器，並在串流完成事件中回傳實際生效的模式。                                                                               |
+| [場景內容介面](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/app/api/generate/scene-content/route.ts)與[生成套件](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/packages/%40dojolearn/generation/src/scene-generator.ts) | 再次檢查伺服器開關，將任務欄位傳入實作內容提示詞。未啟用時，大綱回退可將實作場景降級為示意圖，元件生成器也會拒絕未獲允許的實作內容。 |
+| [預覽模式輔助模組](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/app/generation-preview/vocational-mode.ts)與[場景生成 Hook](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/lib/hooks/use-scene-generator.ts)            | 儲存實際生效的課程模式，並在後續場景與重試中繼續傳遞；包含 PR #716 的後續修正。     |
 
-實作大綱包含 `procedureType`（`repair`、`assembly`、`inspection`、`operation` 或 `custom`）、`task`、`tools`、`steps`、`successCriteria` 與 `errorConsequences`。[內容模板](https://github.com/THU-MAIC/OpenMAIC/tree/main/packages/%40openmaic/generation/templates/procedural-skill-content)將這些欄位轉換為練習頁面。
+實作大綱包含 `procedureType`（`repair`、`assembly`、`inspection`、`operation` 或 `custom`）、`task`、`tools`、`steps`、`successCriteria` 與 `errorConsequences`。[內容模板](https://github.com/PatilYash0110/edudojo-hackathon-2026/tree/main/packages/%40dojolearn/generation/templates/procedural-skill-content)將這些欄位轉換為練習頁面。
 
 教師動作沿用平台傳送至 iframe 的 `SET_WIDGET_STATE`、`HIGHLIGHT_ELEMENT`、`ANNOTATE_ELEMENT` 與 `REVEAL_ELEMENT`。實作提示詞要求提供穩定的步驟選擇器，讓學習者操作與 `SET_WIDGET_STATE` 共用狀態更新路徑，並支援 `completedSteps`，以沿用現有場景與動作協定。
 

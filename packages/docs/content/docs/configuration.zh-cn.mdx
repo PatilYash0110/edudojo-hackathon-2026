@@ -3,7 +3,7 @@ title: 配置说明
 description: 模型与服务商（openmaic.yml 和模型设置）、访问控制、功能开关及其他服务端选项。
 ---
 
-OpenMAIC 有三个配置来源，各自只负责一件事：
+DojoLearn 有三个配置来源，各自只负责一件事：
 
 | 来源 | 由谁编写 | 内容 | 何时生效 |
 | --- | --- | --- | --- |
@@ -11,7 +11,7 @@ OpenMAIC 有三个配置来源，各自只负责一件事：
 | Web 端的模型设置 | 工作区的用户 | 用户自己的服务商，以及 `openmaic.yml` 未锁定槽位的分配，保存在数据库中 | 立即生效 |
 | 环境变量（`.env.local`、容器 Secret） | 运维人员 | `openmaic.yml` 引用的密钥，以及其他所有服务端选项 | 启动时 |
 
-`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/THU-MAIC/OpenMAIC/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/THU-MAIC/OpenMAIC/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
+`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
 
 早期版本只能通过服务商环境变量、`server-providers.yml`、`DEFAULT_MODEL` 和 `MODEL_ROUTES` 配置模型。除 `MODEL_ROUTES` 外，这些方式目前仍然可用，但已弃用，见[从旧配置迁移](#从旧配置迁移)。
 
@@ -238,7 +238,7 @@ allowUserKeys: false
 
 ```bash
 OPENMAIC_SECRET_KEY=...        # 模型设置中保存的 key 所用的实例密钥
-OPENMAIC_CONFIG=/etc/openmaic/openmaic.yml   # 可选：openmaic.yml 的其他路径
+OPENMAIC_CONFIG=/etc/dojolearn/openmaic.yml   # 可选：openmaic.yml 的其他路径
 ```
 
 ### 工作区可以添加什么
@@ -417,7 +417,7 @@ slots:
 
 ```yaml
 services:
-  openmaic:
+  dojolearn:
     volumes:
       - ./openmaic.yml:/app/openmaic.yml:ro
 ```
@@ -530,7 +530,7 @@ AZURE_OPENAI_MODELS=your-deployment-name
 
 如需连接其他 OpenAI 兼容的 LLM 服务，请在 `openmaic.yml` 中声明一个带 `baseUrl` 和 `models` 的 `openai-compatible` 服务商，或在 **设置 → 模型服务 → 语言模型** 中用 **添加服务商** 添加。
 
-Gemini 课堂互动请使用原生 `google` 预设：在**设置 → 模型服务**中添加 Google，并在**课程模型配置**中为**课堂互动**选择该模型。Pi 会提前拒绝 Google 官方 OpenAI 兼容端点（`https://generativelanguage.googleapis.com/v1beta/openai`）并提示迁移；兼容路线的工具调用支持由 [#1556](https://github.com/THU-MAIC/OpenMAIC/issues/1556) 跟踪。此检查仅识别该官方端点，无法识别任意第三方网关背后的上游。
+Gemini 课堂互动请使用原生 `google` 预设：在**设置 → 模型服务**中添加 Google，并在**课程模型配置**中为**课堂互动**选择该模型。Pi 会提前拒绝 Google 官方 OpenAI 兼容端点（`https://generativelanguage.googleapis.com/v1beta/openai`）并提示迁移；兼容路线的工具调用支持由 #1556 跟踪。此检查仅识别该官方端点，无法识别任意第三方网关背后的上游。
 
 ### 本地模型（Ollama 和 Lemonade）
 
@@ -655,7 +655,7 @@ slots:
   image: comfyui
 ```
 
-把以 API 格式导出的工作流 JSON 放到 OpenMAIC 的 `public/` 目录中，文件名需匹配 `comfyui-*.json` 或包含 `workflow`；OpenMAIC 会自动发现这些文件并作为工作流提供。使用 Docker 时，请在构建镜像前加入工作流，或把单个工作流文件挂载到容器内的 `/app/public/`。由于该服务商由部署声明，运行在宿主机或内网中的 ComfyUI 不需要 `ALLOW_LOCAL_NETWORKS`。
+把以 API 格式导出的工作流 JSON 放到 DojoLearn 的 `public/` 目录中，文件名需匹配 `comfyui-*.json` 或包含 `workflow`；DojoLearn 会自动发现这些文件并作为工作流提供。使用 Docker 时，请在构建镜像前加入工作流，或把单个工作流文件挂载到容器内的 `/app/public/`。由于该服务商由部署声明，运行在宿主机或内网中的 ComfyUI 不需要 `ALLOW_LOCAL_NETWORKS`。
 
 ### 视频生成提供方
 
@@ -684,7 +684,7 @@ ALIDOCMIND_ACCESS_KEY_SECRET=
 ALIDOCMIND_BASE_URL=       # 可选覆盖
 ```
 
-`unpdf` 内置于 OpenMAIC，可用于基础 PDF 解析。Office 文档、图片和需要 OCR、表格、公式或版面分析的材料，应选择兼容的 MinerU 或 AliDocMind provider。
+`unpdf` 内置于 DojoLearn，可用于基础 PDF 解析。Office 文档、图片和需要 OCR、表格、公式或版面分析的材料，应选择兼容的 MinerU 或 AliDocMind provider。
 
 AliDocMind 的文档解析支持 PDF、DOCX、PPTX、XLSX，以及 PNG、JPG/JPEG、BMP、GIF。当前音视频材料仅支持通过 AliDocMind 解析：视频格式为 MP4、MOV、AVI、MKV、WMV，音频格式为 MP3、WAV、AAC；不支持 M4A。
 

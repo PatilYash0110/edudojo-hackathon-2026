@@ -8,7 +8,7 @@ import ts from 'typescript';
 import { expect, it } from 'vitest';
 
 it('keeps a plain Node parent alive after oversized plan and rewrite requests', async () => {
-  const directory = await mkdtemp(join(tmpdir(), 'openmaic-parser-parent-'));
+  const directory = await mkdtemp(join(tmpdir(), 'dojolearn-parser-parent-'));
   try {
     // Transpile the actual scheduler, not a test implementation. The child runs
     // plain Node without Vitest transforms or mocks; only the local TS import

@@ -1,5 +1,5 @@
 import katex from 'katex';
-import { safeKatexOptions } from '@openmaic/dsl';
+import { safeKatexOptions } from '@dojolearn/dsl';
 import type {
   ChartType,
   PPTChartElement,
@@ -10,8 +10,8 @@ import type {
   PPTTableElement,
   PPTTextElement,
   Slide,
-} from '@openmaic/dsl';
-import type { LatexEditorResult } from '@openmaic/editor/ui';
+} from '@dojolearn/dsl';
+import type { LatexEditorResult } from '@dojolearn/editor/ui';
 
 export interface ShapeSpec {
   viewBox: [number, number];

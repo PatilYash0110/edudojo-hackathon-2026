@@ -17,8 +17,8 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/ai/llm', () => ({ callLLM: mocks.callLLM }));
-vi.mock('@openmaic/generation', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@openmaic/generation')>()),
+vi.mock('@dojolearn/generation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@dojolearn/generation')>()),
   generateSceneContent: mocks.generateSceneContent,
 }));
 

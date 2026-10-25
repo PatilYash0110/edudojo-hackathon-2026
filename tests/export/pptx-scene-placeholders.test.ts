@@ -1,7 +1,7 @@
 import { inflateSync } from 'node:zlib';
 import JSZip from 'jszip';
 import { describe, expect, it, vi } from 'vitest';
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 import type { Scene } from '@/lib/types/stage';
 
 vi.mock('@/lib/device-storage/database', () => ({

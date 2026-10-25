@@ -22,7 +22,7 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import type { DocumentFolder, DocumentFolderStore } from '@openmaic/storage';
+import type { DocumentFolder, DocumentFolderStore } from '@dojolearn/storage';
 
 import { isServerPersistenceConfigured } from '@/lib/config/feature-flags';
 import { getOwnerScopedDocumentStore } from '@/lib/server/agent-runtime/owner-scoped-documents';

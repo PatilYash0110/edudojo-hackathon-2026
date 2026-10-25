@@ -8,13 +8,13 @@
  * against the database (./schema-boot-check.ts), and what the upgrade and
  * checksum tests enumerate; a new store belongs here.
  */
-import { AGENT_SESSION_PG_MIGRATIONS } from '@openmaic/storage/agent-session/pg';
-import { ASSET_PG_MIGRATIONS } from '@openmaic/storage/asset/pg';
-import { DOCUMENT_PG_MIGRATIONS } from '@openmaic/storage/document/pg';
-import { AGENT_SESSION_MATERIAL_PG_MIGRATIONS } from '@openmaic/storage/material/pg';
-import type { SchemaMigrationSet } from '@openmaic/storage/pg-migrations';
-import { RUNTIME_PG_MIGRATIONS } from '@openmaic/storage/runtime/pg';
-import { USER_SKILL_PG_MIGRATIONS } from '@openmaic/storage/skill/pg';
+import { AGENT_SESSION_PG_MIGRATIONS } from '@dojolearn/storage/agent-session/pg';
+import { ASSET_PG_MIGRATIONS } from '@dojolearn/storage/asset/pg';
+import { DOCUMENT_PG_MIGRATIONS } from '@dojolearn/storage/document/pg';
+import { AGENT_SESSION_MATERIAL_PG_MIGRATIONS } from '@dojolearn/storage/material/pg';
+import type { SchemaMigrationSet } from '@dojolearn/storage/pg-migrations';
+import { RUNTIME_PG_MIGRATIONS } from '@dojolearn/storage/runtime/pg';
+import { USER_SKILL_PG_MIGRATIONS } from '@dojolearn/storage/skill/pg';
 
 import { OWNER_AGENT_MIGRATIONS } from '@/lib/server/agents/store';
 

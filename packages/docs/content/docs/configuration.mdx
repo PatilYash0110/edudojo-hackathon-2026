@@ -3,7 +3,7 @@ title: Configuration
 description: Models and providers (openmaic.yml and the model settings), access control, feature flags and other server options.
 ---
 
-OpenMAIC has three configuration sources, and each has one job:
+DojoLearn has three configuration sources, and each has one job:
 
 | Source | Written by | Holds | Takes effect |
 | --- | --- | --- | --- |
@@ -11,7 +11,7 @@ OpenMAIC has three configuration sources, and each has one job:
 | Model settings in the web app | Users of a workspace | Their own providers, and assignments for every slot `openmaic.yml` does not lock, stored in the database | Immediately |
 | Environment variables (`.env.local`, a container secret) | The operator | Secrets that `openmaic.yml` references, and every other server option | At startup |
 
-`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/THU-MAIC/OpenMAIC/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/THU-MAIC/OpenMAIC/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
+`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
 
 Earlier releases configured models only through provider environment variables, `server-providers.yml`, `DEFAULT_MODEL` and `MODEL_ROUTES`. Those still work for now, with the exception of `MODEL_ROUTES`, and are deprecated; see [Migrating from the legacy configuration](#migrating-from-the-legacy-configuration).
 
@@ -238,7 +238,7 @@ Without it, a data directory that does not survive a restart (a container withou
 
 ```bash
 OPENMAIC_SECRET_KEY=...        # instance secret for keys saved in the model settings
-OPENMAIC_CONFIG=/etc/openmaic/openmaic.yml   # optional: another path for openmaic.yml
+OPENMAIC_CONFIG=/etc/dojolearn/openmaic.yml   # optional: another path for openmaic.yml
 ```
 
 ### What workspaces may add
@@ -417,7 +417,7 @@ Then remove `MODEL_ROUTES`, `DEFAULT_MODEL` and `MODEL_FALLBACK`.
 
 ```yaml
 services:
-  openmaic:
+  dojolearn:
     volumes:
       - ./openmaic.yml:/app/openmaic.yml:ro
 ```
@@ -530,7 +530,7 @@ AZURE_OPENAI_MODELS=your-deployment-name
 
 To connect another OpenAI-compatible LLM service, declare an `openai-compatible` provider with its `baseUrl` and `models` in `openmaic.yml`, or add one with **Add provider** under **Settings → Model Services → LLM**.
 
-For Gemini classroom interaction, use the native `google` preset: add Google in **Settings → Model Services** and select it for **Classroom** in **Course Model Config**. Pi rejects Google’s official OpenAI-compatible endpoint (`https://generativelanguage.googleapis.com/v1beta/openai`) with migration guidance; compatible tool-calling support is tracked in [#1556](https://github.com/THU-MAIC/OpenMAIC/issues/1556). This check recognizes only that official endpoint and cannot identify the upstream behind arbitrary third-party gateways.
+For Gemini classroom interaction, use the native `google` preset: add Google in **Settings → Model Services** and select it for **Classroom** in **Course Model Config**. Pi rejects Google’s official OpenAI-compatible endpoint (`https://generativelanguage.googleapis.com/v1beta/openai`) with migration guidance; compatible tool-calling support is tracked in #1556. This check recognizes only that official endpoint and cannot identify the upstream behind arbitrary third-party gateways.
 
 ### Local models (Ollama and Lemonade)
 
@@ -655,7 +655,7 @@ slots:
   image: comfyui
 ```
 
-Place workflow JSON exported in API format in OpenMAIC's `public/` directory. Use filenames matching `comfyui-*.json` or containing `workflow`; OpenMAIC discovers these files automatically and offers them as workflows. With Docker, add the workflow before building the image or mount an individual workflow file into `/app/public/` in the container. Because the provider is declared by the deployment, a ComfyUI server on the host or a private network does not need `ALLOW_LOCAL_NETWORKS`.
+Place workflow JSON exported in API format in DojoLearn's `public/` directory. Use filenames matching `comfyui-*.json` or containing `workflow`; DojoLearn discovers these files automatically and offers them as workflows. With Docker, add the workflow before building the image or mount an individual workflow file into `/app/public/` in the container. Because the provider is declared by the deployment, a ComfyUI server on the host or a private network does not need `ALLOW_LOCAL_NETWORKS`.
 
 ### Video generation providers
 
@@ -665,7 +665,7 @@ Video generation providers use `VIDEO_<PROVIDER>_API_KEY` and optionally `VIDEO_
 
 ### Document and media parsing
 
-The exact course-material formats depend on the selected parser. OpenMAIC currently supports text, PDF, Office documents, images, and some audio/video formats; supported formats and capabilities vary by provider.
+The exact course-material formats depend on the selected parser. DojoLearn currently supports text, PDF, Office documents, images, and some audio/video formats; supported formats and capabilities vary by provider.
 
 ```bash
 # MinerU self-hosted
@@ -684,7 +684,7 @@ ALIDOCMIND_ACCESS_KEY_SECRET=
 ALIDOCMIND_BASE_URL=       # optional override
 ```
 
-`unpdf` is built into OpenMAIC and supports basic PDF parsing. For Office documents, images, and material requiring OCR, table, formula, or layout analysis, select a compatible MinerU or AliDocMind provider.
+`unpdf` is built into DojoLearn and supports basic PDF parsing. For Office documents, images, and material requiring OCR, table, formula, or layout analysis, select a compatible MinerU or AliDocMind provider.
 
 AliDocMind document parsing supports PDF, DOCX, PPTX, XLSX, and PNG, JPG/JPEG, BMP, and GIF. Audio and video material is currently supported only through AliDocMind: MP4, MOV, AVI, MKV, and WMV for video; MP3, WAV, and AAC for audio. M4A is not supported.
 

@@ -86,7 +86,7 @@ import { NewFolderDialog } from '@/components/discovery/folder-dialogs';
 import { MoveToFolderMenu } from '@/components/discovery/move-to-folder-menu';
 import { LibrarySkeleton } from '@/components/discovery/library-skeleton';
 import { SlideThumbnail } from '@/components/slide-renderer/SlideThumbnail';
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 import { useMediaGenerationStore } from '@/lib/store/media-generation';
 import { toast } from 'sonner';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -253,7 +253,7 @@ function HomePage() {
       cancelled = true;
     };
   }, [dojoSource]);
-  /** The dojo tower for a course card, falling back to OpenMAIC's own screens. */
+  /** The dojo tower for a course card, falling back to DojoLearn's own screens. */
   const openCourse = (ids: CourseIds, fallback: string) => {
     router.push(dojoHref(dojos, ids) ?? fallback);
   };

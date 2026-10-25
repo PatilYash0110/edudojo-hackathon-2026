@@ -1,6 +1,6 @@
 import sharp from 'sharp';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AICallFn } from '@openmaic/generation';
+import type { AICallFn } from '@dojolearn/generation';
 
 import { generateSceneActions } from '@/lib/server/generation/steps/scene-actions';
 import type { SceneOutline } from '@/lib/types/generation';
@@ -13,8 +13,8 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('@/lib/ai/llm', () => ({ callLLM: mocks.callLLM }));
-vi.mock('@openmaic/generation', async (importOriginal) => ({
-  ...(await importOriginal<typeof import('@openmaic/generation')>()),
+vi.mock('@dojolearn/generation', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('@dojolearn/generation')>()),
   generateSceneActions: mocks.generateSceneActions,
 }));
 

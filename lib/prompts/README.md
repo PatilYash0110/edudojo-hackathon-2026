@@ -2,7 +2,7 @@
 
 File-based prompt loader + templates for app-only prompts (the interactive
 and task-engine outline modes, and web-search query rewriting). Generation
-templates live in `@openmaic/generation`.
+templates live in `@dojolearn/generation`.
 
 ## Directory layout
 
@@ -41,7 +41,7 @@ Conditional blocks read from the same `variables` record passed to
 - **Placeholder names use `camelCase`.** Example: `{{agentName}}`, `{{stateContext}}`.
 - **Template IDs use `kebab-case`.** Example: `task-engine-outlines`, `interactive-outlines`.
 - Package-owned generation templates follow the same placeholder conventions;
-  edit them under `packages/@openmaic/generation/templates/`.
+  edit them under `packages/@dojolearn/generation/templates/`.
 
 ## Adding a new prompt
 
@@ -78,7 +78,7 @@ placeholder name ships literal `{{…}}` text to the LLM. Defence:
   templates. Rendered-prompt tests assert that no `{{…}}` tokens survive, for
   app templates (for example `tests/prompts/task-engine-outlines.test.ts`) and
   for generation prompts (in `tests/prompts/` and
-  `packages/@openmaic/generation/test/`). Keep those checks passing when adding
+  `packages/@dojolearn/generation/test/`). Keep those checks passing when adding
   variables.
 - `{{snippet:name}}` lookups **throw** on a missing snippet file rather than
   passing through silently, so a reference like `{{snippet:missing-snippet}}`

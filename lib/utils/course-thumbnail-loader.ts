@@ -1,4 +1,4 @@
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 
 /**
  * Lazy, bounded loader for the home library's course thumbnails.

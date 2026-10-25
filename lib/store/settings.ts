@@ -1,7 +1,7 @@
 /**
  * Settings Store
  *
- * The user's own preferences, persisted through the `@openmaic/storage`
+ * The user's own preferences, persisted through the `@dojolearn/storage`
  * KVStore in the `account` scope: playback, voice, speech input language,
  * agents and layout.
  *

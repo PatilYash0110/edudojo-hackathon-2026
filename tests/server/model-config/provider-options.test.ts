@@ -14,14 +14,14 @@ vi.mock('undici', async (importOriginal) => {
 });
 
 const { parseModelConfig, ModelConfigError } =
-  await import('@/lib/server/model-config/openmaic-yml');
+  await import('@/lib/server/model-config/dojolearn-yml');
 const { resolveSlot } = await import('@/lib/server/model-config/resolve-slot');
 const runtime = await import('@/lib/server/model-config/runtime');
 const { adapterOptions, resolveMediaSlot } = await import('@/lib/server/model-config/media');
 const { applyModelSettingsChange, modelSettingsView } =
   await import('@/lib/server/model-config/settings');
 
-type Config = import('@/lib/server/model-config/openmaic-yml').ModelConfigFile;
+type Config = import('@/lib/server/model-config/dojolearn-yml').ModelConfigFile;
 
 function deployment(config: Config) {
   runtime.setDeploymentConfigForTests({

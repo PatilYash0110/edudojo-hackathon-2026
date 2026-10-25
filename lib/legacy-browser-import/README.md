@@ -115,7 +115,7 @@ the first unfinished step; writes merge with the stored copy, so tabs without We
 Locks do not erase each other's progress. Clear Local Cache keeps the ledger (and
 the old learner key), so it neither loses import state nor brings back a course
 the user deleted on the server after it was imported. Runs are serialized across
-tabs with the Web Lock `openmaic:legacy-browser-import`. If the ledger itself is
+tabs with the Web Lock `dojolearn:legacy-browser-import`. If the ledger itself is
 deleted by hand, the next run creates a new browser id, which the server binds
 afresh: a course under its own id is still not duplicated, but a course imported
 under a fresh id would be imported again and a half-copied runtime session is not
@@ -292,7 +292,7 @@ runs it in the background (`importLegacyAgents`).
   id, an empty model id, an incomplete voice design) are left out before it is
   sent.
 - Runs are serialized across tabs with the Web Lock
-  `openmaic:legacy-agents-import`; the settled ids are read and recorded
+  `dojolearn:legacy-agents-import`; the settled ids are read and recorded
   under it, and a tab that finds it taken leaves the import to that tab.
   Without Web Locks tabs are not serialized, and an agent deleted while two
   tabs import at once can be created again.

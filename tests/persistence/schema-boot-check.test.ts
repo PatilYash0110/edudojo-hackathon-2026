@@ -2,7 +2,7 @@ import type { Pool } from 'pg';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const verifySchemaMigrations = vi.hoisted(() => vi.fn());
-vi.mock('@openmaic/storage/pg-migrations', () => ({ verifySchemaMigrations }));
+vi.mock('@dojolearn/storage/pg-migrations', () => ({ verifySchemaMigrations }));
 const exitOnBootFailure = vi.hoisted(() => vi.fn());
 vi.mock('@/lib/server/boot-failure', () => ({ exitOnBootFailure }));
 

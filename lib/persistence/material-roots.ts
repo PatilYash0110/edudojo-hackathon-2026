@@ -1,9 +1,9 @@
 /**
  * The one way this app writes material reference roots.
  *
- * `changeAssetRoots` (`@openmaic/storage/asset/pg`) runs in the caller's
+ * `changeAssetRoots` (`@dojolearn/storage/asset/pg`) runs in the caller's
  * transaction and leaves three things to the caller (see the docstring of
- * `packages/@openmaic/storage/src/asset/roots.ts`): the order its locks are
+ * `packages/@dojolearn/storage/src/asset/roots.ts`): the order its locks are
  * taken in, how often it is called, and which principals it is given. This
  * wrapper takes all three out of the caller's hands, so they hold by
  * construction rather than by a comment at every call site:
@@ -28,8 +28,8 @@
  * of rows a claim may have moved, use it. `scope.ownerId` is the owner the
  * write is for after the fence.
  */
-import type { Queryable, WithTransaction } from '@openmaic/storage/document/pg';
-import { changeAssetRoots } from '@openmaic/storage/asset/pg';
+import type { Queryable, WithTransaction } from '@dojolearn/storage/document/pg';
+import { changeAssetRoots } from '@dojolearn/storage/asset/pg';
 import { assetPrincipalForOwner } from './owner-assets';
 import { fenceOwnerWrite, forwardOwnerWrite } from './owner-merges';
 

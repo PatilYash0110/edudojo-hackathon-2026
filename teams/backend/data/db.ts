@@ -1,16 +1,16 @@
 /**
- * Postgres access for DojoLearn tables. Reuses OpenMAIC's pool
+ * Postgres access for DojoLearn tables. Reuses DojoLearn's pool
  * (`DATABASE_URL`) and its migration runner.
  *
  * OWNER: BACKEND TEAM.
  *
  * Supabase: use the direct or session connection (port 5432). The transaction
- * pooler (6543) breaks the session locks OpenMAIC's migrations take.
+ * pooler (6543) breaks the session locks DojoLearn's migrations take.
  *
  * Every user-owned row cascades from `dojo_users`, and students cascade from
  * their class, so deleting a class erases all of its students' data.
  */
-import { applySchemaMigrations, type SchemaMigrationSet } from '@openmaic/storage/pg-migrations';
+import { applySchemaMigrations, type SchemaMigrationSet } from '@dojolearn/storage/pg-migrations';
 
 import { getServerPersistenceProvider } from '@/lib/persistence/server-provider';
 

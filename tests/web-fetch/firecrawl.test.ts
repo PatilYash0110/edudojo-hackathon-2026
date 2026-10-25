@@ -46,7 +46,7 @@ describe('Firecrawl web fetch adapter', () => {
       formats: ['markdown'],
       onlyMainContent: true,
       timeout: 30_000,
-      origin: 'openmaic',
+      origin: 'dojolearn',
     });
   });
   it('stops the scrape at the caller deadline', async () => {

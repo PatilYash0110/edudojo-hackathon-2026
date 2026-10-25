@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import sharp from 'sharp';
 import { describe, expect, it, vi } from 'vitest';
-import { parseBase64DataUrl } from '@openmaic/generation';
+import { parseBase64DataUrl } from '@dojolearn/generation';
 import {
   MAX_VISION_IMAGE_BASE64_BYTES,
   MAX_VISION_IMAGE_DIMENSION,

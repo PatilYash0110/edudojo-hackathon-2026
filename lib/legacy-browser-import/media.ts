@@ -32,8 +32,8 @@
 import { rowBelongsToAction } from '@/lib/audio/adopt-cached-narration';
 import { persistNarrationReference } from '@/lib/audio/persist-narration-reference';
 import { db, mediaFileKey } from '@/lib/device-storage/database';
-import type { AssetMeta } from '@openmaic/dsl';
-import type { DocumentStore } from '@openmaic/storage';
+import type { AssetMeta } from '@dojolearn/dsl';
+import type { DocumentStore } from '@dojolearn/storage';
 
 import type { AppDocument, AppStage } from '@/lib/document-store';
 import type { AppScene } from '@/lib/types/stage';

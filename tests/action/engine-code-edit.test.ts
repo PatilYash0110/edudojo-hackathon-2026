@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it } from 'vitest';
 import { createStore } from 'zustand/vanilla';
-import type { PPTCodeElement, WbEditCodeAction } from '@openmaic/dsl';
+import type { PPTCodeElement, WbEditCodeAction } from '@dojolearn/dsl';
 import { ActionEngine } from '@/lib/action/engine';
 import type { StageStore } from '@/lib/api/stage-api';
 import { useCanvasStore } from '@/lib/store/canvas';

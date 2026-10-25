@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextRequest } from 'next/server';
-import type { RuntimeRecord } from '@openmaic/dsl';
-import { BrowserRuntimeStore } from '@openmaic/storage';
+import type { RuntimeRecord } from '@dojolearn/dsl';
+import { BrowserRuntimeStore } from '@dojolearn/storage';
 import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 
 import { APP_RUNTIME_PAYLOAD_VALIDATORS } from '@/lib/runtime/payload-validators';
@@ -45,7 +45,7 @@ const ZERO_USAGE = {
   outputTokens: 0,
   inputTokenDetails: { cacheReadTokens: 0, cacheWriteTokens: 0 },
 };
-const resolvedModel = { provider: 'test.provider', modelId: 'openmaic-resolved-model' };
+const resolvedModel = { provider: 'test.provider', modelId: 'dojolearn-resolved-model' };
 const envNames = [
   'OPENMAIC_ENABLE_PI_NATIVE_CHILD_RUNTIME',
   'OPENMAIC_ENABLE_PI_NATIVE_CHILD_SPOTLIGHT',

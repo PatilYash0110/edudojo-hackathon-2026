@@ -26,7 +26,7 @@ export function sseFrame(event: string, data: unknown, id?: number | string): st
 
 // ── Concurrent streams per owner ──
 
-const STREAMS_KEY = Symbol.for('openmaic.generation-runs.streams');
+const STREAMS_KEY = Symbol.for('dojolearn.generation-runs.streams');
 const streamState = globalThis as typeof globalThis & {
   [STREAMS_KEY]?: Map<string, number>;
 };

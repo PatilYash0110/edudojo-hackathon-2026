@@ -2,7 +2,7 @@
 import JSZip from 'jszip';
 import katex from 'katex';
 import { describe, expect, it, vi } from 'vitest';
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 import type { Scene } from '@/lib/types/stage';
 
 vi.mock('@/lib/device-storage/database', () => ({
@@ -17,7 +17,7 @@ vi.mock('@/lib/media/asset-pool', () => ({
 import {
   createTextDocument,
   serializeTextDocument,
-} from '../../packages/@openmaic/editor/src/react/text/prosemirror/document';
+} from '../../packages/@dojolearn/editor/src/react/text/prosemirror/document';
 import { buildPptxBlob } from '@/lib/export/use-export-pptx';
 import { proseToPlainText } from '@/lib/export/pptx-rich-text';
 import { sanitizeProseHtml } from '@/lib/sanitize/scene-content';

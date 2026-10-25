@@ -1,5 +1,5 @@
-import type { MaicDocument } from '@openmaic/storage';
-import type { Whiteboard } from '@openmaic/dsl';
+import type { MaicDocument } from '@dojolearn/storage';
+import type { Whiteboard } from '@dojolearn/dsl';
 
 import { withDocumentLock } from '@/lib/document-store/migration';
 import type { AppStage } from '@/lib/document-store/persistence-types';

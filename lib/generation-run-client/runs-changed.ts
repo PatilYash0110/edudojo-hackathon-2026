@@ -9,7 +9,7 @@
  * bus closes the gap for the tabs of one browser, which is where both lists
  * are open side by side.
  */
-const CHANNEL = 'openmaic:generation-runs';
+const CHANNEL = 'dojolearn:generation-runs';
 
 export function announceRunsChanged(): void {
   if (typeof BroadcastChannel === 'undefined') return;

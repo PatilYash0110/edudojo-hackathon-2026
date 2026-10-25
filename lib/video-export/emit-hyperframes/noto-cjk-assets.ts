@@ -4,7 +4,7 @@
  * Regenerate with: pnpm gen:video-export-noto-cjk
  */
 const NOTO_CJK_CSS_TEMPLATE =
-  '@font-face{font-family:"OpenMAIC Noto Sans SC";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2")}\n@font-face{font-family:"OpenMAIC Noto Sans KR";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-kr-korean-400-normal.woff2") format("woff2")}';
+  '@font-face{font-family:"DojoLearn Noto Sans SC";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-sc-chinese-simplified-400-normal.woff2") format("woff2")}\n@font-face{font-family:"DojoLearn Noto Sans KR";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-kr-korean-400-normal.woff2") format("woff2")}';
 export const NOTO_CJK_MEASUREMENT_CSS = NOTO_CJK_CSS_TEMPLATE.replaceAll(
   '__OPENMAIC_QUIZ_FONT_BASE__',
   '/vendor/video-export/fonts',

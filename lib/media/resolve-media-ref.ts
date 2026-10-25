@@ -1,7 +1,7 @@
 'use client';
 
-import { isConcreteMediaAddress } from '@openmaic/dsl';
-export { isConcreteMediaAddress } from '@openmaic/dsl';
+import { isConcreteMediaAddress } from '@dojolearn/dsl';
+export { isConcreteMediaAddress } from '@dojolearn/dsl';
 
 import type { MediaTask } from '@/lib/store/media-generation';
 import { useMayGenerateForStage } from '@/lib/classroom/generation-permission';

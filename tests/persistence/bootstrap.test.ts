@@ -30,8 +30,8 @@ describe('persistence client bootstrap', () => {
     );
     vi.stubGlobal('fetch', fetchMock);
 
-    const { HttpAssetStore, HttpDocumentStore } = await import('@openmaic/storage');
-    const { HttpRuntimeStore } = await import('@openmaic/storage/runtime/http');
+    const { HttpAssetStore, HttpDocumentStore } = await import('@dojolearn/storage');
+    const { HttpRuntimeStore } = await import('@dojolearn/storage/runtime/http');
     // Importing any seam must structurally run bootstrap before the seam can
     // resolve its default store.
     const runtime = await import('@/lib/runtime/store');

@@ -669,13 +669,13 @@ export async function runResourceTask(settings, request, signal, dependencies = 
   const pause = dependencies.sleep ?? sleep;
   const nowMs = dependencies.nowMs ?? Date.now;
   const token = nextId().replaceAll('-', '');
-  const unit = `openmaic-render-${token}.service`;
+  const unit = `dojolearn-render-${token}.service`;
   const taskDir = join(settings.stateRoot, `task-${token}`);
   // The worker receives absolute paths below this directory after setuid().
   // Execute-only access permits traversal but neither listing nor mutation;
   // request/result files remain root-private 0600.
   makeTaskDirectory(taskDir);
-  const stagePath = join(request.projectDir, `.openmaic-resource-${token}.mp4`);
+  const stagePath = join(request.projectDir, `.dojolearn-resource-${token}.mp4`);
   const config = safeTaskConfig(settings, request, taskDir, stagePath);
   const configPath = join(taskDir, 'request.json');
   writeConfig(configPath, config);

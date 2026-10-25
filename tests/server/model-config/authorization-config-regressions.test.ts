@@ -38,7 +38,7 @@ afterEach(() => {
   fs.rmSync(dir, { recursive: true, force: true });
 });
 it('normalizes YAML model lists, defaults and fallbacks before authorization and SDK construction', async () => {
-  const { parseModelConfig } = await import('@/lib/server/model-config/openmaic-yml');
+  const { parseModelConfig } = await import('@/lib/server/model-config/dojolearn-yml');
   const config = parseModelConfig(`providers:
   search:
     preset: claude
@@ -77,7 +77,7 @@ slots:
 it.each(['ollama', 'lemonade', 'openai-compatible'])(
   'keyless YAML %s retains arbitrary assignments and picker models',
   async (preset) => {
-    const { parseModelConfig } = await import('@/lib/server/model-config/openmaic-yml');
+    const { parseModelConfig } = await import('@/lib/server/model-config/dojolearn-yml');
     const config = parseModelConfig(
       `providers:\n  local:\n    preset: ${preset}\n    baseUrl: http://localhost:11434\n`,
     );

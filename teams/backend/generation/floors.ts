@@ -1,5 +1,5 @@
 /**
- * Turn a generated OpenMAIC course into dojo floors (sections) with 2–4
+ * Turn a generated DojoLearn course into dojo floors (sections) with 2–4
  * learning objectives each. One flash call; a deterministic fallback when the
  * model fails, so a classroom never gets stuck.
  *

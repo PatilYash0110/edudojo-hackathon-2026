@@ -55,9 +55,9 @@ describe('searchWithMiniMax', () => {
         JSON.stringify({
           organic: [
             {
-              title: 'OpenMAIC',
-              link: 'https://github.com/THU-MAIC/OpenMAIC',
-              snippet: 'OpenMAIC project repository.',
+              title: 'DojoLearn',
+              link: 'https://github.com/PatilYash0110/edudojo-hackathon-2026',
+              snippet: 'DojoLearn project repository.',
               date: '2026-05-31',
             },
             {
@@ -90,7 +90,7 @@ describe('searchWithMiniMax', () => {
         headers: {
           'Content-Type': 'application/json',
           Authorization: 'Bearer minimax-key',
-          'MM-API-Source': 'OpenMAIC',
+          'MM-API-Source': 'DojoLearn',
         },
         body: JSON.stringify({ q: 'MiniMax Token Plan' }),
       }),
@@ -99,9 +99,9 @@ describe('searchWithMiniMax', () => {
     expect(result.answer).toBe('');
     expect(result.sources).toEqual([
       {
-        title: 'OpenMAIC',
-        url: 'https://github.com/THU-MAIC/OpenMAIC',
-        content: 'OpenMAIC project repository.',
+        title: 'DojoLearn',
+        url: 'https://github.com/PatilYash0110/edudojo-hackathon-2026',
+        content: 'DojoLearn project repository.',
         score: 0,
       },
       {

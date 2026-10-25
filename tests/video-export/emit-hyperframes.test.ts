@@ -62,7 +62,7 @@ describe('emitHyperframes', () => {
         'LICENSES/Inter-OFL-1.1.txt',
         'README.md',
         'index.html',
-        'openmaic-video-manifest.json',
+        'dojolearn-video-manifest.json',
         'subtitles.srt',
         'subtitles.vtt',
       ].sort(),
@@ -73,12 +73,12 @@ describe('emitHyperframes', () => {
   });
 
   it('builds one composition driven by one paused GSAP timeline', () => {
-    expect(html).toContain('data-composition-id="openmaic"');
+    expect(html).toContain('data-composition-id="dojolearn"');
     expect(html).toContain('data-width="1920"');
     expect(html).toContain('data-height="1080"');
     expect(html).toContain(`data-duration="${ir.totalDurationMs / 1000}"`);
     expect(html).toContain('gsap.timeline({ paused: true })');
-    expect(html).toContain('window.__timelines["openmaic"] = tl;');
+    expect(html).toContain('window.__timelines["dojolearn"] = tl;');
   });
 
   it('lays out base / narration / video clips with clip attributes', () => {
@@ -226,22 +226,22 @@ describe('emitHyperframes frozen interactive HTML', () => {
 
   it('waits for every iframe to freeze or fall back before registering the timeline', () => {
     const ready = html.indexOf(
-      'window.__openmaicInteractiveReady = initializeOpenMaicInteractiveStaticFrames()',
+      'window.__dojolearnInteractiveReady = initializeDojoLearnInteractiveStaticFrames()',
     );
-    const registration = html.indexOf('window.__timelines["openmaic"] = tl;', ready);
+    const registration = html.indexOf('window.__timelines["dojolearn"] = tl;', ready);
     expect(ready).toBeGreaterThan(0);
     expect(registration).toBeGreaterThan(ready);
     expect(html).toContain("'interactive-runtime-failure'");
     expect(html).toContain("'interactive-ready-timeout'");
-    expect(html).toContain('window.__openmaicVideoDiagnostics');
-    expect(html).toContain('data-openmaic-runtime-diagnostics');
-    expect(html).toContain('window.__openmaicVideoManifest.runtimeDiagnostics');
+    expect(html).toContain('window.__dojolearnVideoDiagnostics');
+    expect(html).toContain('data-dojolearn-runtime-diagnostics');
+    expect(html).toContain('window.__dojolearnVideoManifest.runtimeDiagnostics');
   });
 
   it('keeps runtime diagnostics in the live report instead of an immutable sidecar', () => {
-    expect(html).toContain('data-openmaic-runtime-diagnostics');
-    expect(html).toContain('window.__openmaicVideoManifest.runtimeDiagnostics');
-    expect(html).not.toContain('openmaic-runtime-diagnostics.json');
+    expect(html).toContain('data-dojolearn-runtime-diagnostics');
+    expect(html).toContain('window.__dojolearnVideoManifest.runtimeDiagnostics');
+    expect(html).not.toContain('dojolearn-runtime-diagnostics.json');
   });
 
   it('keeps a later iframe visually inert outside its scene window', () => {
@@ -376,7 +376,7 @@ describe('emitHyperframes static Quiz/PBL cover cards', () => {
     // carries no button — inert or otherwise (#995 review).
     expect(html).not.toContain('cover-button');
     expect(html).not.toContain('<button');
-    expect(html).not.toContain('open.maic.chat');
+    expect(html).not.toContain('dojolearn.onrender.com');
   });
 
   it('renders the PBL Hero summary from learner-visible design fields', () => {
@@ -803,7 +803,7 @@ describe('emitHyperframes cover cards at constrained resolutions', () => {
     const fiveGainHtml = emitHyperframes(fiveGainIr, {
       width: 1280,
       height: 720,
-      cta: { destination: 'open.maic.chat' },
+      cta: { destination: 'dojolearn.onrender.com' },
     }).files.find((file) => file.path === 'index.html')!.content;
 
     expect(fiveGainHtml.match(/class="cover-gain-text"/g)).toHaveLength(5);
@@ -857,7 +857,7 @@ describe('emitHyperframes cover cards at constrained resolutions', () => {
       const ladderHtml = emitHyperframes(ladderIr, {
         width: 1280,
         height,
-        cta: { destination: 'open.maic.chat' },
+        cta: { destination: 'dojolearn.onrender.com' },
       }).files.find((file) => file.path === 'index.html')!.content;
       const people = ladderHtml.includes('<div class="cover-people">') ? 'people' : 'no-people';
       const gains = ladderHtml.match(/class="cover-gain-text"/g)?.length ?? 0;
@@ -881,7 +881,7 @@ describe('emitHyperframes cover cards at constrained resolutions', () => {
     const shortest = emitHyperframes(ladderIr, {
       width: 1280,
       height: 260,
-      cta: { destination: 'open.maic.chat' },
+      cta: { destination: 'dojolearn.onrender.com' },
     }).files.find((file) => file.path === 'index.html')!.content;
     expect(shortest).toContain('<strong>1</strong><span>Stages</span>');
     expect(shortest).toContain('<div class="cover-cta">');
@@ -924,7 +924,7 @@ describe('emitHyperframes cover cards at constrained resolutions', () => {
     const digitThresholdHtml = emitHyperframes(digitThresholdIr, {
       width: 1280,
       height: 540,
-      cta: { destination: 'open.maic.chat' },
+      cta: { destination: 'dojolearn.onrender.com' },
     }).files.find((file) => file.path === 'index.html')!.content;
 
     // The required 0.64em digit class plans a second title line, so people are

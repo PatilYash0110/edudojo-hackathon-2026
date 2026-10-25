@@ -188,7 +188,7 @@ export interface SceneOutline {
 
 // ==================== Stage 3 Output: Generated Content ====================
 
-import type { PPTElement, SlideBackground } from '@openmaic/dsl';
+import type { PPTElement, SlideBackground } from '@dojolearn/dsl';
 import type { QuizQuestion } from './stage';
 
 /**

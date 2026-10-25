@@ -20,7 +20,7 @@ import {
   normalizeObservedUrl,
   type AgentSessionTransaction,
   type AgentSessionUrlSource,
-} from '@openmaic/storage';
+} from '@dojolearn/storage';
 
 import { getAgentSessionStore } from './store';
 

@@ -159,7 +159,7 @@ describe('local media command cancellation', () => {
     const { tmpdir } = await import('node:os');
     const { join } = await import('node:path');
     const { runMediaCommandProcess } = await import('@/lib/document/extractors/local-media');
-    const dir = await mkdtemp(join(tmpdir(), 'openmaic-sigterm-'));
+    const dir = await mkdtemp(join(tmpdir(), 'dojolearn-sigterm-'));
     const pidFile = join(dir, 'pid');
     const script = `require('fs').writeFileSync(${JSON.stringify(pidFile)}, String(process.pid)); process.on('SIGTERM', () => {}); setInterval(() => {}, 1000);`;
     const controller = new AbortController();

@@ -7,9 +7,9 @@
  * hands in a read-only one); the regular load and save paths have none.
  */
 
-import type { RuntimeSession } from '@openmaic/dsl';
-import type { KVStore, RuntimeStore } from '@openmaic/storage';
-import { HttpRuntimeStoreError } from '@openmaic/storage/runtime/http';
+import type { RuntimeSession } from '@dojolearn/dsl';
+import type { KVStore, RuntimeStore } from '@dojolearn/storage';
+import { HttpRuntimeStoreError } from '@dojolearn/storage/runtime/http';
 import { isEqual } from 'lodash';
 import { nanoid } from 'nanoid';
 
@@ -200,7 +200,7 @@ function noteLockFreeChatStorage(): void {
   lockFreeNoticeShown = true;
   console.info(
     '[ChatStorage] Web Locks are unavailable on this page (not a secure context), so chat ' +
-      'history is saved without cross-tab locking. Serve OpenMAIC over HTTPS or localhost to enable it.',
+      'history is saved without cross-tab locking. Serve DojoLearn over HTTPS or localhost to enable it.',
   );
 }
 

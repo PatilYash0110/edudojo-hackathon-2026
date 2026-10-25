@@ -16,8 +16,8 @@
  * `instrumentation.ts` `register()` (see `./registry.ts`). With nothing
  * registered, every point behaves exactly as it did before the hook existed.
  */
-import type { AssetByteStore } from '@openmaic/storage/asset/pg';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { AssetByteStore } from '@dojolearn/storage/asset/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import type { OwnerPrincipal } from '@/lib/server/identity/types';
 
@@ -172,7 +172,7 @@ export interface AssetByteStoreContext {
  *
  * The store must keep its bytes outside the registry's PostgreSQL and say so
  * with `writesOutsideRegistryDatabase: true` (see `AssetByteStore` in
- * `@openmaic/storage`). The flag is trusted, not checked: a store that sets it
+ * `@dojolearn/storage`). The flag is trusted, not checked: a store that sets it
  * but writes through the registry database can deadlock the registry's write
  * transaction. An in-database byte layer is the built-in default and cannot be
  * registered.

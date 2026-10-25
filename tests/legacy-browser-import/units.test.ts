@@ -1,7 +1,7 @@
 /** The importer's pure parts: derived ids, failure classification, the ledger. */
 import { createHash } from 'node:crypto';
 
-import { HttpAssetStore } from '@openmaic/storage';
+import { HttpAssetStore } from '@dojolearn/storage';
 import { describe, expect, it } from 'vitest';
 
 import { sha256Hex } from '@/lib/legacy-browser-import/digest';

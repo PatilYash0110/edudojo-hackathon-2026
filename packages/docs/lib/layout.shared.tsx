@@ -19,7 +19,7 @@ export function baseOptions(lang?: string): BaseLayoutProps {
     links: [
       {
         text: 'Live Demo',
-        url: 'https://open.maic.chat',
+        url: 'https://dojolearn.onrender.com',
         external: true,
       },
     ],

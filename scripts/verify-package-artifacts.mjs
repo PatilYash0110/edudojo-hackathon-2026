@@ -4,7 +4,7 @@ import { createHash } from 'node:crypto';
 import { lstatSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { basename, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { OPENMAIC_PACKAGES, readManifest } from './openmaic-packages.mjs';
+import { OPENMAIC_PACKAGES, readManifest } from './dojolearn-packages.mjs';
 
 const DIGESTS_FILE = 'SHA256SUMS';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -14,9 +14,9 @@ function expectedArtifacts() {
     const manifest = readManifest(shortName);
     return {
       shortName,
-      name: `@openmaic/${shortName}`,
+      name: `@dojolearn/${shortName}`,
       version: manifest.version,
-      filename: `openmaic-${shortName}-${manifest.version}.tgz`,
+      filename: `dojolearn-${shortName}-${manifest.version}.tgz`,
     };
   });
 }

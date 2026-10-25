@@ -2,7 +2,7 @@ import type {
   DocumentFolderStore,
   DocumentStore,
   StageFreshnessManifestStore,
-} from '@openmaic/storage';
+} from '@dojolearn/storage';
 
 import { withPlainJsonDocumentWrites } from '@/lib/document-store/plain-json-store';
 import type { AppStage } from '@/lib/document-store/persistence-types';
@@ -15,7 +15,7 @@ import { canonicalizeOwner, isOwnerRetiredError } from '@/lib/persistence/owner-
 import { getServerPersistenceProvider } from '@/lib/persistence/server-provider';
 import type { OwnerPrincipal } from '@/lib/server/identity/types';
 import type { AppScene } from '@/lib/types/stage';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 /**
  * The owner-bound document store for one HTTP request, plus the

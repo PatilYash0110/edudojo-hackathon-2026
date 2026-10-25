@@ -1,10 +1,10 @@
 import JSZip from 'jszip';
 import { createServer } from 'node:http';
 import type { AddressInfo } from 'node:net';
-import { HttpAssetStore, toAssetId, type AssetBytes, type AssetStore } from '@openmaic/storage';
-import { createAssetHttpHandler } from '@openmaic/storage/server';
+import { HttpAssetStore, toAssetId, type AssetBytes, type AssetStore } from '@dojolearn/storage';
+import { createAssetHttpHandler } from '@dojolearn/storage/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { AssetMeta, Slide } from '@openmaic/dsl';
+import type { AssetMeta, Slide } from '@dojolearn/dsl';
 import type { ClassroomManifest } from '@/lib/export/classroom-zip-types';
 
 const mocks = vi.hoisted(() => ({

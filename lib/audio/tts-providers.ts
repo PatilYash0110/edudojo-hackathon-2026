@@ -447,7 +447,7 @@ async function generateLemonadeTTS(
 /**
  * VoxCPM2 TTS implementation.
  *
- * OpenMAIC keeps one internal VoxCPM request shape, then adapts it to the
+ * DojoLearn keeps one internal VoxCPM request shape, then adapts it to the
  * selected official backend protocol.
  */
 async function generateVoxCPMTTS(
@@ -1397,7 +1397,7 @@ async function generateDoubaoTTS(
       'X-Api-Resource-Id': 'seed-tts-2.0',
     },
     body: JSON.stringify({
-      user: { uid: 'openmaic' },
+      user: { uid: 'dojolearn' },
       req_params: {
         text,
         speaker: config.voice,

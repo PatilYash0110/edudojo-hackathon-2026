@@ -1,4 +1,4 @@
-/** Download the OpenMAIC skill, a builtin agent skill, or one owner skill as zip. */
+/** Download the DojoLearn skill, a builtin agent skill, or one owner skill as zip. */
 import type { NextRequest } from 'next/server';
 
 import { isAgentRuntimeConfigured } from '@/lib/config/feature-flags';
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   const { id } = await params;
   if (!isSafeSkillId(id)) return new Response('Invalid skill id', { status: 400 });
 
-  if (id === 'openmaic') {
+  if (id === 'dojolearn') {
     const zip = await buildOpenClawSkillZip();
     return zip ? zipResponse(id, zip) : new Response('Not found', { status: 404 });
   }

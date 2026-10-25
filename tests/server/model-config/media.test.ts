@@ -19,7 +19,7 @@ const { slotTTSModel } = await import('@/lib/server/provider-config');
 const { resolveExtractionServices, slotGovernedRequest } =
   await import('@/lib/server/material-extraction/services');
 
-type Config = import('@/lib/server/model-config/openmaic-yml').ModelConfigFile;
+type Config = import('@/lib/server/model-config/dojolearn-yml').ModelConfigFile;
 const workspaces = new Map<string, Config>();
 
 beforeEach(() => {

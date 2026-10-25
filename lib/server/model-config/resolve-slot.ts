@@ -46,7 +46,7 @@ import {
   parseModelRef,
   type ModelConfigFile,
   type SlotAssignment,
-} from '@/lib/server/model-config/openmaic-yml';
+} from '@/lib/server/model-config/dojolearn-yml';
 
 /** Where a layer comes from: the deployment (openmaic.yml) or the web settings. */
 export type ConfigSource = 'deployment' | 'workspace';

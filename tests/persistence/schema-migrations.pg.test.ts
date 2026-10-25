@@ -9,10 +9,10 @@
  * Every case works in a schema of its own, so the suite shares nothing with
  * the package suites on the contract database.
  */
-import { ensureAgentSessionSchema } from '@openmaic/storage/agent-session/pg';
-import { ensureAgentSessionMaterialSchema } from '@openmaic/storage/material/pg';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
-import { ensureUserSkillSchema } from '@openmaic/storage/skill/pg';
+import { ensureAgentSessionSchema } from '@dojolearn/storage/agent-session/pg';
+import { ensureAgentSessionMaterialSchema } from '@dojolearn/storage/material/pg';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
+import { ensureUserSkillSchema } from '@dojolearn/storage/skill/pg';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 

@@ -14,8 +14,8 @@
  * `lib/server/persistence-hooks/`) and otherwise fall back to the built-in
  * choice, S3 when `ASSET_S3_BUCKET` is set and the PostgreSQL column when not.
  */
-import { PgAssetByteStore } from '@openmaic/storage/asset/pg-bytes';
-import type { AssetByteStore, Queryable } from '@openmaic/storage/asset/pg';
+import { PgAssetByteStore } from '@dojolearn/storage/asset/pg-bytes';
+import type { AssetByteStore, Queryable } from '@dojolearn/storage/asset/pg';
 
 import { getAssetByteStoreRegistration } from '@/lib/server/persistence-hooks/registry';
 import type { AssetByteStoreRegistration } from '@/lib/server/persistence-hooks/types';
@@ -90,7 +90,7 @@ export async function createAssetByteStore(
   queryable: Queryable,
 ): Promise<AssetByteStore> {
   if (!bucket) return new PgAssetByteStore(queryable);
-  const storage = await import('@openmaic/storage/asset/s3-bytes');
+  const storage = await import('@dojolearn/storage/asset/s3-bytes');
   return storage.loadS3AssetByteStore(bucket);
 }
 

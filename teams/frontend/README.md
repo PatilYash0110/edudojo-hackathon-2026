@@ -10,7 +10,7 @@ Each feature folder holds its page, components and `strings.ts`, so two people r
 | `app-shell/` | layout, navigation, `Placeholder` (delete when unused) | _name_ |
 | `lib/` | API client, i18n hook | _name_ |
 | `features/dojo-map/` | dojo list, tower map, floor cards | _name_ |
-| `features/lesson/` | lesson panel (OpenMAIC slides + narration), whiteboard | _name_ |
+| `features/lesson/` | lesson panel (DojoLearn slides + narration), whiteboard | _name_ |
 | `features/battle/` | battle screen, arena, fighters, bars, question panel, result | _name_ |
 | `features/boss/` | Final Boss screens | _name_ |
 | `features/challenges/` | coding, simulation, project mission | _name_ |

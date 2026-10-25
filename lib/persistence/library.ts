@@ -9,8 +9,8 @@
  * that `GET /api/stages/{id}` would refuse. What a provider may hand out
  * beyond that (reads are capability-by-id) is the host's decision.
  */
-import type { DocumentSummary } from '@openmaic/storage';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { DocumentSummary } from '@dojolearn/storage';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import { isQueryableSegment } from '@/lib/persistence/document-access';
 import type { OwnerPrincipal } from '@/lib/server/identity/types';

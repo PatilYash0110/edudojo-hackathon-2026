@@ -8,17 +8,17 @@
  */
 
 /** `<script type="application/json">` holding the {@link ClassroomManifest}. */
-export const STANDALONE_MANIFEST_ELEMENT_ID = 'openmaic-classroom';
+export const STANDALONE_MANIFEST_ELEMENT_ID = 'dojolearn-classroom';
 
 /** `<script type="application/json">` holding the {@link StandalonePlayerConfig}. */
-export const STANDALONE_CONFIG_ELEMENT_ID = 'openmaic-player-config';
+export const STANDALONE_CONFIG_ELEMENT_ID = 'dojolearn-player-config';
 
 /**
  * `<script type="application/json">` holding the {@link StandaloneMediaTable}:
  * the playback media (narration audio, video clips) the actions and video
  * elements name by key. Absent in files exported without narration.
  */
-export const STANDALONE_MEDIA_TABLE_ELEMENT_ID = 'openmaic-media';
+export const STANDALONE_MEDIA_TABLE_ELEMENT_ID = 'dojolearn-media';
 
 /**
  * Element id prefix of the `<script type="application/octet-stream">` blocks
@@ -27,7 +27,7 @@ export const STANDALONE_MEDIA_TABLE_ELEMENT_ID = 'openmaic-media';
  * first needed (a narration clip when it first plays, a slide video when its
  * slide is first shown), so a large file never holds every clip twice.
  */
-export const STANDALONE_MEDIA_BLOCK_ID_PREFIX = 'openmaic-media-';
+export const STANDALONE_MEDIA_BLOCK_ID_PREFIX = 'dojolearn-media-';
 
 /**
  * Where the bytes of one playback media key live. Exactly one of `embedded`
@@ -44,10 +44,10 @@ export interface StandaloneMediaEntry {
 export type StandaloneMediaTable = Record<string, StandaloneMediaEntry>;
 
 /** Class of the static "needs JavaScript" message the player removes on mount. */
-export const STANDALONE_FALLBACK_CLASS = 'openmaic-fallback';
+export const STANDALONE_FALLBACK_CLASS = 'dojolearn-fallback';
 
 /** Mount point of the player app. */
-export const STANDALONE_ROOT_ELEMENT_ID = 'openmaic-player';
+export const STANDALONE_ROOT_ELEMENT_ID = 'dojolearn-player';
 
 /**
  * Where the build step writes the player assets, relative to `public/`. The

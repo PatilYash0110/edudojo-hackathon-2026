@@ -2,7 +2,7 @@ import {
   postProcessInteractiveHtml,
   rewriteInteractiveLibraries,
   interactiveAssetBaseUrl,
-} from '@openmaic/generation/browser';
+} from '@dojolearn/generation/browser';
 import {
   toDataUri,
   type InlineReport,
@@ -438,7 +438,7 @@ async function inlineStyleAttributeUrls(
   css: string,
   fetchAsset: FetchAsset,
 ): Promise<{ css: string; failed: { url: string; reason: string }[]; inlined: string[] }> {
-  const root = tryParseCss(`.openmaic-style{${css}}`, 'style-attribute');
+  const root = tryParseCss(`.dojolearn-style{${css}}`, 'style-attribute');
   if (!root) return { css, failed: unresolvedCssRefs(css), inlined: [] };
   const result = await inlineParsedCssUrls(root, 'about:blank', fetchAsset);
   const serialized = root.toString();
@@ -454,7 +454,7 @@ async function inlineSvgPresentationAttributeUrls(
   fetchAsset: FetchAsset,
 ): Promise<{ cssValue: string; failed: { url: string; reason: string }[]; inlined: string[] }> {
   const root = tryParseCss(
-    `.openmaic-svg{${attributeName}:${cssValue}}`,
+    `.dojolearn-svg{${attributeName}:${cssValue}}`,
     'svg-presentation-attribute',
   );
   if (!root) return { cssValue, failed: unresolvedCssRefs(cssValue), inlined: [] };

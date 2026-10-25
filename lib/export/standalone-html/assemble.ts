@@ -117,13 +117,13 @@ const FALLBACK_STYLE = [
   // The root keeps the viewport's height (player CSS) even while empty; hide
   // it until the player mounts so the fallback message is on the first screen.
   `#${STANDALONE_ROOT_ELEMENT_ID}:empty{display:none}`,
-  '.openmaic-message{box-sizing:border-box;max-width:32rem;margin:2rem auto;padding:1rem 1.25rem;',
+  '.dojolearn-message{box-sizing:border-box;max-width:32rem;margin:2rem auto;padding:1rem 1.25rem;',
   'font:16px/1.5 system-ui,-apple-system,sans-serif;color:#334155;text-align:center}',
   // Backstop for a slow parse: even when the message is reached before the
   // player script has run, it only becomes visible after a delay.
-  `.${STANDALONE_FALLBACK_CLASS}{opacity:0;animation:openmaic-fallback-in 0s 2s forwards}`,
+  `.${STANDALONE_FALLBACK_CLASS}{opacity:0;animation:dojolearn-fallback-in 0s 2s forwards}`,
   `.${STANDALONE_FALLBACK_CLASS}[data-failed]{opacity:1;animation:none}`,
-  '@keyframes openmaic-fallback-in{to{opacity:1}}',
+  '@keyframes dojolearn-fallback-in{to{opacity:1}}',
 ].join('');
 
 export interface StandaloneHtmlInput {
@@ -234,7 +234,7 @@ export function assembleStandaloneHtmlParts(input: StandaloneHtmlInput): string[
   const strings = input.config.strings;
   const fallbackText = strings.scriptRequired ? escapeHtmlText(strings.scriptRequired) : '';
   const fallbackRoot = fallbackText
-    ? `<p class="openmaic-message ${STANDALONE_FALLBACK_CLASS}" data-testid="script-fallback" data-failed-text="${escapeHtmlText(strings.startFailed ?? '')}">${fallbackText}</p>`
+    ? `<p class="dojolearn-message ${STANDALONE_FALLBACK_CLASS}" data-testid="script-fallback" data-failed-text="${escapeHtmlText(strings.startFailed ?? '')}">${fallbackText}</p>`
     : '';
   return [
     '<!doctype html>',
@@ -244,7 +244,7 @@ export function assembleStandaloneHtmlParts(input: StandaloneHtmlInput): string[
     `<meta http-equiv="Content-Security-Policy" content="${csp}">`,
     '<meta name="referrer" content="no-referrer">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
-    '<meta name="generator" content="OpenMAIC">',
+    '<meta name="generator" content="DojoLearn">',
     `<title>${escapeHtmlText(title)}</title>`,
     styles,
     `<style>${FALLBACK_STYLE}</style>`,
@@ -262,7 +262,7 @@ export function assembleStandaloneHtmlParts(input: StandaloneHtmlInput): string[
       mediaBlocks(input.embeddedMedia ?? [], linkedMedia),
       [
         ...(fallbackText
-          ? [fallbackRoot, `<noscript><p class="openmaic-message">${fallbackText}</p></noscript>`]
+          ? [fallbackRoot, `<noscript><p class="dojolearn-message">${fallbackText}</p></noscript>`]
           : []),
         ...(input.extraScripts ?? []).map(
           (js, index) => `<script>${assertRawText(js, 'script', `script ${index + 1}`)}</script>`,

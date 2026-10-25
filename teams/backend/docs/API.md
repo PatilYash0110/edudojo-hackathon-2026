@@ -32,7 +32,7 @@ Auth: httpOnly cookie `dojo_session`, set by signup/login/join. Responses: `{ su
 - **Teacher:** signup → `POST /classes` (shows PIN) → `POST /classrooms { prompt, classId }` → poll → dashboards.
 - **Student:** `POST /auth/join { pin, nickname }` → `GET /classrooms` → open `playerUrl` (slides + narration) →
   chat → quizzes → `GET /analytics/student`.
-- **PDF:** upload with OpenMAIC's `POST /api/materials` first, then pass `materialIds` to `POST /classrooms`.
+- **PDF:** upload with DojoLearn's `POST /api/materials` first, then pass `materialIds` to `POST /classrooms`.
 
 ## Daily limits
 

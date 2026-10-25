@@ -12,7 +12,7 @@ import {
 import type { MediaFileRecord } from '@/lib/device-storage/database';
 import type { GeneratedAgentConfig, Scene, Stage } from '@/lib/types/stage';
 import type { SceneOutline } from '@/lib/types/generation';
-import type { PPTElement, Slide } from '@openmaic/dsl';
+import type { PPTElement, Slide } from '@dojolearn/dsl';
 import {
   collectDocumentMediaElements,
   withDocumentLegacyVideoRecovery,

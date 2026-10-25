@@ -16,7 +16,7 @@
  * exits the process like any other boot failure. Started without being
  * awaited: `register()` must not block on I/O.
  */
-import { verifySchemaMigrations } from '@openmaic/storage/pg-migrations';
+import { verifySchemaMigrations } from '@dojolearn/storage/pg-migrations';
 import { Pool } from 'pg';
 
 import { APP_SCHEMA_STORES } from '@/lib/persistence/schema-stores';

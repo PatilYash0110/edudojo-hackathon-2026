@@ -23,27 +23,27 @@ const ALLOWLIST: Record<string, { kind: 'render-calls' | 'reviewed'; reason: str
     kind: 'render-calls',
     reason: 'quiz math (also the standalone player)',
   },
-  'packages/@openmaic/editor/src/react/text/prosemirror/schema/inlineMath.ts': {
+  'packages/@dojolearn/editor/src/react/text/prosemirror/schema/inlineMath.ts': {
     kind: 'render-calls',
     reason: 'editor inline math node',
   },
-  'packages/@openmaic/editor/src/ui/latex/latex-editor.ts': {
+  'packages/@dojolearn/editor/src/ui/latex/latex-editor.ts': {
     kind: 'render-calls',
     reason: 'editor latex dialog',
   },
-  'packages/@openmaic/renderer/src/utils/inlineMath.ts': {
+  'packages/@dojolearn/renderer/src/utils/inlineMath.ts': {
     kind: 'render-calls',
     reason: 'inline math in slide prose (players, thumbnails, standalone HTML)',
   },
-  'packages/@openmaic/generation/src/scene-generator.ts': {
+  'packages/@dojolearn/generation/src/scene-generator.ts': {
     kind: 'render-calls',
     reason: 'generated latex elements',
   },
-  'packages/@openmaic/importer/src/import-pipeline/transformParsedToSlides.ts': {
+  'packages/@dojolearn/importer/src/import-pipeline/transformParsedToSlides.ts': {
     kind: 'render-calls',
     reason: 'imported formulas',
   },
-  'packages/@openmaic/importer/src/serializer/textSerializer.ts': {
+  'packages/@dojolearn/importer/src/serializer/textSerializer.ts': {
     kind: 'render-calls',
     reason: 'imported inline formulas',
   },
@@ -53,14 +53,14 @@ const ALLOWLIST: Record<string, { kind: 'render-calls' | 'reviewed'; reason: str
       'wraps @streamdown/math and replaces its rehype-katex options with safeKatexOptions; ' +
       'covered by the workbench chat paths in safe-math-render.test.ts',
   },
-  'packages/@openmaic/generation/src/interactive-post-processor.ts': {
+  'packages/@dojolearn/generation/src/interactive-post-processor.ts': {
     kind: 'reviewed',
     reason:
       'injects KaTeX auto-render into generated interactive HTML. That page already runs ' +
       'arbitrary model-written scripts in a sandboxed iframe, so a formula there has no more ' +
       'power than the page itself',
   },
-  'packages/@openmaic/generation/src/interactive-libraries.ts': {
+  'packages/@dojolearn/generation/src/interactive-libraries.ts': {
     kind: 'reviewed',
     reason:
       'lists the KaTeX auto-render file among the self-hosted assets that the interactive ' +
@@ -132,7 +132,7 @@ describe('math engine guard recognizes every import shape', () => {
 });
 
 describe('render-call check rejects every bypass', () => {
-  const header = "import katex from 'katex';\nimport { safeKatexOptions } from '@openmaic/dsl';\n";
+  const header = "import katex from 'katex';\nimport { safeKatexOptions } from '@dojolearn/dsl';\n";
 
   it('accepts render calls whose options are safeKatexOptions(...)', () => {
     expect(
@@ -150,7 +150,7 @@ describe('render-call check rejects every bypass', () => {
     expect(
       findUnsafeRenderUses(
         'ok.ts',
-        "import * as K from 'katex';\nimport { safeKatexOptions as safe } from '@openmaic/dsl';\n" +
+        "import * as K from 'katex';\nimport { safeKatexOptions as safe } from '@dojolearn/dsl';\n" +
           'K.renderToString(a, safe());',
       ),
     ).toEqual([]);

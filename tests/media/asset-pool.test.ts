@@ -1,5 +1,5 @@
 import { IDBFactory } from 'fake-indexeddb';
-import { HttpAssetStore } from '@openmaic/storage';
+import { HttpAssetStore } from '@dojolearn/storage';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 describe('getAssetPool', () => {

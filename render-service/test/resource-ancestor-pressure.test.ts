@@ -48,7 +48,7 @@ it('derives the task slice and permanently closes on a sampled local event', () 
     throw new Error(`Unexpected read ${path}`);
   });
   const monitor = createAncestorPressureMonitor({
-    membership: '0::/system.slice/openmaic-resource.service\n',
+    membership: '0::/system.slice/dojolearn-resource.service\n',
     readFile,
   });
   expect(monitor.taskSlice).toBe('system.slice');
@@ -73,7 +73,7 @@ it('makes pressure collection failure observable and fail-closed', () => {
     throw new Error(`Unexpected read ${path}`);
   };
   const monitor = createAncestorPressureMonitor({
-    membership: '0::/system.slice/openmaic-resource.service',
+    membership: '0::/system.slice/dojolearn-resource.service',
     readFile,
   });
   fail = true;

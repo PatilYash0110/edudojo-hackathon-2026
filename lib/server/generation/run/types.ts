@@ -8,7 +8,7 @@
  * start a run, follow its ordered event log and send it commands; none of them
  * drives the steps.
  */
-import type { AgentInfo } from '@openmaic/generation';
+import type { AgentInfo } from '@dojolearn/generation';
 
 import type { AgentConfig } from '@/lib/orchestration/registry/types';
 import type { SceneOutline } from '@/lib/types/generation';

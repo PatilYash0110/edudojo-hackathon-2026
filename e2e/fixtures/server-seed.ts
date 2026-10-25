@@ -30,7 +30,7 @@ export function uniqueStageId(prefix: string): string {
 
 /** Store one course document as the page's owner. */
 export async function seedServerDocument(page: Page, document: SeedDocument): Promise<void> {
-  const { DSL_VERSION } = await import('@openmaic/dsl');
+  const { DSL_VERSION } = await import('@dojolearn/dsl');
   const path = `/api/persistence/documents/${encodeURIComponent(document.stage.id)}`;
   const response = await page.request.put(path, {
     data: { dslVersion: DSL_VERSION, ...document },
@@ -80,7 +80,7 @@ export async function seedServerAsset(
   bytes: Uint8Array,
   contentType: string,
 ): Promise<string> {
-  const { HttpAssetStore } = await import('@openmaic/storage/asset/http');
+  const { HttpAssetStore } = await import('@dojolearn/storage/asset/http');
   const store = new HttpAssetStore({
     baseUrl: '/api/persistence',
     fetch: async (input, init) => {

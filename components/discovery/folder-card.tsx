@@ -14,7 +14,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SlideThumbnail } from '@/components/slide-renderer/SlideThumbnail';
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 import type { FolderRecord } from '@/lib/types/folder';
 import type { DeleteFolderMode, StageListItem } from '@/lib/utils/stage-storage';
 

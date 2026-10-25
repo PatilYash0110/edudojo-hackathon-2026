@@ -620,7 +620,7 @@ describe('POST /preview', () => {
     const videoId = await submitRender(
       coordinator,
       'video-user',
-      '/tmp/openmaic-preview-route-video-test',
+      '/tmp/dojolearn-preview-route-video-test',
       { fps: 30, quality: 'standard', format: 'mp4' },
     );
     await videoStarted.promise;
@@ -695,7 +695,7 @@ describe('POST /preview', () => {
       const videoId = await submitRender(
         coordinator,
         'video-user',
-        '/tmp/openmaic-preview-burst-video-test',
+        '/tmp/dojolearn-preview-burst-video-test',
         { fps: 30, quality: 'standard', format: 'mp4' },
       );
       await waitUntil(

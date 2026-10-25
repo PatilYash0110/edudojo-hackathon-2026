@@ -7,7 +7,7 @@
  * isolated fake-indexeddb factory, which keeps every byte in memory.
  */
 import { IDBFactory } from 'fake-indexeddb';
-import { BrowserAssetStore, BrowserDocumentStore, type DocumentStore } from '@openmaic/storage';
+import { BrowserAssetStore, BrowserDocumentStore, type DocumentStore } from '@dojolearn/storage';
 
 import type { AppStage } from '@/lib/document-store/persistence-types';
 import { validateAppScene, validateAppStage } from '@/lib/document-store/validators';

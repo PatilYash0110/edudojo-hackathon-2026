@@ -8,12 +8,12 @@
  * provider on it, seeds one anonymous owner's work in every owner-keyed store
  * core ships, and claims it into an account.
  */
-import type { Scene } from '@openmaic/dsl';
-import type { AssetStore } from '@openmaic/storage';
-import { changeAssetRoots } from '@openmaic/storage/asset/pg';
-import { PgAgentSessionStore, ensureAgentSessionSchema } from '@openmaic/storage/agent-session/pg';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
-import { PgUserSkillStore, ensureUserSkillSchema } from '@openmaic/storage/skill/pg';
+import type { Scene } from '@dojolearn/dsl';
+import type { AssetStore } from '@dojolearn/storage';
+import { changeAssetRoots } from '@dojolearn/storage/asset/pg';
+import { PgAgentSessionStore, ensureAgentSessionSchema } from '@dojolearn/storage/agent-session/pg';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
+import { PgUserSkillStore, ensureUserSkillSchema } from '@dojolearn/storage/skill/pg';
 import { expect } from 'vitest';
 
 import { validateAppScene, validateAppStage } from '@/lib/document-store/validators';

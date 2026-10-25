@@ -3,7 +3,7 @@
  * browser kept are set aside for the one-time import into the workspace
  * (lib/legacy-browser-import/model-settings.ts).
  */
-import { BrowserKVStore } from '@openmaic/storage';
+import { BrowserKVStore } from '@dojolearn/storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { MODEL_SETTINGS_IMPORT_KEY } from '@/lib/legacy-browser-import/model-settings';

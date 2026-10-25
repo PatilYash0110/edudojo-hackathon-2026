@@ -101,7 +101,7 @@ export function resolveSingleUserOwnerId(): string | undefined {
 
 const SINGLE_USER_ROLES: ReadonlySet<string> = new Set<string>([OWNER_ROLES.coursePublish]);
 
-const SINGLE_USER_METHOD = Symbol.for('openmaic.owner-identity.single-user-method');
+const SINGLE_USER_METHOD = Symbol.for('dojolearn.owner-identity.single-user-method');
 
 /** Whether `method` is the built-in from {@link singleUserAuthMethod}. */
 export function isSingleUserAuthMethod(method: OwnerAuthMethod): boolean {

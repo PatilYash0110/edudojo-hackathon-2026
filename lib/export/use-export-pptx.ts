@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useRef } from 'react';
 import pptxgen from 'pptxgenjs';
-import { validateShapeGeometry, RENDER_PATH_LIMITS, shapeToTextFallback } from '@openmaic/geometry';
+import { validateShapeGeometry, RENDER_PATH_LIMITS, shapeToTextFallback } from '@dojolearn/geometry';
 import tinycolor from 'tinycolor2';
 import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
@@ -18,7 +18,7 @@ import {
   type PPTElementOutline,
   type PPTElementShadow,
   type PPTElementLink,
-} from '@openmaic/dsl';
+} from '@dojolearn/dsl';
 import type { Scene, SlideContent } from '@/lib/types/stage';
 import { getElementRange, getLineElementPath, getTableSubThemeColor } from '@/lib/utils/element';
 import { type AST, toAST } from '@/lib/export/html-parser';

@@ -12,7 +12,7 @@
  * list holds); members the schema does not know are not carried over.
  * Normalizing a normalized outline changes nothing.
  */
-import { WIDGET_TYPES } from '@openmaic/dsl';
+import { WIDGET_TYPES } from '@dojolearn/dsl';
 
 import type { SceneOutline } from '@/lib/types/generation';
 

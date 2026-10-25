@@ -14,9 +14,9 @@ import { motion, AnimatePresence } from 'motion/react';
 import { useCanvasStore } from '@/lib/store/canvas';
 import { ScreenElement } from '@/components/slide-renderer/Editor/ScreenElement';
 import { normalizeWhiteboardViewportRatio } from '@/lib/whiteboard/viewport';
-import { ElementTypes, type PPTElement, type Whiteboard } from '@openmaic/dsl';
+import { ElementTypes, type PPTElement, type Whiteboard } from '@dojolearn/dsl';
 import { useI18n } from '@/lib/hooks/use-i18n';
-import { createTextProseStyles } from '@openmaic/renderer';
+import { createTextProseStyles } from '@dojolearn/renderer';
 
 const WHITEBOARD_SHAPE_PROSE_STYLES = createTextProseStyles(
   '.whiteboard-screen-canvas .screen-element .slide-renderer-prose',

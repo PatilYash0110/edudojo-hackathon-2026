@@ -2,9 +2,9 @@ import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { parseHTML } from 'linkedom';
 import { describe, expect, it } from 'vitest';
-import type { PPTShapeElement } from '@openmaic/dsl';
+import type { PPTShapeElement } from '@dojolearn/dsl';
 import { BaseShapeElement as WhiteboardShape } from '@/components/slide-renderer/components/element/ShapeElement/BaseShapeElement';
-import { BaseShapeElement as SDKShape } from '@openmaic/renderer/elements';
+import { BaseShapeElement as SDKShape } from '@dojolearn/renderer/elements';
 
 const base: PPTShapeElement = {
   id: 'custom',

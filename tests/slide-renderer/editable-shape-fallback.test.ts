@@ -2,7 +2,7 @@
 import { act, createElement } from 'react';
 import { createRoot } from 'react-dom/client';
 import { describe, expect, it, vi } from 'vitest';
-import type { PPTShapeElement } from '@openmaic/dsl';
+import type { PPTShapeElement } from '@dojolearn/dsl';
 import { ShapeElement } from '@/components/slide-renderer/components/element/ShapeElement';
 
 vi.mock('@/lib/hooks/use-canvas-operations', () => ({

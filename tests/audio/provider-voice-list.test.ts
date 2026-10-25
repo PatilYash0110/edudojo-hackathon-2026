@@ -1,7 +1,7 @@
 import type { AgentConfig } from '@/lib/orchestration/registry/types';
 import { advertisedVoices } from '@/lib/server/generation/run/narration-voice';
 import { expect, it } from 'vitest';
-import { parseModelConfig } from '@/lib/server/model-config/openmaic-yml';
+import { parseModelConfig } from '@/lib/server/model-config/dojolearn-yml';
 import { resolveSlot } from '@/lib/server/model-config/resolve-slot';
 import { slotTTSProvidersConfig } from '@/lib/audio/tts-selection';
 import { getEnabledProvidersWithVoices, resolveAgentVoice } from '@/lib/audio/voice-resolver';

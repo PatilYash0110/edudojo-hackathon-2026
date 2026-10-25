@@ -1,6 +1,6 @@
-import type { Queryable } from '@openmaic/storage/document/pg';
-import { withSessionAdvisoryLock } from '@openmaic/storage/pg-migrations';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import type { Queryable } from '@dojolearn/storage/document/pg';
+import { withSessionAdvisoryLock } from '@dojolearn/storage/pg-migrations';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 
 /**
  * PostgreSQL advisory-lock key serializing schema bootstrap across processes.
@@ -25,7 +25,7 @@ export const SCHEMA_BOOTSTRAP_LOCK_KEY = 71_310_523;
  * every statement of `body` and is released in `finally`: the lock cannot be
  * held by a connection that went back to the pool, and a connection that dies
  * mid-bootstrap releases it with the session. Each store's versioned
- * migrations (`applySchemaMigrations` in `@openmaic/storage/pg-migrations`)
+ * migrations (`applySchemaMigrations` in `@dojolearn/storage/pg-migrations`)
  * are serialized on their own as well; this lock, at the application's
  * bootstrap, serializes the whole sequence -- package tables and this
  * application's own (`stage_meta`, owner materials) alike, where one store's

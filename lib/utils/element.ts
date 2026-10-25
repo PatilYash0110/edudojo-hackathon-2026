@@ -1,9 +1,9 @@
 import tinycolor from 'tinycolor2';
 import { nanoid } from 'nanoid';
-import type { PPTElement, PPTLineElement, Slide } from '@openmaic/dsl';
-import { getElementRange } from '@openmaic/renderer';
+import type { PPTElement, PPTLineElement, Slide } from '@dojolearn/dsl';
+import { getElementRange } from '@dojolearn/renderer';
 
-export { getElementRange, getLineElementPath } from '@openmaic/renderer';
+export { getElementRange, getLineElementPath } from '@dojolearn/renderer';
 
 interface RotatedElementData {
   left: number;

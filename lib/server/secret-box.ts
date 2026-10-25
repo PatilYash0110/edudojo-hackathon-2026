@@ -56,7 +56,7 @@ interface InstanceKey {
 
 function deriveKey(secret: string): InstanceKey {
   // Any string works as the secret; hashing gives the 32 bytes AES-256 needs.
-  const key = createHash('sha256').update(`openmaic.instance-secret:${secret}`, 'utf8').digest();
+  const key = createHash('sha256').update(`dojolearn.instance-secret:${secret}`, 'utf8').digest();
   const kid = createHash('sha256').update(key).digest('hex').slice(0, 16);
   return { key, kid };
 }

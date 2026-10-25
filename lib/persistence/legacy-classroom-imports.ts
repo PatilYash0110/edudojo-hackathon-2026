@@ -16,8 +16,8 @@
  *
  * Temporary, like the importer: remove with it.
  */
-import type { Queryable } from '@openmaic/storage/document/pg';
-import { applySchemaMigrations, type SchemaMigrationSet } from '@openmaic/storage/pg-migrations';
+import type { Queryable } from '@dojolearn/storage/document/pg';
+import { applySchemaMigrations, type SchemaMigrationSet } from '@dojolearn/storage/pg-migrations';
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS legacy_classroom_imports (

@@ -10,7 +10,7 @@
  */
 import { describe, expect, it } from 'vitest';
 
-import { generateSceneActions, generateSceneContent, type AICallFn } from '@openmaic/generation';
+import { generateSceneActions, generateSceneContent, type AICallFn } from '@dojolearn/generation';
 import { normalizeLegacyPBLContent } from '@/lib/pbl/legacy/read';
 import { legacyPBLSceneFixture } from '@/tests/fixtures/pbl-v1-scene';
 import type {

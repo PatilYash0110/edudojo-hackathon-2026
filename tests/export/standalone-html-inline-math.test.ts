@@ -12,12 +12,12 @@ vi.mock('parse-srcset', async (importOriginal) => {
     },
   };
 });
-import type { PPTElement } from '@openmaic/dsl';
+import type { PPTElement } from '@dojolearn/dsl';
 import {
   createTextDocument,
   serializeTextDocument,
-} from '../../packages/@openmaic/editor/src/react/text/prosemirror/document';
-import { renderInlineMath } from '../../packages/@openmaic/renderer/src/utils/inlineMath';
+} from '../../packages/@dojolearn/editor/src/react/text/prosemirror/document';
+import { renderInlineMath } from '../../packages/@dojolearn/renderer/src/utils/inlineMath';
 import { sanitizeSlideRichText } from '@/lib/export/standalone-html/rich-text';
 import type { SlideContent } from '@/lib/types/stage';
 
@@ -165,17 +165,17 @@ describe('standalone HTML inline formulas', () => {
 
   it('does not let marker-like text duplicate or inject formulas', () => {
     const forged = [
-      'openmaicmath&#48;x0x',
-      'openmaic<foo></foo>math0x0x',
-      'openmaicmath0x0x',
-      '<a href="#" title="openmaicmath0x0x">link</a>',
+      'dojolearnmath&#48;x0x',
+      'dojolearn<foo></foo>math0x0x',
+      'dojolearnmath0x0x',
+      '<a href="#" title="dojolearnmath0x0x">link</a>',
     ].join(' ');
     const { content } = sanitizeSlideRichText(slideWith(editorHtmlFor('y^2', forged)));
     for (const html of proseFields(content)) {
       const fragment = parse(html);
       expect(fragment.querySelectorAll('[data-inline-math]')).toHaveLength(1);
-      expect(fragment.querySelector('a')?.getAttribute('title')).toBe('openmaicmath0x0x');
-      expect(fragment.textContent).toContain('openmaicmath0x0x');
+      expect(fragment.querySelector('a')?.getAttribute('title')).toBe('dojolearnmath0x0x');
+      expect(fragment.textContent).toContain('dojolearnmath0x0x');
     }
   });
 

@@ -1,6 +1,6 @@
-import type { SlideTheme } from '@openmaic/dsl';
+import type { SlideTheme } from '@dojolearn/dsl';
 
-/** Default theme matching @openmaic/dsl SlideTheme */
+/** Default theme matching @dojolearn/dsl SlideTheme */
 export const defaultTheme: SlideTheme = {
   backgroundColor: '#ffffff',
   themeColors: ['#5b9bd5', '#ed7d31', '#a5a5a5', '#ffc000', '#4472c4'],

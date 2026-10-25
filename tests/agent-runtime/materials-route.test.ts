@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-import type { AgentSessionMaterial } from '@openmaic/storage';
+import type { AgentSessionMaterial } from '@dojolearn/storage';
 import type { OwnerMaterialRecord } from '@/lib/persistence/owner-materials';
 
 const mocks = vi.hoisted(() => ({
@@ -560,7 +560,7 @@ describe('POST /api/materials', () => {
   });
 
   it('answers 507 and abandons the reservation when the pool quota has no room', async () => {
-    const { AssetQuotaExceededError } = await import('@openmaic/storage');
+    const { AssetQuotaExceededError } = await import('@dojolearn/storage');
     mocks.allocateOwnerMaterialBytes.mockRejectedValue(new AssetQuotaExceededError());
     const response = await post(Buffer.from('hello'));
     expect(response.status).toBe(507);

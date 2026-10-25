@@ -4,7 +4,7 @@ import { TTS_PROVIDERS, ASR_PROVIDERS } from '@/lib/audio/constants';
 import { IMAGE_PROVIDERS } from '@/lib/media/image-providers';
 import { VIDEO_PROVIDERS } from '@/lib/media/video-providers';
 import { CLAUDE_WEB_SEARCH_DEFAULT_MODEL } from '@/lib/web-search/constants';
-import type { ModelConfigFile } from './openmaic-yml';
+import type { ModelConfigFile } from './dojolearn-yml';
 
 /** Whether this provider uses deployment credentials, including an SDK credential chain. */
 export function usesServerCredentials(provider: {

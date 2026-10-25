@@ -10,7 +10,7 @@
  * ownership adoption from code, which a fixture without legacy rows never
  * needs.
  */
-import { splitSqlStatements, type Queryable } from '@openmaic/storage/document/pg';
+import { splitSqlStatements, type Queryable } from '@dojolearn/storage/document/pg';
 
 /** v1.1.2 */
 export const RELEASE_1_1_2_SCHEMA: readonly (readonly [store: string, sql: string])[] = [

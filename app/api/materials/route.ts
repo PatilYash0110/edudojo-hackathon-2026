@@ -22,8 +22,8 @@ import { basename } from 'node:path';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
-import { createMaterialId } from '@openmaic/storage';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import { createMaterialId } from '@dojolearn/storage';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 
 import {
   isAgentRuntimeConfigured,
@@ -36,7 +36,7 @@ import { withRequestOwner } from '@/lib/server/identity/with-owner';
 import { resolveOwnedSession } from '@/lib/server/agent-runtime/session-materials';
 import { listSessionScopePage } from '@/lib/server/agent-runtime/material-resolver';
 import { sessionScopeMaterialView } from '@/lib/server/materials/library-view';
-import { AssetQuotaExceededError } from '@openmaic/storage';
+import { AssetQuotaExceededError } from '@dojolearn/storage';
 
 import {
   abandonOwnerMaterial,

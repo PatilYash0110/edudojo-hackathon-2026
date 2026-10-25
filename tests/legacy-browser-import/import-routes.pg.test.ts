@@ -9,8 +9,8 @@
  */
 import 'fake-indexeddb/auto';
 
-import { HttpAssetStore, HttpDocumentStore } from '@openmaic/storage';
-import { HttpRuntimeStore } from '@openmaic/storage/runtime/http';
+import { HttpAssetStore, HttpDocumentStore } from '@dojolearn/storage';
+import { HttpRuntimeStore } from '@dojolearn/storage/runtime/http';
 import { NextRequest } from 'next/server';
 import { Pool } from 'pg';
 import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';

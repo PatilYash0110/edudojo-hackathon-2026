@@ -82,7 +82,7 @@ import {
 export const LOG_PREFIX = '[legacy-browser-import]';
 
 /** The Web Lock that serializes runs across tabs of one browser profile. */
-export const IMPORT_LOCK_NAME = 'openmaic:legacy-browser-import';
+export const IMPORT_LOCK_NAME = 'dojolearn:legacy-browser-import';
 
 /**
  * How long a browser whose legacy data another owner holds waits before it

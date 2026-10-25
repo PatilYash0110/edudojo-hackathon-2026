@@ -7,7 +7,7 @@
  * persistence provider on it (the schema work and the ownership backfill),
  * and drives the owner-bound document store the routes use.
  */
-import { DSL_VERSION } from '@openmaic/dsl';
+import { DSL_VERSION } from '@dojolearn/dsl';
 import { expect, vi } from 'vitest';
 
 import { validateAppScene, validateAppStage } from '@/lib/document-store/validators';

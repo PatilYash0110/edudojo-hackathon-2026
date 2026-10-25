@@ -56,7 +56,7 @@ import { deleteMaterialObjects } from '@/lib/server/materials/bytes';
  */
 import { randomUUID } from 'node:crypto';
 
-import type { Queryable, WithTransaction } from '@openmaic/storage/document/pg';
+import type { Queryable, WithTransaction } from '@dojolearn/storage/document/pg';
 
 import {
   FOLDER_COUNT_LIMIT,

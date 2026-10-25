@@ -439,7 +439,7 @@ export async function runTask(config) {
       'tmpfs',
       '-o',
       `size=${config.memoryBytes},nosuid,nodev,noexec,mode=0755`,
-      `openmaic-${config.id}`,
+      `dojolearn-${config.id}`,
       privateRoot,
     ]);
     privateMounted = true;

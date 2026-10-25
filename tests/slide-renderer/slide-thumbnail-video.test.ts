@@ -1,7 +1,7 @@
 import { createElement } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { describe, expect, it, vi } from 'vitest';
-import type { PPTVideoElement, Slide } from '@openmaic/dsl';
+import type { PPTVideoElement, Slide } from '@dojolearn/dsl';
 import { SlideThumbnail } from '@/components/slide-renderer/SlideThumbnail';
 
 vi.mock('@/lib/hooks/use-i18n', () => ({

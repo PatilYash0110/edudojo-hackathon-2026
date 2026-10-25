@@ -2,7 +2,7 @@
 
 **Status:** v0.1, based on the Game Team whiteboard sketch
 **Owner:** Game Team
-**Platform:** browser-based, turn-based learning RPG built as a game layer over OpenMAIC
+**Platform:** browser-based, turn-based learning RPG built as a game layer over the DojoLearn classroom platform
 
 ## 1. Product shape
 
@@ -17,7 +17,7 @@
 ## 2. Core loop
 
 1. Select a topic or source material.
-2. OpenMAIC creates the lesson content and challenge pool.
+2. DojoLearn creates the lesson content and challenge pool.
 3. Learn the current subtopic with the Sensei inside the Dojo.
 4. Climb to that floor and fight a turn-based battle using the lesson knowledge.
 5. Receive immediate explanations and a floor result.

@@ -1,6 +1,6 @@
-# Contributing to OpenMAIC
+# Contributing to DojoLearn
 
-Thank you for your interest in contributing to OpenMAIC! This guide will help you get started and ensure a smooth collaboration.
+Thank you for your interest in contributing to DojoLearn! This guide will help you get started and ensure a smooth collaboration.
 
 ## How to Contribute
 
@@ -8,7 +8,7 @@ Thank you for your interest in contributing to OpenMAIC! This guide will help yo
 | --- | --- |
 | **Bug fix** | Open a PR directly (link the issue if one exists) |
 | **Extending existing features** (e.g. adding a new model provider, new TTS engine) | Open a PR directly |
-| **New feature or architecture change** | Start a [GitHub Discussion](https://github.com/THU-MAIC/OpenMAIC/discussions) or ask in [Discord](https://discord.gg/p8Pf2r3SaG) **before** opening a PR |
+| **New feature or architecture change** | Start a [GitHub Discussion](https://github.com/PatilYash0110/edudojo-hackathon-2026/discussions) or ask in [Discord](https://discord.gg/p8Pf2r3SaG) **before** opening a PR |
 | **Design / UI change** | Discuss in a GitHub Discussion or Discord first — include mockups or screenshots |
 | **Refactor-only PR** | Not accepted unless a maintainer explicitly requests it |
 | **Documentation** | Open a PR directly |
@@ -33,8 +33,8 @@ To avoid duplicate effort, please **comment on an issue** to claim it before you
 
 ```bash
 # Clone the repository
-git clone https://github.com/THU-MAIC/OpenMAIC.git
-cd OpenMAIC
+git clone https://github.com/PatilYash0110/edudojo-hackathon-2026.git
+cd DojoLearn
 
 # Install dependencies
 pnpm install
@@ -144,7 +144,7 @@ docs: add CONTRIBUTING.md
 
 ## Changing a Published Package
 
-The `@openmaic` packages listed in [`scripts/openmaic-packages.mjs`](scripts/openmaic-packages.mjs) are published to npm. Anything that ships inside one of those tarballs is under version control in the literal sense — the version number on npm has to keep meaning "this exact source".
+The `@dojolearn` packages listed in [`scripts/dojolearn-packages.mjs`](scripts/dojolearn-packages.mjs) are published to npm. Anything that ships inside one of those tarballs is under version control in the literal sense — the version number on npm has to keep meaning "this exact source".
 
 **If your PR changes a publishable file in one of those packages, bump that package's `version` in its `package.json` in the same PR.** CI enforces this, and without the bump you will see:
 
@@ -162,9 +162,9 @@ Choosing the number is a [semver](https://semver.org/) judgement, and it is your
 
 For packages below `1.0.0`, a **minor** bump signals a breaking change and a **patch** bump signals a compatible change, following common 0.x semver practice; the **major** rule applies from `1.0.0`.
 
-Be deliberate with `@openmaic/dsl`. It is the contract the other packages and downstream deployments validate against, so a change that narrows what an existing document may contain is a breaking change even when the diff looks small.
+Be deliberate with `@dojolearn/dsl`. It is the contract the other packages and downstream deployments validate against, so a change that narrows what an existing document may contain is a breaking change even when the diff looks small.
 
-You never publish anything yourself. Once your PR is merged, a version that is not yet on the registry is released automatically, and a `@openmaic/<name>@<version>` tag is written afterwards to record it. That tag is a marker, not a trigger: pushing one does not release anything.
+You never publish anything yourself. Once your PR is merged, a version that is not yet on the registry is released automatically, and a `@dojolearn/<name>@<version>` tag is written afterwards to record it. That tag is a marker, not a trigger: pushing one does not release anything.
 
 ## App Releases
 
@@ -191,7 +191,7 @@ AI-assisted PRs are held to the same quality standard as any other PR. Community
 ## Project Structure
 
 ```
-OpenMAIC/
+DojoLearn/
 ├── app/              # Next.js app router pages and API routes
 ├── components/       # React components
 ├── lib/              # Shared utilities and core logic (i18n in lib/i18n/locales/)
@@ -202,7 +202,7 @@ OpenMAIC/
 
 ## Reporting Bugs
 
-Use the [Bug Report](https://github.com/THU-MAIC/OpenMAIC/issues/new?template=bug_report.yml) issue template. Include:
+Use the Bug Report issue template. Include:
 
 - Steps to reproduce
 - Expected vs. actual behavior
@@ -211,12 +211,12 @@ Use the [Bug Report](https://github.com/THU-MAIC/OpenMAIC/issues/new?template=bu
 
 ## Requesting Features
 
-Use the [Feature Request](https://github.com/THU-MAIC/OpenMAIC/issues/new?template=feature_request.yml) issue template. For larger features, please open a [Discussion](https://github.com/THU-MAIC/OpenMAIC/discussions) first.
+Use the Feature Request issue template. For larger features, please open a [Discussion](https://github.com/PatilYash0110/edudojo-hackathon-2026/discussions) first.
 
 ## Security Vulnerabilities
 
-Please report security vulnerabilities through [GitHub Security Advisories](https://github.com/THU-MAIC/OpenMAIC/security/advisories/new). **Do not** open a public issue for security vulnerabilities.
+Please report security vulnerabilities through [GitHub Security Advisories](https://github.com/PatilYash0110/edudojo-hackathon-2026/security/advisories/new). **Do not** open a public issue for security vulnerabilities.
 
 ## License
 
-By contributing to OpenMAIC, you agree that your contributions will be licensed under the [MIT License](LICENSE).
+By contributing to DojoLearn, you agree that your contributions will be licensed under the [MIT License](LICENSE).

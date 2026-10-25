@@ -27,7 +27,7 @@ import {
   type DocumentStore,
   type KVStore,
   type RuntimeStore,
-} from '@openmaic/storage';
+} from '@dojolearn/storage';
 
 import {
   mergeLegacyAgentFallbacks,

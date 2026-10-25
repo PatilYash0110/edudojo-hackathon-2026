@@ -7,7 +7,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { parseModelConfig, type ConfigEnv } from '@/lib/server/model-config/openmaic-yml';
+import { parseModelConfig, type ConfigEnv } from '@/lib/server/model-config/dojolearn-yml';
 
 const ROOT = path.resolve(__dirname, '../../..');
 
@@ -29,12 +29,12 @@ interface Block {
  * Fenced YAML blocks that are openmaic.yml: in the docs, those titled
  * `openmaic.yml`; in the READMEs (no titles), those that declare a preset.
  */
-function openmaicBlocks(file: string, { titled }: { titled: boolean }): Block[] {
+function dojolearnBlocks(file: string, { titled }: { titled: boolean }): Block[] {
   const source = fs.readFileSync(file, 'utf-8');
   const blocks: Block[] = [];
   for (const match of source.matchAll(/^```ya?ml([^\n]*)\n([\s\S]*?)^```/gm)) {
     const [, info, text] = match;
-    const isConfig = titled ? /title="openmaic\.yml"/.test(info) : /^\s*preset:/m.test(text);
+    const isConfig = titled ? /title="dojolearn\.yml"/.test(info) : /^\s*preset:/m.test(text);
     if (!isConfig) continue;
     const line = source.slice(0, match.index).split('\n').length;
     blocks.push({ where: `${path.relative(ROOT, file)}:${line}`, text });
@@ -53,9 +53,9 @@ describe('openmaic.yml examples', () => {
   const docs = fs
     .readdirSync(DOCS)
     .filter((name) => name.endsWith('.mdx'))
-    .flatMap((name) => openmaicBlocks(path.join(DOCS, name), { titled: true }));
+    .flatMap((name) => dojolearnBlocks(path.join(DOCS, name), { titled: true }));
   const readmes = ['README.md', 'README-zh.md'].flatMap((name) =>
-    openmaicBlocks(path.join(ROOT, name), { titled: false }),
+    dojolearnBlocks(path.join(ROOT, name), { titled: false }),
   );
 
   it('the documentation has openmaic.yml examples to check', () => {

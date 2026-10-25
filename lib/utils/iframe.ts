@@ -1,4 +1,4 @@
-import { postProcessInteractiveHtml } from '@openmaic/generation/browser';
+import { postProcessInteractiveHtml } from '@dojolearn/generation/browser';
 import { injectIntoDocumentHead } from './html-document';
 import {
   withObservationResponder,

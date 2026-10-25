@@ -5,11 +5,11 @@ import {
   PgAgentSessionStore,
   ensureAgentSessionSchema,
   type Queryable,
-} from '@openmaic/storage/agent-session/pg';
+} from '@dojolearn/storage/agent-session/pg';
 import {
   PgAgentSessionMaterialStore,
   ensureAgentSessionMaterialSchema,
-} from '@openmaic/storage/material/pg';
+} from '@dojolearn/storage/material/pg';
 
 import { buildMaterialTools } from '@/lib/server/agent-runtime/material-tools';
 import {

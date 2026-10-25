@@ -12,13 +12,13 @@
  * insertion schema adds the discriminating `type`, still omits `id` (the
  * server owns identity), and restores every DSL-required field.
  *
- * Field sets mirror `@openmaic/dsl` `slides.ts` exactly (the 10-element union).
+ * Field sets mirror `@dojolearn/dsl` `slides.ts` exactly (the 10-element union).
  */
-import { validateShapeGeometry, shapeGeometryChanged } from '@openmaic/geometry';
-import type { Slide, PPTShapeElement } from '@openmaic/dsl';
+import { validateShapeGeometry, shapeGeometryChanged } from '@dojolearn/geometry';
+import type { Slide, PPTShapeElement } from '@dojolearn/dsl';
 import { Type, type TSchema } from 'typebox';
 import { Check, Errors } from 'typebox/value';
-import { ElementTypes } from '@openmaic/dsl';
+import { ElementTypes } from '@dojolearn/dsl';
 
 const optionalString = () => Type.Optional(Type.String());
 const optionalNumber = () => Type.Optional(Type.Number());

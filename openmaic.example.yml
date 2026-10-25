@@ -1,5 +1,5 @@
 # =============================================================================
-# openmaic.yml: the model configuration of an OpenMAIC deployment
+# openmaic.yml: the model configuration of a DojoLearn deployment
 #
 # Copy this file to openmaic.yml in the directory the server starts in (the
 # repository root; /app in the Docker image), or point OPENMAIC_CONFIG at it,

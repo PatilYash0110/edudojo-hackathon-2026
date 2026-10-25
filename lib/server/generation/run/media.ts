@@ -22,8 +22,8 @@
  * them, so a takeover places them instead of paying for them again.
  */
 import { ModelAuthorizationError } from '@/lib/server/model-config/model-authorization';
-import { isAbortError } from '@openmaic/generation';
-import { toAssetId } from '@openmaic/storage';
+import { isAbortError } from '@dojolearn/generation';
+import { toAssetId } from '@dojolearn/storage';
 
 import { rewriteSceneMediaReference } from '@/lib/media/generated-media-references';
 import { ASSET_QUOTA_EXCEEDED } from '@/lib/media/media-failure';

@@ -7,24 +7,24 @@
  * at a PGlite-backed store with a single module mock, exactly like the
  * reference product's `getDb()` seam.
  */
-import { PgUserSkillStore, ensureUserSkillSchema } from '@openmaic/storage/skill/pg';
+import { PgUserSkillStore, ensureUserSkillSchema } from '@dojolearn/storage/skill/pg';
 
 import { getServerPersistenceProvider } from '@/lib/persistence/server-provider';
 
-import type { Queryable, WithTransaction } from '@openmaic/storage/skill/pg';
+import type { Queryable, WithTransaction } from '@dojolearn/storage/skill/pg';
 import type { Pool } from 'pg';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 import { fenceOwnerWrite, forwardOwnerWrite } from '@/lib/persistence/owner-merges';
 import { withSchemaBootstrapLock } from '@/lib/persistence/schema-bootstrap-lock';
 
-export type { Queryable, WithTransaction } from '@openmaic/storage/skill/pg';
+export type { Queryable, WithTransaction } from '@dojolearn/storage/skill/pg';
 
 interface UserSkillStoreState {
   connectionString?: string;
   storePromise?: Promise<UserSkillStores>;
 }
 
-const USER_SKILL_STORE_STATE_KEY = Symbol.for('openmaic.agent-user-skill.store');
+const USER_SKILL_STORE_STATE_KEY = Symbol.for('dojolearn.agent-user-skill.store');
 const globalState = globalThis as typeof globalThis & {
   [USER_SKILL_STORE_STATE_KEY]?: UserSkillStoreState;
 };

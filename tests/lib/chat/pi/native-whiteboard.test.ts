@@ -1,6 +1,6 @@
 import type { AgentConfig } from '@/lib/orchestration/registry/types';
-import type { PPTShapeElement } from '@openmaic/dsl';
-import { BrowserRuntimeStore, RuntimeAppendConflictError } from '@openmaic/storage';
+import type { PPTShapeElement } from '@dojolearn/dsl';
+import { BrowserRuntimeStore, RuntimeAppendConflictError } from '@dojolearn/storage';
 import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
 import { describe, expect, it, vi } from 'vitest';
 

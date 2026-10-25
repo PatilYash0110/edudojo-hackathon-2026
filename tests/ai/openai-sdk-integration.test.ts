@@ -695,7 +695,7 @@ describe('OpenAI SDK integration', () => {
           (message) => message.role === 'assistant',
         );
         expect(assistant?.reasoning_content).toBeUndefined();
-        expect(String(assistant?.content ?? '')).not.toContain('openmaic:kimi-reasoning');
+        expect(String(assistant?.content ?? '')).not.toContain('dojolearn:kimi-reasoning');
       } finally {
         globalThis.fetch = originalFetch;
       }
@@ -798,7 +798,7 @@ describe('OpenAI SDK integration', () => {
       expect(requestBodies[1]).not.toHaveProperty('thinking');
       const assistant = findAssistant(requestBodies[1]);
       expect(assistant?.reasoning_content).toBe('use the lookup tool');
-      expect(String(assistant?.content ?? '')).not.toContain('openmaic:kimi-reasoning');
+      expect(String(assistant?.content ?? '')).not.toContain('dojolearn:kimi-reasoning');
     });
 
     it('does not backfill reasoning_content outside the DeepSeek adapter', async () => {

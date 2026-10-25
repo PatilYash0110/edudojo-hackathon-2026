@@ -28,7 +28,7 @@ let dir: string;
 
 beforeEach(() => {
   vi.resetModules();
-  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openmaic-legacy-document-'));
+  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dojolearn-legacy-document-'));
   vi.spyOn(process, 'cwd').mockReturnValue(dir);
   for (const name of PDF_ENV) vi.stubEnv(name, '');
 });

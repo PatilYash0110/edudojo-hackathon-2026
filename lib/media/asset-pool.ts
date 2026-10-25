@@ -1,6 +1,6 @@
 import '@/lib/persistence/bootstrap';
 
-import type { AssetMeta, BinaryBlob } from '@openmaic/dsl';
+import type { AssetMeta, BinaryBlob } from '@dojolearn/dsl';
 import {
   registerAssetPoolStorageResetHook,
   resolveConfiguredAssetPoolStore,

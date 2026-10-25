@@ -1,8 +1,8 @@
 'use client';
 
 import { useRef } from 'react';
-import type { PPTTextElement } from '@openmaic/dsl';
-import { useInlineMath, useInnerHtml } from '@openmaic/renderer';
+import type { PPTTextElement } from '@dojolearn/dsl';
+import { useInlineMath, useInnerHtml } from '@dojolearn/renderer';
 import { useElementShadow } from '../hooks/useElementShadow';
 import { ElementOutline } from '../ElementOutline';
 

@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest';
-import { loadPrompt, loadSnippet, buildPrompt } from '@openmaic/generation';
+import { loadPrompt, loadSnippet, buildPrompt } from '@dojolearn/generation';
 
-describe('@openmaic/generation prompt loader', () => {
+describe('@dojolearn/generation prompt loader', () => {
   test('loads a known template + interpolates variables', () => {
     const result = buildPrompt('slide-actions', {
       title: 'Test Slide',

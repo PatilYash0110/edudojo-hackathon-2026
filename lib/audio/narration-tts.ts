@@ -29,7 +29,7 @@ import { commitToPool } from '@/lib/media/commit-to-pool';
 import { createLogger } from '@/lib/logger';
 import { toast } from 'sonner';
 import { getClientTranslation } from '@/lib/i18n';
-import { withGenerationRetry, type GenerationRetryOptions } from '@openmaic/generation/browser';
+import { withGenerationRetry, type GenerationRetryOptions } from '@dojolearn/generation/browser';
 
 const log = createLogger('NarrationTTS');
 

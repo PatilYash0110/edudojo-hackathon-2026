@@ -12,8 +12,8 @@ export interface RegionalLinks {
 
 export const PROVIDER_SIGNUP_LINKS: Partial<Record<string, RegionalLinks>> = {
   kimi: {
-    domestic: 'https://platform.kimi.com?aff=openmaic',
-    international: 'https://platform.kimi.ai?aff=openmaic',
+    domestic: 'https://platform.kimi.com',
+    international: 'https://platform.kimi.ai',
   },
 };
 

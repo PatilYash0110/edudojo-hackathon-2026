@@ -4,7 +4,7 @@
  * never stored per owner; an owner's own agents live on the server
  * (`lib/server/agents`). Server-safe: no client state is imported here.
  */
-import type { AgentInfo } from '@openmaic/generation';
+import type { AgentInfo } from '@dojolearn/generation';
 
 import type { AgentConfig } from './types';
 import { SLIDE_ACTIONS, WHITEBOARD_ACTIONS } from './types';

@@ -4,7 +4,7 @@
  * session rows and linked sources together; safe metadata only.
  */
 import { describe, expect, it } from 'vitest';
-import type { AgentSessionMaterial } from '@openmaic/storage';
+import type { AgentSessionMaterial } from '@dojolearn/storage';
 
 import type { OwnerMaterialEntry } from '@/lib/persistence/session-material-links';
 import { materialsPromptBlock } from '@/lib/server/agent-runtime/material-prompt';

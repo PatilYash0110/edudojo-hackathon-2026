@@ -34,7 +34,7 @@ import {
   BrowserRuntimeStore,
   type DocumentStore,
   type RuntimeStore,
-} from '@openmaic/storage';
+} from '@dojolearn/storage';
 
 import type { LegacyDocumentSnapshot, LegacyDocumentStore } from '@/lib/document-store/migration';
 import type { AppStage } from '@/lib/document-store/persistence-types';

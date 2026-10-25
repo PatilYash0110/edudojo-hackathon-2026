@@ -70,7 +70,7 @@ import { generateSceneActions } from '@/lib/server/generation/steps/scene-action
 import {
   nodePostgresTransaction,
   type ConnectableQueryable,
-} from '@openmaic/storage/server/reference';
+} from '@dojolearn/storage/server/reference';
 import type { SceneOutline } from '@/lib/types/generation';
 import type { Scene } from '@/lib/types/stage';
 

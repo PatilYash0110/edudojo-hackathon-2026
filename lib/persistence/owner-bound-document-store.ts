@@ -1,11 +1,11 @@
 import { AsyncLocalStorage } from 'node:async_hooks';
 
-import type { Scene, Stage } from '@openmaic/dsl';
+import type { Scene, Stage } from '@dojolearn/dsl';
 import {
   PgDocumentStore,
   type Queryable,
   type WithTransaction,
-} from '@openmaic/storage/document/pg';
+} from '@dojolearn/storage/document/pg';
 import type {
   DocumentFolder,
   DocumentFolderStore,
@@ -15,8 +15,8 @@ import type {
   SceneLike,
   SceneValidator,
   StageValidator,
-} from '@openmaic/storage';
-import { DocumentWriteRefusedError } from '@openmaic/storage';
+} from '@dojolearn/storage';
+import { DocumentWriteRefusedError } from '@dojolearn/storage';
 
 import type { EndedGenerationRun } from '@/lib/server/generation/run/store';
 import type { OwnerPrincipal } from '@/lib/server/identity/types';
@@ -576,7 +576,7 @@ export function createOwnerBoundDocumentStore<
           // owner a foreign refusal. Transaction-scoped; taken after the
           // identity lock, and no claim takes it, so it adds no lock-order edge.
           await queryable.query(
-            "SELECT pg_advisory_xact_lock(hashtextextended('openmaic.stage-create:' || $1, 0))",
+            "SELECT pg_advisory_xact_lock(hashtextextended('dojolearn.stage-create:' || $1, 0))",
             [operation.stageId],
           );
         }

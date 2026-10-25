@@ -3,8 +3,8 @@ import * as echarts from 'echarts/core';
 import type { ComponentModel } from 'echarts/core';
 
 import { getChartOption as getAppChartOption } from '@/components/slide-renderer/components/element/ChartElement/chartOption';
-import { getChartOption as getPackageChartOption } from '@/packages/@openmaic/renderer/src/elements/chart/chartOption';
-import { loadChartRuntime } from '@/packages/@openmaic/renderer/src/elements/chart/chartRuntime';
+import { getChartOption as getPackageChartOption } from '@/packages/@dojolearn/renderer/src/elements/chart/chartOption';
+import { loadChartRuntime } from '@/packages/@dojolearn/renderer/src/elements/chart/chartRuntime';
 
 beforeAll(() => loadChartRuntime());
 

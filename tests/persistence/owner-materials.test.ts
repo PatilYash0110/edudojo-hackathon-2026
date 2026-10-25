@@ -1,11 +1,11 @@
 import { PGlite } from '@electric-sql/pglite';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ensureAssetSchema } from '@openmaic/storage/asset/pg';
+import { ensureAssetSchema } from '@dojolearn/storage/asset/pg';
 import {
   nodePostgresTransaction,
   type ConnectableQueryable,
-} from '@openmaic/storage/server/reference';
+} from '@dojolearn/storage/server/reference';
 
 import { OwnerRetiredError } from '@/lib/persistence/owner-merges';
 import {

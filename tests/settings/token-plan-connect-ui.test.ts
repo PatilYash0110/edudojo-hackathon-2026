@@ -26,7 +26,7 @@ vi.mock('sonner', () => ({
 
 import { TokenPlanSettings } from '@/components/settings/token-plan-settings';
 import type { ApplyResult, ModelSettingsChange } from '@/lib/model-settings/client';
-import type { ModelConfigFile } from '@/lib/server/model-config/openmaic-yml';
+import type { ModelConfigFile } from '@/lib/server/model-config/dojolearn-yml';
 import type { ModelConfigLayer } from '@/lib/server/model-config/resolve-slot';
 import { setDeploymentConfigForTests } from '@/lib/server/model-config/runtime';
 import { applyModelSettingsChange, modelSettingsView } from '@/lib/server/model-config/settings';

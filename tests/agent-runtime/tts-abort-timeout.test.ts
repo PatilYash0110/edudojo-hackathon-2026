@@ -104,7 +104,7 @@ describe('TTS abort propagation and per-request timeout', () => {
       userEndpoint: false,
       origin: 'configuration',
     });
-    mocks.persist.mockResolvedValue('https://openmaic.test/audio.mp3');
+    mocks.persist.mockResolvedValue('https://dojolearn.test/audio.mp3');
   });
 
   afterEach(() => {

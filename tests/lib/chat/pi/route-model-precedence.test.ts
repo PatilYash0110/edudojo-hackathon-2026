@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextRequest } from 'next/server';
-import type { ModelConfigFile } from '@/lib/server/model-config/openmaic-yml';
+import type { ModelConfigFile } from '@/lib/server/model-config/dojolearn-yml';
 
 // /api/chat/pi resolves the chat-adapter stage from the request body, the
 // user's per-stage routes in `x-model-routes`, and the deployment's slots. The

@@ -1,5 +1,5 @@
 /**
- * Server-sent events in OpenMAIC's chat format (`data: <json>\n\n`). Pure.
+ * Server-sent events in DojoLearn's chat format (`data: <json>\n\n`). Pure.
  * OWNER: BACKEND TEAM.
  */
 import type { ChatStreamEvent } from '@/teams/shared/contracts/backend-api';

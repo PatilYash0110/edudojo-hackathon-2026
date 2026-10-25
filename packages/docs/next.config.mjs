@@ -11,7 +11,7 @@ const config = {
   reactStrictMode: true,
   // Static export: served as plain files by nginx, no Node server.
   output: 'export',
-  // Target deploy path: open.maic.chat/docs
+  // Target deploy path: dojolearn.onrender.com/docs
   basePath: DOCS_BASE_PATH,
   // This package is a standalone Next.js app with its own lockfile and alias
   // map. Without an explicit boundary, Turbopack walks up to the repository

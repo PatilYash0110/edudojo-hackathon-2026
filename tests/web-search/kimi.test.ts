@@ -5,7 +5,7 @@ vi.mock('@/lib/server/proxy-fetch', () => ({ proxyFetch: proxyFetchMock }));
 
 import { searchWithKimi } from '@/lib/web-search/kimi';
 
-const repository = 'https://github.com/THU-MAIC/OpenMAIC';
+const repository = 'https://github.com/PatilYash0110/edudojo-hackathon-2026';
 
 beforeEach(() => {
   proxyFetchMock.mockReset();
@@ -20,15 +20,15 @@ describe('Kimi web search', () => {
     ['https://api.kimi.com/coding/v1', 'https://api.kimi.com/coding/v1/search', true],
     ['https://api.kimi.ai/coding/v1///', 'https://api.kimi.ai/coding/v1/search', true],
     [
-      'https://search.openmaic.test/coding/v1',
-      'https://search.openmaic.test/coding/v1/search',
+      'https://search.dojolearn.test/coding/v1',
+      'https://search.dojolearn.test/coding/v1/search',
       true,
     ],
-    ['https://search.openmaic.test/v1', 'https://search.openmaic.test/v1/tools/search_pro', false],
+    ['https://search.dojolearn.test/v1', 'https://search.dojolearn.test/v1/tools/search_pro', false],
   ])('selects the endpoint for %s', async (baseUrl, endpoint, coding) => {
     const signal = new AbortController().signal;
     const result = await searchWithKimi({
-      query: 'OpenMAIC',
+      query: 'DojoLearn',
       apiKey: 'key',
       baseUrl,
       maxResults: 3,
@@ -38,14 +38,14 @@ describe('Kimi web search', () => {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: 'Bearer key' },
       body: JSON.stringify({
-        text_query: 'OpenMAIC',
+        text_query: 'DojoLearn',
         limit: 3,
         timeout_seconds: 30,
         ...(coding ? { enable_page_crawling: true } : {}),
       }),
       signal,
     });
-    expect(result).toMatchObject({ answer: '', sources: [], query: 'OpenMAIC' });
+    expect(result).toMatchObject({ answer: '', sources: [], query: 'DojoLearn' });
     expect(result.responseTime).toBeGreaterThanOrEqual(0);
   });
 
@@ -54,7 +54,7 @@ describe('Kimi web search', () => {
       Response.json({
         search_results: [
           {
-            title: 'OpenMAIC',
+            title: 'DojoLearn',
             url: repository,
             snippet: 'Summary',
             chunks: [
@@ -65,7 +65,7 @@ describe('Kimi web search', () => {
               { text: 'Second page chunk' },
             ],
             date: '2026-10-13',
-            site_name: 'OpenMAIC',
+            site_name: 'DojoLearn',
           },
           { url: repository + '/issues', snippet: 'Issues', chunks: [] },
           { url: repository + '/pulls', snippet: 'Pull requests' },
@@ -73,10 +73,10 @@ describe('Kimi web search', () => {
         ],
       }),
     );
-    const result = await searchWithKimi({ query: 'OpenMAIC', apiKey: 'key' });
+    const result = await searchWithKimi({ query: 'DojoLearn', apiKey: 'key' });
     expect(result.sources).toEqual([
       {
-        title: 'OpenMAIC',
+        title: 'DojoLearn',
         url: repository,
         content: 'First page chunk\n\nSecond page chunk',
         score: 0,
@@ -95,7 +95,7 @@ describe('Kimi web search', () => {
     proxyFetchMock.mockResolvedValueOnce(
       Response.json({
         search_results: [
-          { title: 'OpenMAIC', url: repository, content: 'Full page', snippet: 'Summary' },
+          { title: 'DojoLearn', url: repository, content: 'Full page', snippet: 'Summary' },
           { url: repository + '/issues', content: '', snippet: 'Issues' },
           { url: repository + '/pulls' },
         ],
@@ -118,14 +118,14 @@ describe('Kimi web search', () => {
         date: '2026-10-14',
         icon: '',
         mime: 'text/html',
-        site_name: 'OpenMAIC',
+        site_name: 'DojoLearn',
         snippet: `Summary ${index}`,
         title: `Result ${index}`,
         url: `${repository}/issues/${index + 1}`,
       }));
       proxyFetchMock.mockResolvedValueOnce(Response.json({ search_results: items }));
       const result = await searchWithKimi({
-        query: 'OpenMAIC',
+        query: 'DojoLearn',
         apiKey: 'key',
         baseUrl,
         maxResults: 3,

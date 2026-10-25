@@ -82,7 +82,7 @@ import {
 } from '@/lib/export/standalone-html/limits';
 import type { ClassroomManifest, ManifestAction } from '@/lib/export/classroom-zip-types';
 import type { Scene } from '@/lib/types/stage';
-import type { PPTElement } from '@openmaic/dsl';
+import type { PPTElement } from '@dojolearn/dsl';
 import { legacyPBLSceneFixture } from '../fixtures/pbl-v1-scene';
 import {
   DEFAULT_FIXTURE_MEDIA,
@@ -1378,7 +1378,7 @@ describe('assembleStandaloneHtml', () => {
   it('carries the same no-script fallback in the ZIP variant, under its own CSP', () => {
     const html = assembleStandaloneHtml({ ...base, playerScript: '', linkedFiles: true });
     expect(html).toContain('data-testid="script-fallback"');
-    expect(html).toContain('<noscript><p class="openmaic-message">[scriptRequired]</p></noscript>');
+    expect(html).toContain('<noscript><p class="dojolearn-message">[scriptRequired]</p></noscript>');
     expect(html).toContain(`content="${STANDALONE_HTML_LINKED_FILES_CSP}"`);
     // The fallback's styles are inline, which that policy allows.
     expect(STANDALONE_HTML_LINKED_FILES_CSP).toContain("style-src 'unsafe-inline'");
@@ -1394,19 +1394,19 @@ describe('assembleStandaloneHtml', () => {
     expect(message).toBeGreaterThan(-1);
     // Not in the (empty) root, and after the data blocks, right before the player:
     // nothing shows while a large file is still being parsed.
-    expect(html).toContain('<div id="openmaic-player"></div>');
-    expect(message).toBeGreaterThan(html.indexOf('openmaic-media-1'));
+    expect(html).toContain('<div id="dojolearn-player"></div>');
+    expect(message).toBeGreaterThan(html.indexOf('dojolearn-media-1'));
     expect(message).toBeLessThan(html.indexOf('<script>window.__p'));
     expect(html.slice(message, html.indexOf('<script>window.__p'))).not.toContain('SUQz');
     expect(html).toContain('[scriptRequired]');
     expect(html).toContain('data-failed-text="[startFailed]"');
     // Backstop: hidden for the first seconds even if reached before the script runs.
-    expect(html).toMatch(/\.openmaic-fallback\{opacity:0;animation:[^}]*2s/);
+    expect(html).toMatch(/\.dojolearn-fallback\{opacity:0;animation:[^}]*2s/);
     // The empty root keeps the viewport's height otherwise, pushing the message off screen.
-    expect(html).toContain('#openmaic-player:empty{display:none}');
+    expect(html).toContain('#dojolearn-player:empty{display:none}');
     // With scripts disabled the copy above is hidden and the <noscript> one shows.
-    expect(html).toContain('<noscript><style>.openmaic-fallback{display:none}</style></noscript>');
-    expect(html).toContain('<noscript><p class="openmaic-message">[scriptRequired]</p></noscript>');
+    expect(html).toContain('<noscript><style>.dojolearn-fallback{display:none}</style></noscript>');
+    expect(html).toContain('<noscript><p class="dojolearn-message">[scriptRequired]</p></noscript>');
     expect(html).toContain(`content="${STANDALONE_HTML_CSP}"`);
   });
 
@@ -1427,13 +1427,13 @@ describe('assembleStandaloneHtml', () => {
       embeddedMedia: [{ key: 'audio/audio-1.mp3', mimeType: 'audio/mpeg', base64: 'SUQzAQID' }],
     });
     expect(html).toContain(
-      '<script type="application/octet-stream" id="openmaic-media-1">SUQzAQID</script>',
+      '<script type="application/octet-stream" id="dojolearn-media-1">SUQzAQID</script>',
     );
     expect(embeddedJson<StandaloneMediaTable>(html, STANDALONE_MEDIA_TABLE_ELEMENT_ID)).toEqual({
-      'audio/audio-1.mp3': { mimeType: 'audio/mpeg', embedded: 'openmaic-media-1' },
+      'audio/audio-1.mp3': { mimeType: 'audio/mpeg', embedded: 'dojolearn-media-1' },
     });
     // The data blocks precede the player, so they are parsed when it runs.
-    expect(html.indexOf('openmaic-media-1')).toBeLessThan(html.lastIndexOf('<script>'));
+    expect(html.indexOf('dojolearn-media-1')).toBeLessThan(html.lastIndexOf('<script>'));
     expect(() =>
       assembleStandaloneHtml({
         ...base,

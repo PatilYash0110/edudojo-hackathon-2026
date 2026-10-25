@@ -21,7 +21,7 @@ import { hasClassicText } from '@/lib/persistence/material-extraction-format';
  * from the row as it was just resolved (its id, owner, pool pointer, old
  * object and digest), never from anything stored on a link.
  */
-import type { AgentSessionMaterial } from '@openmaic/storage';
+import type { AgentSessionMaterial } from '@dojolearn/storage';
 
 import {
   getLinkedOwnerMaterial,

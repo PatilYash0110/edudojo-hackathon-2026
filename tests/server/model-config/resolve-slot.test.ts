@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { PROVIDER_PRESETS } from '@/lib/config/provider-presets';
-import { parseModelConfig } from '@/lib/server/model-config/openmaic-yml';
+import { parseModelConfig } from '@/lib/server/model-config/dojolearn-yml';
 import {
   SlotResolutionError,
   resolveModelReference,

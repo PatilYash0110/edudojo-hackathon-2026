@@ -19,15 +19,15 @@ a page or endpoint, and otherwise never edit them.
 | `app/api/dojo/**/route.ts` | BACKEND | `export { GET, POST } from '@/teams/backend/api/...'` |
 | `public/dojo/` | FRONTEND | images, sprites, audio |
 
-Everything else in the repo is **OpenMAIC upstream** — read it, reuse it, don't edit it without telling everyone
-(see [OPENMAIC.md](OPENMAIC.md)).
+Everything else in the repo is **core platform code** — read it, reuse it, don't edit it without telling everyone
+(see [DOJOLEARN.md](DOJOLEARN.md)).
 
 ## Feature → team → folder
 
 | Feature (from the brief) | Team | Folder |
 | --- | --- | --- |
 | Style guide, match the target design | FRONTEND | `teams/frontend/docs/STYLE_GUIDE.md`, `teams/frontend/theme/` |
-| Filter out unused OpenMAIC features | FRONTEND (decide together) | `teams/OPENMAIC.md` |
+| Filter out unused DojoLearn features | FRONTEND (decide together) | `teams/DOJOLEARN.md` |
 | Learning mechanics, game loop, start/end game | GAME | `teams/game/battle/`, `teams/game/progression/` |
 | Levels: every floor = a topic/section | GAME | `teams/game/content/floor-blueprints.ts` |
 | XP, health, skills, rewards, achievements (rules) | GAME | `teams/game/progression/`, `teams/game/battle/skills.ts` |
@@ -37,7 +37,7 @@ Everything else in the repo is **OpenMAIC upstream** — read it, reuse it, don'
 | Characters: Sensei, Rival, Classmate, Boss (personalities, story) | GAME | `teams/game/characters/`, `teams/game/content/story.ts` |
 | Question design | GAME | `teams/game/content/question-templates.ts` |
 | Dojo map + floor selection | FRONTEND | `teams/frontend/features/dojo-map/` |
-| Lesson screen (OpenMAIC slides + voice narration), whiteboard | FRONTEND | `teams/frontend/features/lesson/` |
+| Lesson screen (DojoLearn slides + voice narration), whiteboard | FRONTEND | `teams/frontend/features/lesson/` |
 | Battle screen, arena, animations | FRONTEND | `teams/frontend/features/battle/` |
 | Final Boss screens | FRONTEND | `teams/frontend/features/boss/` |
 | Coding / simulation / project screens | FRONTEND | `teams/frontend/features/challenges/` |
@@ -82,5 +82,5 @@ teams/game ──▶ teams/shared ◀── teams/frontend ──HTTP /api/dojo�
      └───────────────── backend imports game rules ───────────────────┘
 ```
 
-More: [OWNERSHIP.md](OWNERSHIP.md) (names, roles, handoffs) · [ARCHITECTURE.md](ARCHITECTURE.md) · [OPENMAIC.md](OPENMAIC.md) · [game](game/README.md) ·
+More: [OWNERSHIP.md](OWNERSHIP.md) (names, roles, handoffs) · [ARCHITECTURE.md](ARCHITECTURE.md) · [DOJOLEARN.md](DOJOLEARN.md) · [game](game/README.md) ·
 [frontend](frontend/README.md) · [backend](backend/README.md) · [shared](shared/README.md)

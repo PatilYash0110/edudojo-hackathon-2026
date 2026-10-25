@@ -9,10 +9,10 @@
  * Each instance gets its own pool, as separate processes would, and each round
  * gets a fresh schema, so every round races the same first-time DDL.
  */
-import { ensureAgentSessionSchema } from '@openmaic/storage/agent-session/pg';
-import { ensureAgentSessionMaterialSchema } from '@openmaic/storage/material/pg';
-import { ensureUserSkillSchema } from '@openmaic/storage/skill/pg';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import { ensureAgentSessionSchema } from '@dojolearn/storage/agent-session/pg';
+import { ensureAgentSessionMaterialSchema } from '@dojolearn/storage/material/pg';
+import { ensureUserSkillSchema } from '@dojolearn/storage/skill/pg';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 

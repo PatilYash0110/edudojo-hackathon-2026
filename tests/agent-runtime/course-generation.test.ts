@@ -8,7 +8,7 @@
  * same notice, and a write still gets the store's own refusal text.
  */
 import type { AgentTool } from '@earendil-works/pi-agent-core';
-import type { PPTTextElement } from '@openmaic/dsl';
+import type { PPTTextElement } from '@dojolearn/dsl';
 import { describe, expect, it, vi } from 'vitest';
 
 import {
