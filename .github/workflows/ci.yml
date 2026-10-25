@@ -1,6 +1,6 @@
 # Hackathon pipeline. Setup: DEPLOY.md
 #   PR into development or main -> check + test
-#   push to main (merge)        -> check + test, then deploy to Render
+#   push to main (merge)        -> check + test + build image (GHCR), then Render deploys that image
 name: CI
 
 on:
@@ -8,6 +8,10 @@ on:
     branches: [development, main]
   push:
     branches: [main]
+
+env:
+  # Lowercase: GHCR rejects capitals. Render's dojolearn service pulls this image.
+  IMAGE: ghcr.io/patilyash0110/edudojo-hackathon-2026
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -21,7 +25,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
@@ -40,7 +44,7 @@ jobs:
     timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
-      - uses: pnpm/action-setup@v5
+      - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5
       - uses: actions/setup-node@v5
         with:
           node-version-file: .nvmrc
@@ -48,15 +52,48 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
 
+  # Render's builder (8 GB) runs out of memory on this app, so the image is built here (16 GB),
+  # in parallel with check + test. Only a green run deploys it.
+  image:
+    name: Build image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@8d2750c68a42422c14e847fe6c8ac0403b4cbd6f # v3
+      - uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: build
+        uses: docker/build-push-action@10e90e3645eae34f1e60eeb005ba3a3d33f178e8 # v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   deploy:
     name: Deploy production
-    needs: [check, test]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [check, test, image]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      # shortcut: fire-and-forget, Render shows whether its build passed; poll the Render API if that bites.
-      - name: Render (app + DB migrations on boot)
-        run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
+      # shortcut: fire-and-forget, Render shows whether the new image started; poll the Render API if that bites.
+      - name: Render (pull the image just built; DB migrates on boot)
+        run: |
+          img=$(jq -rn --arg v "$IMAGE@$DIGEST" '$v|@uri')
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL&imgURL=$img"
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          DIGEST: ${{ needs.image.outputs.digest }}
