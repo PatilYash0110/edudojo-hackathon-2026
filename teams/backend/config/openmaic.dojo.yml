@@ -3,6 +3,7 @@
 # Secrets come from .env.local, which git ignores. Never commit a key.
 #   DEEPSEEK_API_KEY=sk-...
 #   SPEACHES_BASE_URL=http://localhost:8000/v1   (Docker: http://speaches:8000/v1)
+#   SPEACHES_API_KEY=local   (any value locally; Render sets the real one)
 providers:
   deepseek:
     preset: deepseek
@@ -12,7 +13,7 @@ providers:
   speaches:
     preset: openai-tts
     baseUrl: ${SPEACHES_BASE_URL}
-    apiKey: not-needed
+    apiKey: ${SPEACHES_API_KEY}
     models: [speaches-ai/piper-de_DE-thorsten-medium, speaches-ai/piper-de_DE-thorsten-high]
     options:
       defaultVoice: thorsten

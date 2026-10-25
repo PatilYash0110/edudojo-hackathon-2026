@@ -1,0 +1,47 @@
+# Render Blueprint: the app (full Next.js: pages + API) + TTS (Speaches). Setup: DEPLOY.md
+# Deploys come only from GitHub Actions (deploy hook) after CI passes, never from a push.
+services:
+  - type: web
+    name: dojolearn
+    runtime: docker
+    plan: free # demo day: starter (no sleep)
+    region: frankfurt # keep next to the Supabase project
+    healthCheckPath: /api/health
+    autoDeployTrigger: 'off'
+    envVars:
+      - key: DATABASE_URL # Supabase PROD, session pooler or direct, port 5432 (not 6543)
+        sync: false
+      - key: DEEPSEEK_API_KEY
+        sync: false
+      - key: SPEACHES_BASE_URL # https://<dojolearn-tts URL>/v1
+        sync: false
+      - key: SPEACHES_API_KEY
+        fromService:
+          type: web
+          name: dojolearn-tts
+          envVarKey: API_KEY
+      - key: OPENMAIC_SECRET_KEY # disk is ephemeral, so the key file would change on every deploy
+        generateValue: true
+      - key: OPENMAIC_CONFIG
+        value: teams/backend/config/openmaic.dojo.yml
+
+  - type: web
+    name: dojolearn-tts
+    runtime: image
+    image:
+      url: ghcr.io/speaches-ai/speaches:latest-cpu
+    plan: free # demo day: starter (no sleep, no voice re-download)
+    region: frankfurt
+    healthCheckPath: /health
+    autoDeployTrigger: 'off'
+    envVars:
+      - key: PORT
+        value: '8000'
+      - key: PRELOAD_MODELS
+        value: '["speaches-ai/piper-de_DE-thorsten-high"]'
+      - key: API_KEY
+        generateValue: true
+      - key: ENABLE_UI
+        value: 'false'
+      - key: LOG_LEVEL
+        value: info

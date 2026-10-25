@@ -27,6 +27,8 @@ const nextConfig: NextConfig = {
       // Docker (Alpine/musl) deployments. Force-include every sharp-libvips
       // native lib dir.
       'node_modules/.pnpm/@img+sharp-libvips-*/node_modules/@img/sharp-libvips-*/lib/**',
+      // DojoLearn model config, read at boot via OPENMAIC_CONFIG (render.yaml).
+      'teams/backend/config/**',
     ],
   },
   typescript: {
