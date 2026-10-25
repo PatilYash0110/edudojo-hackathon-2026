@@ -35,7 +35,7 @@ services:
       url: ghcr.io/speaches-ai/speaches:latest-cpu
     plan: free # demo day: starter (no sleep, no voice re-download)
     region: frankfurt
-    healthCheckPath: /health
+    # No healthCheckPath: API_KEY makes Speaches answer 403 on /health too, so Render would never see it healthy.
     autoDeployTrigger: 'off'
     envVars:
       - key: PORT
