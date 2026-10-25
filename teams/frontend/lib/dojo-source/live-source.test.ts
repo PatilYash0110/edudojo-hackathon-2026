@@ -140,6 +140,19 @@ describe('live DojoSource', () => {
         status: 201,
         json: { success: true, quiz },
       }),
+      'POST /api/dojo/battle/answers': () => ({
+        json: {
+          success: true,
+          result: {
+            questionId: 'q1:x2',
+            objectiveId: 'o1',
+            correct: false,
+            score: 0.5,
+            explanation: 'Partly correct.',
+            masteryDelta: 0,
+          },
+        },
+      }),
       'POST /api/dojo/quizzes/q1/answers': (call) => ({
         json: {
           success: true,
@@ -182,8 +195,9 @@ describe('live DojoSource', () => {
     const wrong = await source.grade({ dojoId: 'c1', questionId: 'q1:x1', answer: 'Kern' });
     expect(wrong.explanation).toBe('Leider falsch. Im Chloroplasten.');
 
-    await source.grade({ dojoId: 'c1', questionId: 'q1:x2', answer: 'Licht' });
-    expect(calls.at(-1)?.body).toEqual({ questionId: 'x2', text: 'Licht' });
+    const partial = await source.grade({ dojoId: 'c1', questionId: 'q1:x2', answer: 'Licht' });
+    expect(partial.score).toBe(0.5);
+    expect(calls.at(-1)?.body).toEqual({ dojoId: 'c1', questionId: 'q1:x2', answer: 'Licht' });
   });
 
   it('asks one quiz per five questions and omits the floor for the boss', async () => {

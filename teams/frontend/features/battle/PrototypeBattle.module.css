@@ -1098,6 +1098,7 @@
   padding: 3px;
 }
 .feedbackCorrect,
+.feedbackPartial,
 .feedbackWrong {
   margin-top: 12px;
   padding: 9px 12px;
@@ -1109,6 +1110,7 @@
   background: #ef86750a;
 }
 .feedbackCorrect strong,
+.feedbackPartial strong,
 .feedbackWrong strong {
   display: block;
   color: var(--teal);
@@ -1118,6 +1120,7 @@
   color: var(--shu);
 }
 .feedbackCorrect span,
+.feedbackPartial span,
 .feedbackWrong span {
   display: block;
   margin-top: 5px;
@@ -3368,3 +3371,14 @@
     0 3px 8px #000;
 }
 /* Reduced motion is handled above for the whole shell, unless the learner keeps Full motion on. */
+
+.feedbackPartial {
+  border-color: #d69e2e;
+  background: #3a2c14;
+}
+.feedbackPartial strong {
+  color: #f6c965;
+}
+.shell .questionPanel[data-feedback='partial'] .typedInput {
+  border-color: #d69e2e;
+}

@@ -57,18 +57,19 @@ export function createBattleState(setup: BattleSetup = {}): BattleState {
 
 function clampScore(correct: number, total: number): number {
   if (!Number.isFinite(correct) || !Number.isFinite(total) || total <= 0) return 0;
-  return Math.min(Math.max(Math.floor(correct), 0), Math.floor(total));
+  return Math.min(Math.max(correct, 0), Math.floor(total));
 }
 
 export function attackDamage(technique: AttackTechnique, correct: number, total: number): number {
   const score = clampScore(correct, total);
+  if (score === 0) return 0;
 
   if (technique === 'heavy') {
-    return score === total ? BATTLE_BALANCE.heavyDamage : 0;
+    return Math.round((BATTLE_BALANCE.heavyDamage * score) / Math.max(1, total));
   }
 
   if (technique === 'combo') {
-    return score * BATTLE_BALANCE.comboDamagePerHit;
+    return Math.round(score * BATTLE_BALANCE.comboDamagePerHit);
   }
 
   if (score < 3) return 0;
@@ -132,7 +133,14 @@ function resolveDefense(
 ): BattleState {
   if (state.turn !== 'enemy') return state;
 
-  const success = clampScore(correct, total) === Math.max(1, Math.floor(total));
+  const score = clampScore(correct, total);
+  const strength =
+    score === Math.max(1, Math.floor(total))
+      ? 1
+      : Number.isInteger(score)
+        ? 0
+        : score / Math.max(1, Math.floor(total));
+  const success = strength > 0;
   // `number`, not the `as const` literal 24: block, dodge and counter lower it.
   let incomingDamage: number = BATTLE_BALANCE.enemyDamage;
   let counterDamage = 0;
@@ -146,6 +154,10 @@ function resolveDefense(
     counterDamage = BATTLE_BALANCE.counterDamage;
   }
 
+  incomingDamage = Math.round(
+    BATTLE_BALANCE.enemyDamage - (BATTLE_BALANCE.enemyDamage - incomingDamage) * strength,
+  );
+  counterDamage = Math.round(counterDamage * strength);
   const playerHp = Math.max(0, state.playerHp - incomingDamage);
   const enemyHp = Math.max(0, state.enemyHp - counterDamage);
   const turn: BattleTurn = playerHp === 0 ? 'defeat' : enemyHp === 0 ? 'victory' : 'player';

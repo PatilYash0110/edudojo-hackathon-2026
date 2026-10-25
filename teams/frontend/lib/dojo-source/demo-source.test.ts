@@ -1,10 +1,15 @@
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { BattleQuestionSchema } from '@/teams/shared/contracts/battle';
 import { DojoSchema } from '@/teams/shared/contracts/dojo';
 import { QUESTION_RULES } from '@/teams/game/balance/balance';
 import { DEMO_DOJO } from '@/teams/game/content/demo-dojo';
 import { DEMO_QUESTION_BANK } from '@/teams/game/content/demo-question-bank';
 import { createDemoSource, DEMO_DOJO_ID } from './demo-source';
+
+vi.mock('../api-client', () => ({ dojoFetch: vi.fn() }));
+import { dojoFetch } from '../api-client';
+
+afterEach(() => vi.clearAllMocks());
 
 const source = createDemoSource({ random: () => 0 });
 
@@ -99,7 +104,7 @@ describe('demo DojoSource', () => {
   });
 
   it('grades every answer key as correct and reports mastery deltas', async () => {
-    for (const question of DEMO_QUESTION_BANK) {
+    for (const question of DEMO_QUESTION_BANK.filter((q) => q.answerType === 'multiple-choice')) {
       const result = await source.grade({
         dojoId: DEMO_DOJO_ID,
         questionId: question.id,
@@ -109,21 +114,36 @@ describe('demo DojoSource', () => {
       expect(result.objectiveId).toBe(question.objectiveId);
       expect(result.masteryDelta).toBe(QUESTION_RULES.masteryDeltaCorrect);
     }
-
-    const wrong = await source.grade({
-      dojoId: DEMO_DOJO_ID,
-      questionId: 'pp-went-typed',
-      answer: 'goed',
-    });
-    expect(wrong).toMatchObject({ correct: false, score: 0 });
-    expect(wrong.masteryDelta).toBe(QUESTION_RULES.masteryDeltaWrong);
   });
 
-  it('accepts typed answers regardless of case, spacing, or end punctuation', async () => {
-    const grade = (answer: string) =>
-      source.grade({ dojoId: DEMO_DOJO_ID, questionId: 'wo-build-typed', answer });
-    expect((await grade('  How   are you? ')).correct).toBe(true);
-    expect((await grade('are you how')).correct).toBe(false);
+  it.each([1, 0.5, 0])('uses server semantic grading for typed answers: %s', async (score) => {
+    const result = {
+      questionId: 'wo-build-typed',
+      objectiveId: 'word-order',
+      correct: score === 1,
+      score,
+      explanation: 'Feedback',
+      masteryDelta: 0,
+    };
+    vi.mocked(dojoFetch).mockResolvedValueOnce({ result });
+    expect(
+      await source.grade({
+        dojoId: DEMO_DOJO_ID,
+        questionId: 'wo-build-typed',
+        answer: 'my answer',
+      }),
+    ).toEqual(result);
+    expect(dojoFetch).toHaveBeenCalledWith('/api/dojo/battle/answers', {
+      method: 'POST',
+      body: { dojoId: DEMO_DOJO_ID, questionId: 'wo-build-typed', answer: 'my answer' },
+    });
+  });
+
+  it('propagates grading failures instead of assigning an incorrect result', async () => {
+    vi.mocked(dojoFetch).mockRejectedValueOnce(new Error('Unavailable'));
+    await expect(
+      source.grade({ dojoId: DEMO_DOJO_ID, questionId: 'wo-build-typed', answer: 'answer' }),
+    ).rejects.toThrow('Unavailable');
   });
 
   it('rejects unknown questions', async () => {
