@@ -1,9 +1,12 @@
 # Render Blueprint: the app (full Next.js: pages + API) + TTS (Speaches). Setup: DEPLOY.md
-# Deploys come only from GitHub Actions (deploy hook) after CI passes, never from a push.
+# Deploys come only from GitHub Actions (deploy hook with the image digest) after CI passes, never from a push.
 services:
   - type: web
     name: dojolearn
-    runtime: docker
+    # Built by GitHub Actions (Render's 8 GB builder runs out of memory on this app).
+    runtime: image
+    image:
+      url: ghcr.io/patilyash0110/edudojo-hackathon-2026:latest
     plan: free # demo day: starter (no sleep)
     region: frankfurt # keep next to the Supabase project
     healthCheckPath: /api/health

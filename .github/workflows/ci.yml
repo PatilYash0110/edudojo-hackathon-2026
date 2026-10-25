@@ -1,6 +1,6 @@
 # Hackathon pipeline. Setup: DEPLOY.md
 #   PR into development or main -> check + test
-#   push to main (merge)        -> check + test, then deploy to Render
+#   push to main (merge)        -> check + test + build image (GHCR), then Render deploys that image
 name: CI
 
 on:
@@ -8,6 +8,10 @@ on:
     branches: [development, main]
   push:
     branches: [main]
+
+env:
+  # Lowercase: GHCR rejects capitals. Render's dojolearn service pulls this image.
+  IMAGE: ghcr.io/patilyash0110/edudojo-hackathon-2026
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -48,15 +52,48 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
 
+  # Render's builder (8 GB) runs out of memory on this app, so the image is built here (16 GB),
+  # in parallel with check + test. Only a green run deploys it.
+  image:
+    name: Build image
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ env.IMAGE }}:latest
+            ${{ env.IMAGE }}:${{ github.sha }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
   deploy:
     name: Deploy production
-    needs: [check, test]
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [check, test, image]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-      # shortcut: fire-and-forget, Render shows whether its build passed; poll the Render API if that bites.
-      - name: Render (app + DB migrations on boot)
-        run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
+      # shortcut: fire-and-forget, Render shows whether the new image started; poll the Render API if that bites.
+      - name: Render (pull the image just built; DB migrates on boot)
+        run: |
+          img=$(jq -rn --arg v "$IMAGE@$DIGEST" '$v|@uri')
+          curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL&imgURL=$img"
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+          DIGEST: ${{ needs.image.outputs.digest }}
