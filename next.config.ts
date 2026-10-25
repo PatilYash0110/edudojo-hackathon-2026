@@ -57,15 +57,6 @@ const nextConfig: NextConfig = {
   experimental: {
     proxyClientMaxBodySize: '200mb',
   },
-  // Vercel only: pages stay here, every API call goes to the Render backend (same origin, so cookies just work).
-  async rewrites() {
-    const backend = process.env.BACKEND_URL?.trim().replace(/\/+$/, '');
-    return {
-      beforeFiles: backend ? [{ source: '/api/:path*', destination: `${backend}/api/:path*` }] : [],
-      afterFiles: [],
-      fallback: [],
-    };
-  },
   async headers() {
     const extraAncestors = process.env.ALLOWED_FRAME_ANCESTORS?.trim();
     const frameAncestors = extraAncestors ? `'self' ${extraAncestors}` : "'self'";

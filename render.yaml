@@ -1,8 +1,8 @@
-# Render Blueprint: API (full Next.js app) + TTS (Speaches). Setup: DEPLOY.md
+# Render Blueprint: the app (full Next.js: pages + API) + TTS (Speaches). Setup: DEPLOY.md
 # Deploys come only from GitHub Actions (deploy hook) after CI passes, never from a push.
 services:
   - type: web
-    name: dojolearn-api
+    name: dojolearn
     runtime: docker
     plan: free # demo day: starter (no sleep)
     region: frankfurt # keep next to the Supabase project

@@ -1,6 +1,6 @@
 # Hackathon pipeline. Setup: DEPLOY.md
-#   PR into development or main -> check
-#   push to main (merge)        -> check, then deploy Render (API) + Vercel (pages)
+#   PR into development or main -> check + test
+#   push to main (merge)        -> check + test, then deploy to Render
 name: CI
 
 on:
@@ -53,17 +53,10 @@ jobs:
     needs: [check, test]
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 5
     steps:
-      - uses: actions/checkout@v5
       # shortcut: fire-and-forget, Render shows whether its build passed; poll the Render API if that bites.
-      - name: Render (API + DB migrations on boot)
+      - name: Render (app + DB migrations on boot)
         run: curl -fsS -X POST "$RENDER_DEPLOY_HOOK_URL"
         env:
           RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
-      - name: Vercel (pages, /api proxied to Render)
-        run: npx --yes vercel@64.7.0 deploy --prod --yes --token="$VERCEL_TOKEN"
-        env:
-          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
