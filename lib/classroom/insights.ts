@@ -94,7 +94,37 @@ export function fallbackCategories(results: QuizAnswerResult[]): InsightCategory
     label,
     score: weightedScore(answers),
   }));
+  if (categories.length <= 1 && !supportsRadar(results.length))
+    return perQuestionCategories(results);
   return clampAxes(categories, maxAxesFor(results.length));
+}
+
+/**
+ * One axis per question, for a course whose questions all sit in a single quiz
+ * scene and are too few for a radar anyway.
+ *
+ * Grouping by scene title collapses such a course to one row, which reads as a
+ * lone bar rather than a breakdown, and a learner cannot tell from it which
+ * question they got wrong. One bar per question is the finest honest grouping:
+ * every score is 0% or 100%, which is exactly what a single answer measures.
+ *
+ * Deliberately not clamped by `maxAxesFor`: that cap exists to keep a radar
+ * from drawing one-question spikes, and this grouping is never drawn as one —
+ * the caller gates the radar on `supportsRadar` too, so these always render as
+ * bars. `MAX_RADAR_AXES` still caps the list so the card cannot grow without
+ * bound.
+ */
+function perQuestionCategories(results: QuizAnswerResult[]): InsightCategory[] {
+  const seen = new Set<string>();
+  const categories: InsightCategory[] = [];
+  for (const result of results) {
+    const label = trimLabel(result.question || '');
+    const dedupeKey = label.toLowerCase();
+    if (!label || seen.has(dedupeKey)) continue;
+    seen.add(dedupeKey);
+    categories.push({ label, score: result.correct ? 100 : 0 });
+  }
+  return categories.slice(0, MAX_RADAR_AXES);
 }
 
 /**

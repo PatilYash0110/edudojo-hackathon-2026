@@ -186,6 +186,51 @@ describe('fallbackCategories', () => {
     // One question per scene title, so the six titles collapse to three axes.
     expect(fallbackCategories(results)).toHaveLength(3);
   });
+
+  it('breaks a single short quiz scene down per question', () => {
+    // One quiz scene, three questions: grouping by title is one lone bar, so
+    // each question becomes its own bar instead.
+    const results = [
+      answer('Wissenscheck', true, 'Signalwörter'),
+      answer('Wissenscheck', false, 'Verlaufsform bilden'),
+      answer('Wissenscheck', true, 'Simple Present'),
+    ];
+    expect(fallbackCategories(results)).toEqual([
+      { label: 'Signalwörter', score: 100 },
+      { label: 'Verlaufsform bilden', score: 0 },
+      { label: 'Simple Present', score: 100 },
+    ]);
+  });
+
+  it('trims a long question down to an axis caption', () => {
+    const long = 'Welche Signalwörter gehören zum Present Progressive?';
+    const categories = fallbackCategories([
+      answer('Wissenscheck', true, long),
+      answer('Wissenscheck', false, 'kurz'),
+    ]);
+    expect(categories[0]!.label).toBe(`${long.slice(0, 21)}…`);
+  });
+
+  it('keeps the scene-title grouping once a quiz is long enough for a radar', () => {
+    // Six questions in one scene: the radar is supportable, so the collapse to
+    // a single title is left alone rather than becoming six 0/100 spikes.
+    expect(fallbackCategories(answers('Wissenscheck', 6, 3))).toEqual([
+      { label: 'Wissenscheck', score: 50 },
+    ]);
+  });
+
+  it('caps the per-question breakdown at the radar axis maximum', () => {
+    // Longest quiz that still cannot support a radar is five questions, so the
+    // cap is never reached in practice; it is here so the card cannot grow
+    // without bound if the question floor is ever lowered.
+    const results = Array.from({ length: 5 }, (_, i) =>
+      answer('Wissenscheck', i % 2 === 0, `Frage ${i}`),
+    );
+    const categories = fallbackCategories(results);
+    expect(categories).toHaveLength(5);
+    expect(categories.length).toBeLessThanOrEqual(MAX_RADAR_AXES);
+    expect(categories.map((c) => c.score)).toEqual([100, 0, 100, 0, 100]);
+  });
 });
 
 describe('ratingKey / hasEnoughAxes', () => {

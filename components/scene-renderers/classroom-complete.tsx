@@ -18,6 +18,7 @@ import {
   fetchInsightCategories,
   hasEnoughAxes,
   ratingKey,
+  supportsRadar,
   type InsightCategory,
 } from '@/lib/classroom/insights';
 import { CompleteRadar } from '@/components/scene-renderers/complete-radar';
@@ -430,7 +431,15 @@ export function ClassroomCompletePage({
     return () => controller.abort();
   }, [quizResults, title, locale, insightsOverride]);
 
-  const showRadar = hasEnoughAxes(insights);
+  // A radar also needs enough questions behind each axis. The scene-title and
+  // model groupings already clamp to that, but the per-question fallback does
+  // not — it exists precisely for quizzes too short for a radar, and its axes
+  // are all 0% or 100%. Checking the question count here keeps those on bars.
+  // An override comes from the design preview, which has no real answers at
+  // all, so it says what it wants drawn.
+  const showRadar =
+    hasEnoughAxes(insights) &&
+    (insightsOverride !== undefined || supportsRadar(quizResults.length));
 
   // Targeted practice. Only offered on topics the model actually named: when
   // no model answered, the "topics" are quiz-scene titles, and a drill
