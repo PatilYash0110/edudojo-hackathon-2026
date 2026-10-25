@@ -1,0 +1,443 @@
+/* Full-bleed tower page: the app shell's nav stays, the scene fills the rest. */
+:global(html):has(.tower) {
+  overflow-y: hidden;
+  scrollbar-gutter: auto;
+}
+:global(.dojo-root):has(.tower) {
+  display: flex;
+  flex-direction: column;
+  height: 100svh;
+  min-height: 0;
+  background: #0d0a1c;
+}
+:global(.dojo-root):has(.tower) > main {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  max-width: none;
+  padding: 0;
+}
+.tower {
+  position: relative;
+  height: 100%;
+  min-height: 480px;
+  overflow: hidden;
+  color: #ebeee9;
+  background: #0d0a1c;
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+.tower button {
+  font: inherit;
+  cursor: pointer;
+}
+/* After the reset above: tower buttons use the shared dojo button type. */
+.tower .reset,
+.tower .primaryAction,
+.tower .secondaryAction {
+  font-size: 13px;
+  font-weight: 500;
+}
+.canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+  image-rendering: pixelated;
+}
+
+.eyebrow {
+  margin: 0;
+  color: #d7b777;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+}
+
+.brand {
+  position: absolute;
+  top: 20px;
+  left: 24px;
+  max-width: min(420px, 55%);
+  pointer-events: none;
+  text-shadow: 0 2px 16px #08041cf2;
+}
+.brand h1 {
+  margin: 4px 0 6px;
+  font:
+    700 32px/1.1 var(--font-serif),
+    Georgia,
+    serif;
+}
+.brand p:not(.eyebrow) {
+  margin: 0;
+  color: #d3cbdc;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+/* Same buttons as every other dojo page (DojoFlow.module.css): night-dojo tokens. The secondary
+   ones keep a translucent fill so they read over the tower scene. */
+.reset,
+.primaryAction,
+.secondaryAction {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 0 14px;
+  color: var(--foreground);
+  background: color-mix(in oklab, var(--card) 80%, transparent);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  backdrop-filter: blur(6px);
+  transition:
+    background-color 0.15s,
+    border-color 0.15s;
+}
+.reset:hover,
+.secondaryAction:hover {
+  border-color: color-mix(in oklab, var(--foreground) 55%, transparent);
+  background: var(--accent);
+}
+.reset {
+  position: absolute;
+  top: 20px;
+  right: 24px;
+}
+.primaryAction {
+  color: var(--primary-foreground);
+  background: var(--primary);
+  border-color: var(--primary);
+  white-space: nowrap;
+}
+.primaryAction:hover:not(:disabled) {
+  background: color-mix(in oklab, var(--primary) 88%, var(--foreground));
+}
+.primaryAction:disabled {
+  cursor: not-allowed;
+  color: var(--muted-foreground);
+  background: var(--muted);
+  border-color: var(--border);
+}
+
+/* Floor chips, top storey first. */
+.floors {
+  position: absolute;
+  top: 50%;
+  right: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 262px;
+  transform: translateY(-50%);
+}
+.floorChip {
+  order: var(--rank);
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 7px 12px 7px 8px;
+  color: #ebeee9;
+  text-align: left;
+  background: #10191de0;
+  border: 1px solid #96aaa433;
+  border-radius: 3px;
+  backdrop-filter: blur(6px);
+  transition:
+    border-color 160ms,
+    background 160ms,
+    opacity 160ms;
+}
+.floorChip b {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  color: #efdaac;
+  border: 1px solid #d7b77766;
+  border-radius: 50%;
+  font:
+    17px Georgia,
+    serif;
+}
+.floorChip span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
+  font:
+    14px/1.2 Georgia,
+    serif;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.floorChip small {
+  color: #d7b777;
+  font:
+    700 9px Arial,
+    sans-serif;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+.floorChip > svg {
+  color: #edcc87;
+}
+.floorChip[data-state='locked'] {
+  opacity: 0.55;
+}
+.floorChip[data-state='locked'] > svg {
+  color: #7f8c89;
+}
+.floorChip[data-state='current'] {
+  border-color: #e2c175;
+  box-shadow:
+    0 0 0 1px #e2c17521,
+    0 0 18px #e2c17530;
+}
+.floorChip[data-state='current'] b {
+  color: #10191d;
+  background: #d7b777;
+}
+.floorChip[data-state='cleared'] {
+  background: #15231fe0;
+  border-color: #6ea98a55;
+}
+.floorChip[data-state='cleared'] > svg {
+  color: #8fbea4;
+}
+/* A cleared floor that is being forgotten: dimmer, amber, and it asks to be repaired. */
+.floorChip[data-state='cleared'][data-fading='true'] {
+  background: #241c12e0;
+  border-color: #d9984a66;
+  filter: saturate(0.75);
+}
+.floorChip[data-state='cleared'][data-fading='true'] > svg {
+  color: #e8a95a;
+  animation: fadingPulse 2.4s ease-in-out infinite;
+}
+@keyframes fadingPulse {
+  50% {
+    opacity: 0.45;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .floorChip[data-state='cleared'][data-fading='true'] > svg {
+    animation: none;
+  }
+}
+.floorChip:hover,
+.floorChip[data-hovered='true'] {
+  opacity: 1;
+  border-color: #e6c783;
+}
+.floorChip[aria-pressed='true'] {
+  opacity: 1;
+  background: #5a2a1ee6;
+  border-color: #d57952;
+}
+.floorChip:focus-visible,
+.reset:focus-visible,
+.primaryAction:focus-visible,
+.secondaryAction:focus-visible {
+  outline: 2px solid #f1d38b;
+  outline-offset: 2px;
+}
+
+.panel {
+  position: absolute;
+  left: 24px;
+  bottom: 24px;
+  width: min(340px, calc(100% - 48px));
+  padding: 18px 20px;
+  background: #132126eb;
+  border: 1px solid #d7b7772e;
+  backdrop-filter: blur(6px);
+}
+.panel h2 {
+  margin: 8px 0;
+  font:
+    22px/1.25 Georgia,
+    serif;
+}
+.guardian {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  margin: 0;
+  color: #9daba7;
+  font-size: 12px;
+}
+.guardian b {
+  color: #ebeee9;
+  font:
+    15px Georgia,
+    serif;
+}
+.stateTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: auto;
+  color: #edcc87;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.stateTag[data-state='locked'] {
+  color: #7f8c89;
+}
+.stateTag[data-state='cleared'] {
+  color: #8fbea4;
+}
+.stateTag[data-state='fading'] {
+  color: #e8a95a;
+}
+.count {
+  color: #9daba7;
+  font-size: 12px;
+}
+.progressTrack {
+  height: 5px;
+  margin: 12px 0 2px;
+  overflow: hidden;
+  background: #071014;
+}
+.progressTrack i {
+  display: block;
+  height: 100%;
+  background: #d7b777;
+  transition: width 240ms ease;
+}
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.hint {
+  position: absolute;
+  right: 24px;
+  bottom: 20px;
+  max-width: 262px;
+  margin: 0;
+  color: #d3cbdccc;
+  font-size: 11px;
+  line-height: 1.5;
+  text-align: right;
+  text-shadow: 0 1px 10px #08041cf2;
+  pointer-events: none;
+}
+
+.tip {
+  position: fixed;
+  z-index: 5;
+  padding: 6px 10px;
+  color: #ebeee9;
+  background: #10191df0;
+  border: 1px solid #d7b777;
+  border-radius: 3px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  pointer-events: none;
+}
+.tip em {
+  margin-left: 6px;
+  color: #d7b777;
+  font-style: normal;
+  font-weight: 400;
+}
+
+@media (max-width: 1000px) {
+  .hint {
+    display: none;
+  }
+}
+
+/* Phones and narrow windows: chips become a strip along the bottom, floor 1 first.
+   TowerMap reads the strip's flex-direction to frame the tower above it. */
+@media (max-width: 980px) {
+  /* The tower fills a phone's width, so the title sits on a fade instead of on the roof. */
+  .tower::before {
+    content: '';
+    position: absolute;
+    inset: 0 0 auto;
+    height: 112px;
+    z-index: 1;
+    background: linear-gradient(#0d0a1cf2 30%, #0d0a1c00);
+    pointer-events: none;
+  }
+  .brand,
+  .reset {
+    z-index: 2;
+  }
+  .brand {
+    top: 14px;
+    left: 16px;
+    max-width: calc(100% - 80px);
+  }
+  .brand h1 {
+    font-size: 22px;
+  }
+  .brand p:not(.eyebrow) {
+    display: none;
+  }
+  .reset {
+    top: 14px;
+    right: 16px;
+    width: 38px;
+    padding: 0;
+  }
+  .resetLabel {
+    display: none;
+  }
+  .floors {
+    top: auto;
+    right: 0;
+    bottom: 12px;
+    left: 0;
+    flex-direction: row;
+    width: auto;
+    padding: 0 16px 4px;
+    overflow-x: auto;
+    transform: none;
+    scrollbar-width: none;
+  }
+  .floorChip {
+    order: var(--order);
+    flex: 0 0 auto;
+    max-width: 210px;
+  }
+  .panel {
+    left: 16px;
+    right: 16px;
+    bottom: 82px;
+    width: auto;
+    max-width: 520px;
+    padding: 14px 16px;
+  }
+  .panel h2 {
+    font-size: 19px;
+  }
+  .actions {
+    margin-top: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .floorChip,
+  .progressTrack i {
+    transition: none;
+  }
+}

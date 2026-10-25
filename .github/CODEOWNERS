@@ -1,0 +1,10 @@
+# Replace the placeholders with GitHub usernames, then uncomment. Later lines win.
+# Who owns what (names + roles): teams/OWNERSHIP.md
+
+# /teams/game/          GAME_TEAM_USERNAMES
+# /teams/frontend/      FRONTEND_TEAM_USERNAMES
+# /app/(frontend)/      FRONTEND_TEAM_USERNAMES
+# /public/dojo/         FRONTEND_TEAM_USERNAMES
+# /teams/backend/       BACKEND_TEAM_USERNAMES
+# /app/api/dojo/        BACKEND_TEAM_USERNAMES
+# /teams/shared/        GAME_TEAM_USERNAMES FRONTEND_TEAM_USERNAMES BACKEND_TEAM_USERNAMES
