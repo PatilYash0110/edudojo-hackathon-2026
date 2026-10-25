@@ -33,7 +33,7 @@ export async function seedDatabase(
   options: {
     html?: string;
     modelId?: string;
-    whiteboard?: import('@openmaic/dsl').Whiteboard[];
+    whiteboard?: import('@dojolearn/dsl').Whiteboard[];
   } = {},
 ): Promise<string> {
   const stageId = uniqueStageId(TEST_STAGE_PREFIX);

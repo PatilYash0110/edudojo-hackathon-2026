@@ -36,7 +36,7 @@ import type {
   WidgetAnnotationAction,
   WidgetRevealAction,
 } from '@/lib/types/action';
-import type { CodeLine, PPTVideoElement } from '@openmaic/dsl';
+import type { CodeLine, PPTVideoElement } from '@dojolearn/dsl';
 import {
   resolveVideoMediaForElement,
   type VideoMediaTaskResolution,
@@ -54,7 +54,7 @@ import {
   wbClearMs,
 } from '@/lib/choreography';
 import katex from 'katex';
-import { safeKatexOptions } from '@openmaic/dsl';
+import { safeKatexOptions } from '@dojolearn/dsl';
 import { createLogger } from '@/lib/logger';
 import { legacyShapeCompatibilityError } from '@/lib/whiteboard/legacy-shape';
 

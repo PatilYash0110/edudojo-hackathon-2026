@@ -32,7 +32,7 @@ beforeEach(async () => {
   // The deployment configuration is loaded once per process; each case boots anew.
   (await import('@/lib/server/model-config/runtime')).setDeploymentConfigForTests();
   stderr = [];
-  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openmaic-boot-'));
+  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dojolearn-boot-'));
   startAssetCollectorSchedule.mockReset();
   exit = vi.spyOn(process, 'exit').mockImplementation((() => undefined) as never);
   vi.spyOn(process.stderr, 'write').mockImplementation(((

@@ -14,7 +14,7 @@ import {
   type AgentSessionEventLog,
   type AgentSessionEntryTreeHandle,
   type AgentSessionMeta,
-} from '@openmaic/storage';
+} from '@dojolearn/storage';
 
 import { getAgentSessionStore } from './store';
 

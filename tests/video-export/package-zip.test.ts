@@ -8,7 +8,7 @@ function project(vendorAssets: EmittedProject['vendorAssets']): EmittedProject {
     files: [{ path: 'index.html', content: '<!doctype html>' }],
     width: 1280,
     height: 720,
-    compositionId: 'openmaic',
+    compositionId: 'dojolearn',
     totalDurationMs: 1000,
     gsapVendorPath: 'assets/vendor/gsap.min.js',
     vendorAssets,

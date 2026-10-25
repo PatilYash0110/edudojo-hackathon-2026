@@ -37,7 +37,7 @@ export const AGENT_EVENT_NOTIFY_CHANNEL = 'openmaic_agent_event_wakeup';
  * need the channel name to identify probe notifications.
  */
 export const AGENT_EVENT_PROBE_CHANNEL = 'openmaic_agent_event_selfcheck';
-export const AGENT_EVENT_NOTIFY_APPLICATION_NAME = 'openmaic-agent-notify-bus';
+export const AGENT_EVENT_NOTIFY_APPLICATION_NAME = 'dojolearn-agent-notify-bus';
 
 export type AgentEventWakeupRoute =
   | { kind: 'owner'; ownerId: string }
@@ -83,7 +83,7 @@ export interface AgentEventNotifyBusHandle {
 }
 
 const log = createLogger('AgentEventNotifyBus');
-const GLOBAL_KEY = '__openmaicAgentEventNotifyBus';
+const GLOBAL_KEY = '__dojolearnAgentEventNotifyBus';
 const globalWithBus = globalThis as typeof globalThis & { [GLOBAL_KEY]?: BusState };
 
 function createState(): BusState {
@@ -162,7 +162,7 @@ function fanoutAll() {
 
 /** How long the self-check waits for the probe notification to come back. */
 const AGENT_EVENT_PROBE_TIMEOUT_MS = 2_000;
-const AGENT_EVENT_PROBE_PAYLOAD = 'openmaic-agent-notify-selfcheck';
+const AGENT_EVENT_PROBE_PAYLOAD = 'dojolearn-agent-notify-selfcheck';
 
 /**
  * Self-check that LISTEN/NOTIFY actually round-trips on this connection.

@@ -31,17 +31,17 @@
  */
 import { randomUUID } from 'node:crypto';
 
-import type { Queryable } from '@openmaic/storage/document/pg';
-import { applySchemaMigrations, type SchemaMigrationSet } from '@openmaic/storage/pg-migrations';
-import { encodeJson } from '@openmaic/storage/pg-json';
+import type { Queryable } from '@dojolearn/storage/document/pg';
+import { applySchemaMigrations, type SchemaMigrationSet } from '@dojolearn/storage/pg-migrations';
+import { encodeJson } from '@dojolearn/storage/pg-json';
 import {
   nodePostgresTransaction,
   type ConnectableQueryable,
-} from '@openmaic/storage/server/reference';
+} from '@dojolearn/storage/server/reference';
 
-import type { BinaryBlob } from '@openmaic/dsl';
-import type { WithTransaction } from '@openmaic/storage/document/pg';
-import type { AssetStore } from '@openmaic/storage';
+import type { BinaryBlob } from '@dojolearn/dsl';
+import type { WithTransaction } from '@dojolearn/storage/document/pg';
+import type { AssetStore } from '@dojolearn/storage';
 
 import { MATERIAL_ROOT_KIND, withMaterialRoots } from './material-roots';
 import { CLASSIC_EXTRACTION_SQL, usesClassicExtraction } from './material-extraction-format';

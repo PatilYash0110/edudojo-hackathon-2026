@@ -10,7 +10,7 @@
 import 'fake-indexeddb/auto';
 
 import Dexie from 'dexie';
-import { BrowserAssetStore, BrowserDocumentStore, BrowserRuntimeStore } from '@openmaic/storage';
+import { BrowserAssetStore, BrowserDocumentStore, BrowserRuntimeStore } from '@dojolearn/storage';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 
 import { clearLocalCache } from '@/lib/device-storage/clear-local-cache';

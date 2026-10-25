@@ -665,7 +665,7 @@ describe('runSession material wording follows the consumed message', () => {
       role: 'user',
       content: 'message 6',
       timestamp: 6,
-      openmaicDurableUserMessageSeq: 6,
+      dojolearnDurableUserMessageSeq: 6,
     });
     mocks.history.started = true;
     mocks.store.listUserMessages.mockResolvedValue([message(5, 'en-US'), message(6, 'ja-JP')]);

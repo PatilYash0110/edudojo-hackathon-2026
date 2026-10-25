@@ -1,4 +1,4 @@
-import type { DocumentOwnershipRelation } from '@openmaic/storage/document/pg';
+import type { DocumentOwnershipRelation } from '@dojolearn/storage/document/pg';
 
 /**
  * `stage_meta` as the storage package's document ownership relation: the one

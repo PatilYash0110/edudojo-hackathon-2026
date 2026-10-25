@@ -26,7 +26,7 @@
  */
 import Dexie, { type EntityTable, type Table } from 'dexie';
 
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 
 import type { Scene } from '@/lib/types/stage';
 

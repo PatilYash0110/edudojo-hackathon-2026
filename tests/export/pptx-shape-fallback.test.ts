@@ -1,8 +1,8 @@
 // @vitest-environment jsdom
 import JSZip from 'jszip';
 import { describe, expect, it } from 'vitest';
-import type { PPTShapeElement, Slide } from '@openmaic/dsl';
-import { shapeToTextFallback } from '@openmaic/geometry';
+import type { PPTShapeElement, Slide } from '@dojolearn/dsl';
+import { shapeToTextFallback } from '@dojolearn/geometry';
 import { buildPptxBlob } from '@/lib/export/use-export-pptx';
 
 const shape: PPTShapeElement = {

@@ -68,7 +68,7 @@ createRoot(document.getElementById('app')).render(<PooledIframe sceneId="s" entr
     },
   }).outputFiles[0].text;
 }
-for (const origin of ['http://openmaic-http.test/', 'http://localhost/']) {
+for (const origin of ['http://dojolearn-http.test/', 'http://localhost/']) {
   for (const declared of [false, true]) {
     test(`renders ${declared ? 'declared' : 'legacy'} activity and keeps sampling optional on ${origin}`, async ({
       page,

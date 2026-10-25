@@ -18,10 +18,10 @@
 import type { NextRequest } from 'next/server';
 import { randomBytes } from 'node:crypto';
 
-import { isDocumentWriteRefusedError } from '@openmaic/storage';
+import { isDocumentWriteRefusedError } from '@dojolearn/storage';
 
 import { ownerWriteErrorResponse } from '@/lib/persistence/owner-merges';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import { isServerPersistenceConfigured } from '@/lib/config/feature-flags';
 import type { AppDocumentOutline } from '@/lib/document-store/persistence-types';

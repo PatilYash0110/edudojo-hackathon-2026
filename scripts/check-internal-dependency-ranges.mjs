@@ -3,15 +3,15 @@ import {
   OPENMAIC_PACKAGES,
   assertPackageListIsComplete,
   readManifest,
-} from './openmaic-packages.mjs';
+} from './dojolearn-packages.mjs';
 
 /**
- * An owned @openmaic package may be declared as a dependency of another exactly
+ * An owned @dojolearn package may be declared as a dependency of another exactly
  * once, in `dependencies`, as `workspace:^`.
  *
  * WHY `workspace:^`. pnpm publishes `workspace:*` as an EXACT pin, so a
  * consumer installing two dependents that were released at different times gets
- * two copies of `@openmaic/dsl`. The dsl carries the schema, the validators and
+ * two copies of `@dojolearn/dsl`. The dsl carries the schema, the validators and
  * the version constants, so two copies mean a document produced against one
  * instance can be validated by the other instance's schema revision.
  * `workspace:^` publishes as `^<version>` and lets one copy satisfy both.
@@ -42,7 +42,7 @@ import {
  * that a serialized-format change must cross the dependents' caret boundary.
  */
 
-const OWNED = new Set(OPENMAIC_PACKAGES.map((name) => `@openmaic/${name}`));
+const OWNED = new Set(OPENMAIC_PACKAGES.map((name) => `@dojolearn/${name}`));
 
 /** Published constraint fields in which an owned package must never appear. */
 const FORBIDDEN_FIELDS = ['peerDependencies', 'optionalDependencies'];
@@ -56,7 +56,7 @@ function report(headline, problems) {
 // itself is wrong there is nothing meaningful to say about what it contains.
 const listProblems = assertPackageListIsComplete();
 if (listProblems.length > 0) {
-  report('The shared @openmaic package list has drifted:', listProblems);
+  report('The shared @dojolearn package list has drifted:', listProblems);
 }
 
 const failures = [];
@@ -72,11 +72,11 @@ for (const name of OPENMAIC_PACKAGES) {
     // owned dependency behind whichever happened to be declared last.
     seen.set(name, [...(seen.get(name) ?? []), dependency]);
     if (range === 'workspace:^') {
-      console.log(`@openmaic/${name}: dependencies.${dependency} = ${range}`);
+      console.log(`@dojolearn/${name}: dependencies.${dependency} = ${range}`);
       continue;
     }
     failures.push(
-      `@openmaic/${name} declares dependencies."${dependency}" as ${JSON.stringify(range)}. ` +
+      `@dojolearn/${name} declares dependencies."${dependency}" as ${JSON.stringify(range)}. ` +
         'Use "workspace:^": the "workspace:*" form publishes as an exact pin, which forces ' +
         'consumers to install a second copy of that package alongside its siblings.',
     );
@@ -86,7 +86,7 @@ for (const name of OPENMAIC_PACKAGES) {
     for (const dependency of Object.keys(manifest[field] ?? {})) {
       if (!OWNED.has(dependency)) continue;
       failures.push(
-        `@openmaic/${name} declares ${field}."${dependency}". An owned @openmaic package may ` +
+        `@dojolearn/${name} declares ${field}."${dependency}". An owned @dojolearn package may ` +
           'be declared exactly once, in `dependencies`. A second published constraint here ' +
           'can pin the same package exactly while `dependencies` still reads as a caret, ' +
           'which reintroduces the duplicate copy this check exists to prevent.',
@@ -105,9 +105,9 @@ for (const [name, expected] of Object.entries(INTERNAL_DEPENDENTS)) {
   const observed = seen.get(name);
   if (observed === undefined) {
     failures.push(
-      `@openmaic/${name} no longer declares any owned @openmaic dependency in \`dependencies\`; ` +
+      `@dojolearn/${name} no longer declares any owned @dojolearn dependency in \`dependencies\`; ` +
         `it was expected to depend on ${expectedDependencies.join(', ')}. If that is intended, update ` +
-        'INTERNAL_DEPENDENTS in scripts/openmaic-packages.mjs — this check must not go quiet ' +
+        'INTERNAL_DEPENDENTS in scripts/dojolearn-packages.mjs — this check must not go quiet ' +
         'on its own.',
     );
     continue;
@@ -118,7 +118,7 @@ for (const [name, expected] of Object.entries(INTERNAL_DEPENDENTS)) {
     observedDependencies.some((dependency, index) => dependency !== expectedDependencies[index])
   ) {
     failures.push(
-      `@openmaic/${name} declares owned dependencies (${observedDependencies.join(', ')}), but ` +
+      `@dojolearn/${name} declares owned dependencies (${observedDependencies.join(', ')}), but ` +
         `INTERNAL_DEPENDENTS expects (${expectedDependencies.join(', ')}).`,
     );
   }
@@ -127,8 +127,8 @@ for (const [name, expected] of Object.entries(INTERNAL_DEPENDENTS)) {
 for (const [name, observed] of seen) {
   if (name in INTERNAL_DEPENDENTS) continue;
   failures.push(
-    `@openmaic/${name} declares the owned dependency ${observed.join(', ')} but is absent from ` +
-      'INTERNAL_DEPENDENTS in scripts/openmaic-packages.mjs, so nothing checks how it is ' +
+    `@dojolearn/${name} declares the owned dependency ${observed.join(', ')} but is absent from ` +
+      'INTERNAL_DEPENDENTS in scripts/dojolearn-packages.mjs, so nothing checks how it is ' +
       'published. Add it there.',
   );
 }
@@ -141,7 +141,7 @@ for (const name of OPENMAIC_PACKAGES) {
   for (const dependency of Object.keys(readManifest(name).devDependencies ?? {})) {
     if (!OWNED.has(dependency)) continue;
     failures.push(
-      `@openmaic/${name} declares devDependencies."${dependency}". An owned @openmaic package ` +
+      `@dojolearn/${name} declares devDependencies."${dependency}". An owned @dojolearn package ` +
         'belongs in `dependencies` and nowhere else: a devDependency is not published as a ' +
         'constraint, so it would satisfy the workspace link while the tarball declared no ' +
         'dependency on it at all.',
@@ -150,7 +150,7 @@ for (const name of OPENMAIC_PACKAGES) {
 }
 
 if (failures.length > 0) {
-  report('Internal @openmaic dependency declarations are not in the required shape:', failures);
+  report('Internal @dojolearn dependency declarations are not in the required shape:', failures);
 }
 
 console.log(

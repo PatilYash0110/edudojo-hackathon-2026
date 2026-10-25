@@ -27,7 +27,7 @@ export interface DojoSummary {
   /** Floor ids in tower order (bottom first); empty until ready. */
   floorIds: string[];
   /**
-   * The OpenMAIC run and course behind this dojo, so a screen holding one of
+   * The DojoLearn run and course behind this dojo, so a screen holding one of
    * those ids can find its way back to the tower. `runId` is set from the
    * start; `stageId` only once the course exists. Both null on the demo dojo,
    * which no run ever built.

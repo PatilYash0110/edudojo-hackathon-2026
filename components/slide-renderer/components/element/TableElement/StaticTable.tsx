@@ -1,8 +1,8 @@
 'use client';
 
 import { useMemo, useRef } from 'react';
-import type { PPTTableElement } from '@openmaic/dsl';
-import { useInlineMath, useInnerHtmlGrid } from '@openmaic/renderer';
+import type { PPTTableElement } from '@dojolearn/dsl';
+import { useInlineMath, useInnerHtmlGrid } from '@dojolearn/renderer';
 import { getTableSubThemeColor } from '@/lib/utils/element';
 import { getTextStyle, formatText, getHiddenCells } from './tableUtils';
 

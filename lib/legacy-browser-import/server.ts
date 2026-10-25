@@ -14,14 +14,14 @@
  * The binding request itself carries no header: it is what creates the
  * binding.
  */
-import type { AssetMeta } from '@openmaic/dsl';
+import type { AssetMeta } from '@dojolearn/dsl';
 import {
   HttpAssetStore,
   HttpDocumentStore,
   type DocumentStore,
   type RuntimeStore,
-} from '@openmaic/storage';
-import { HttpRuntimeStore } from '@openmaic/storage/runtime/http';
+} from '@dojolearn/storage';
+import { HttpRuntimeStore } from '@dojolearn/storage/runtime/http';
 
 import { getDocumentStore, type AppStage } from '@/lib/document-store';
 import { validateAppScene, validateAppStage } from '@/lib/document-store/validators';

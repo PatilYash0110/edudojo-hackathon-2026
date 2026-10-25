@@ -10,8 +10,8 @@
 import { PGlite } from '@electric-sql/pglite';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ensureAgentSessionSchema, PgAgentSessionStore } from '@openmaic/storage/agent-session/pg';
-import type { Queryable } from '@openmaic/storage/asset/pg';
+import { ensureAgentSessionSchema, PgAgentSessionStore } from '@dojolearn/storage/agent-session/pg';
+import type { Queryable } from '@dojolearn/storage/asset/pg';
 import { setMaterialByteStoreForTests } from '@/lib/server/materials/bytes';
 
 // Schema bootstrap is serialized by a PostgreSQL advisory lock on a dedicated

@@ -4,7 +4,7 @@
  * ordered event log, and idempotent owner commands.
  *
  * The coordination follows the agent runtime's sessions
- * (`@openmaic/storage/agent-session/pg`): PostgreSQL is the authority for who
+ * (`@dojolearn/storage/agent-session/pg`): PostgreSQL is the authority for who
  * executes a run; a worker's every write names the lease generation it
  * claimed and is refused once another worker took the run over; a `NOTIFY`
  * queued in the same transaction as a durable event wakes the readers at
@@ -17,10 +17,10 @@
  */
 import { randomBytes } from 'node:crypto';
 
-import { DocumentWriteRefusedError } from '@openmaic/storage';
-import type { Queryable } from '@openmaic/storage/document/pg';
-import { encodeJson } from '@openmaic/storage/pg-json';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import { DocumentWriteRefusedError } from '@dojolearn/storage';
+import type { Queryable } from '@dojolearn/storage/document/pg';
+import { encodeJson } from '@dojolearn/storage/pg-json';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 
 import { ensureGenerationRunSchema } from '@/lib/persistence/generation-runs';
 import { startOwnerMaterialExtractions } from '@/lib/persistence/owner-materials';
@@ -268,7 +268,7 @@ const OWNED_BY = (ownerParam: string) =>
 /** How many claims a chain of merge records may span before it is taken as corrupt. */
 const MAX_MERGE_HOPS = 16;
 
-const SCHEMA_STATE_KEY = Symbol.for('openmaic.generation-runs.schema');
+const SCHEMA_STATE_KEY = Symbol.for('dojolearn.generation-runs.schema');
 const schemaState = globalThis as typeof globalThis & {
   [SCHEMA_STATE_KEY]?: { connectionString: string; ready: Promise<void> };
 };
@@ -546,7 +546,7 @@ async function enforceActiveRunLimitIn(
   // shares its limit, and its lock.
   const owner = await canonicalOwnerIn(tx, ownerId);
   await tx.query('SELECT pg_advisory_xact_lock(hashtextextended($1, 0))', [
-    `openmaic.generation-runs.owner:${owner}`,
+    `dojolearn.generation-runs.owner:${owner}`,
   ]);
   const active = await tx.query<{ n: string | number }>(
     `SELECT count(*) AS n FROM generation_runs

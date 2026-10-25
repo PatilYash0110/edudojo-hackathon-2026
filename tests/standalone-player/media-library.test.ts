@@ -12,7 +12,7 @@ function documentWith(table: unknown, blocks: Record<string, string>): Document 
   const doc = document.implementation.createHTMLDocument('x');
   const tableElement = doc.createElement('script');
   tableElement.type = 'application/json';
-  tableElement.id = 'openmaic-media';
+  tableElement.id = 'dojolearn-media';
   tableElement.textContent = typeof table === 'string' ? table : JSON.stringify(table);
   doc.body.append(tableElement);
   for (const [id, base64] of Object.entries(blocks)) {
@@ -42,8 +42,8 @@ afterEach(() => {
 describe('createMediaLibrary', () => {
   it('decodes an embedded block into a typed Blob URL once and caches it', async () => {
     const doc = documentWith(
-      { 'audio/audio-1.mp3': { mimeType: 'audio/mpeg', embedded: 'openmaic-media-1' } },
-      { 'openmaic-media-1': Buffer.from(BYTES).toString('base64') },
+      { 'audio/audio-1.mp3': { mimeType: 'audio/mpeg', embedded: 'dojolearn-media-1' } },
+      { 'dojolearn-media-1': Buffer.from(BYTES).toString('base64') },
     );
     const library = createMediaLibrary(doc);
     expect(library.has('audio/audio-1.mp3')).toBe(true);
@@ -69,9 +69,9 @@ describe('createMediaLibrary', () => {
       documentWith(
         {
           missing: { mimeType: 'audio/mpeg', embedded: 'nowhere' },
-          corrupt: { mimeType: 'audio/mpeg', embedded: 'openmaic-media-1' },
+          corrupt: { mimeType: 'audio/mpeg', embedded: 'dojolearn-media-1' },
         },
-        { 'openmaic-media-1': '@@not base64@@' },
+        { 'dojolearn-media-1': '@@not base64@@' },
       ),
     );
     expect(library.resolve(undefined)).toBeUndefined();
@@ -88,9 +88,9 @@ describe('createMediaLibrary', () => {
       documentWith(
         {
           'audio/audio-1.mp3': { mimeType: 'audio/mpeg', src: 'audio/audio-1.mp3' },
-          embedded: { mimeType: 'audio/mpeg', embedded: 'openmaic-media-1' },
+          embedded: { mimeType: 'audio/mpeg', embedded: 'dojolearn-media-1' },
         },
-        { 'openmaic-media-1': Buffer.from(BYTES).toString('base64') },
+        { 'dojolearn-media-1': Buffer.from(BYTES).toString('base64') },
       ),
     );
     const listener = vi.fn();
@@ -108,7 +108,7 @@ describe('createMediaLibrary', () => {
   it('probes one linked file as the player opens and flags a missing folder', () => {
     const doc = documentWith(
       {
-        embedded: { mimeType: 'audio/mpeg', embedded: 'openmaic-media-1' },
+        embedded: { mimeType: 'audio/mpeg', embedded: 'dojolearn-media-1' },
         'media/asset-1.mp4': { mimeType: 'video/mp4', src: 'media/asset-1.mp4' },
         'audio/audio-1.mp3': { mimeType: 'audio/mpeg', src: 'audio/audio-1.mp3' },
       },
@@ -149,14 +149,14 @@ describe('createMediaLibrary', () => {
     probe.dispatchEvent(new Event('error'));
     expect(library.linkedMediaMissing()).toBe(false);
 
-    const embeddedOnly = documentWith({ k: { embedded: 'openmaic-media-1' } }, {});
+    const embeddedOnly = documentWith({ k: { embedded: 'dojolearn-media-1' } }, {});
     const none = vi.spyOn(embeddedOnly, 'createElement');
     createMediaLibrary(embeddedOnly).probeLinkedMedia();
     expect(none).not.toHaveBeenCalled();
   });
 
   it('probes a linked slide image when the media table links no file', () => {
-    const doc = documentWith({ k: { embedded: 'openmaic-media-1' } }, {});
+    const doc = documentWith({ k: { embedded: 'dojolearn-media-1' } }, {});
     const spy = vi.spyOn(doc, 'createElement');
     const library = createMediaLibrary(doc, { linkedImage: 'images/image-1.png' });
     library.probeLinkedMedia();

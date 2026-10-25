@@ -8,7 +8,7 @@
  */
 
 import { describe, test, expect } from 'vitest';
-import { loadPrompt } from '@openmaic/generation';
+import { loadPrompt } from '@dojolearn/generation';
 
 describe('PBL action workflow', () => {
   test('previews the v2 instructor-guided milestone workspace', () => {

@@ -2,7 +2,7 @@
  * Topic breakdown for the classroom completion page's radar chart.
  *
  * Quiz questions carry no category field (see `QuizQuestion` in
- * `@openmaic/dsl`), so the axes are derived at completion time: the LLM groups
+ * `@dojolearn/dsl`), so the axes are derived at completion time: the LLM groups
  * the answered questions into topics, and when no model is reachable the
  * questions fall back to grouping by their quiz scene title.
  *

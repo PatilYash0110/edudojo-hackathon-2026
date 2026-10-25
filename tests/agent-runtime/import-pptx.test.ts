@@ -1,7 +1,7 @@
 import { createHash } from 'node:crypto';
 import { describe, expect, it, vi } from 'vitest';
-import type { Slide } from '@openmaic/dsl';
-import type { AgentSessionMaterial } from '@openmaic/storage';
+import type { Slide } from '@dojolearn/dsl';
+import type { AgentSessionMaterial } from '@dojolearn/storage';
 
 import {
   buildCourseAllowlist,
@@ -28,7 +28,7 @@ import { installNodeXmlHttpRequest, NodeXMLHttpRequest } from '@/lib/server/agen
 import { materialsPromptBlock } from '@/lib/server/agent-runtime/material-prompt';
 import type { AppDocumentOutline } from '@/lib/document-store/persistence-types';
 import type { Scene } from '@/lib/types/stage';
-import type { PPTTextElement } from '@openmaic/dsl';
+import type { PPTTextElement } from '@dojolearn/dsl';
 
 function makeStore(initial: CourseDocument | null = null): CourseStore {
   let doc = initial;

@@ -1,5 +1,5 @@
 /**
- * Lesson runtime events. The embedded OpenMAIC lesson reports completion; Game unlocks the battle.
+ * Lesson runtime events. The embedded DojoLearn lesson reports completion; Game unlocks the battle.
  *
  * OWNER: SHARED (all teams)
  * STATUS: locked for Milestone 1. Additive changes only; tell every team.

@@ -11,7 +11,7 @@ export interface OwnerMaterialExtractorHandle {
   stop(options?: { timeoutMs?: number }): Promise<void>;
 }
 
-const EXTRACTOR_KEY = Symbol.for('openmaic.owner-materials.extractor');
+const EXTRACTOR_KEY = Symbol.for('dojolearn.owner-materials.extractor');
 const extractorState = globalThis as typeof globalThis & {
   [EXTRACTOR_KEY]?: OwnerMaterialExtractorHandle;
 };

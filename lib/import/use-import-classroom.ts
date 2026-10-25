@@ -21,7 +21,7 @@ import { isGeneratedMediaPlaceholder } from '@/lib/media/media-ref';
 import { putAsset } from '@/lib/media/asset-pool';
 import { isStorageFullFailure } from '@/lib/media/media-failure';
 import type JSZip from 'jszip';
-import type { AssetMeta, Slide } from '@openmaic/dsl';
+import type { AssetMeta, Slide } from '@dojolearn/dsl';
 import type { Stage } from '@/lib/types/stage';
 
 const log = createLogger('ImportClassroom');

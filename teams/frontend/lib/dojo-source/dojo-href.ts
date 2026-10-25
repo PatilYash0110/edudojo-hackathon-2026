@@ -1,7 +1,7 @@
 /**
- * Where an OpenMAIC run or course opens in EduDojo.
+ * Where a DojoLearn run or course opens in EduDojo.
  *
- * Every course here is a dojo tower, but OpenMAIC's own course list knows a
+ * Every course here is a dojo tower, but DojoLearn's own course list knows a
  * course only by its run id and its stage id. Those are what a dojo records
  * (`DojoSummary.runId` / `.stageId`), so the list can look the tower up and
  * send a learner there instead of to `/generation-preview` or `/classroom`,

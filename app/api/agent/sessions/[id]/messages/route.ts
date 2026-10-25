@@ -1,6 +1,6 @@
 /** Agent runtime control plane for durable follow-up messages. */
 import { assertWorkspaceModelsAuthorized } from '@/lib/server/model-config/runtime';
-import { AgentSessionAccessError } from '@openmaic/storage';
+import { AgentSessionAccessError } from '@dojolearn/storage';
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 

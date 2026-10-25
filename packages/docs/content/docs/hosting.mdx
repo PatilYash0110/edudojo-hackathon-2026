@@ -79,9 +79,9 @@ PostgreSQL, the app always stores courses there, and the app is published on
 
 ## What the server stores
 
-OpenMAIC always stores courses on the server. The
+DojoLearn always stores courses on the server. The
 [Docker deployment](./deployment.mdx#docker) runs exactly two containers, the
-OpenMAIC app and PostgreSQL. The persistence HTTP server is embedded in the app
+DojoLearn app and PostgreSQL. The persistence HTTP server is embedded in the app
 at `/api/persistence`; there is no standalone persistence service.
 
 **`DATABASE_URL` is required.** Without it the server does not start: it prints
@@ -196,7 +196,7 @@ gateway, or register owner auth methods backed by your accounts (see
 
 ## PostgreSQL password
 
-`PERSISTENCE_POSTGRES_PASSWORD` (default `openmaic-dev`, for local use only)
+`PERSISTENCE_POSTGRES_PASSWORD` (default `dojolearn-dev`, for local use only)
 initializes the PostgreSQL role only when the data directory is empty, and
 the default `DATABASE_URL` in `docker-compose.defaults.env` is built from the
 same variable without encoding, so use letters and digits only (characters
@@ -205,7 +205,7 @@ encoded `DATABASE_URL` in `.env.local` instead). Changing it later does not rota
 `openmaic-postgres` volume. For a disposable local database, run
 `docker compose down -v`, set the new password, then start again. To preserve
 data, run
-`docker compose exec postgres psql -U openmaic -d openmaic -c "ALTER ROLE openmaic WITH PASSWORD 'new-password';"`,
+`docker compose exec postgres psql -U dojolearn -d dojolearn -c "ALTER ROLE dojolearn WITH PASSWORD 'new-password';"`,
 then start with `PERSISTENCE_POSTGRES_PASSWORD=new-password` (or set the
 matching `DATABASE_URL` in `.env.local`).
 
@@ -289,12 +289,12 @@ the signed response, and the signing identity must hold `s3:ListBucket` on the
 bucket so a missing key answers `404 NoSuchKey` rather than `403` — a client can
 only read a reclaimed asset as a miss when the store confirms it by code. The
 tradeoffs this opts into are specified in the
-[asset HTTP contract](https://github.com/THU-MAIC/OpenMAIC/blob/main/packages/@openmaic/storage/docs/asset-http-contract.md).
+[asset HTTP contract](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/packages/@dojolearn/storage/docs/asset-http-contract.md).
 
 The embedded endpoint implements the package's
-[RuntimeStore HTTP contract](https://github.com/THU-MAIC/OpenMAIC/blob/main/packages/@openmaic/storage/docs/runtime-http-contract.md)
+[RuntimeStore HTTP contract](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/packages/@dojolearn/storage/docs/runtime-http-contract.md)
 and
-[DocumentStore HTTP contract](https://github.com/THU-MAIC/OpenMAIC/blob/main/packages/@openmaic/storage/docs/document-http-contract.md).
+[DocumentStore HTTP contract](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/packages/@dojolearn/storage/docs/document-http-contract.md).
 
 ## Startup checks
 
@@ -560,7 +560,7 @@ request as an anonymous owner.
 
 ### Recipe: accounts through an identity gateway (signed JWT)
 
-OpenMAIC has no built-in gateway authenticator. A deployment behind an identity
+DojoLearn has no built-in gateway authenticator. A deployment behind an identity
 gateway writes a small method that verifies the **signed** assertion the
 gateway forwards, against the identity provider's published keys. Unlike a
 plain user header, a signed token cannot be forged by a client that reaches the
@@ -574,7 +574,7 @@ app around the gateway. Common sources:
 
 The sketch below uses the [`jose`](https://github.com/panva/jose) library, which
 the host adds as its own dependency. **It is a recipe the host owns and must
-test**, not code OpenMAIC ships or maintains. Put the file in
+test**, not code DojoLearn ships or maintains. Put the file in
 `lib/server/identity/host/`: the boundary test
 (`tests/server/identity/cookie-guard.test.ts`) fails on reads of gateway
 identity headers or of an incoming `Authorization` header anywhere else, core
@@ -587,9 +587,9 @@ import { createRemoteJWKSet, errors, jwtVerify } from 'jose';
 import type { OwnerAuthMethod } from '@/lib/server/identity';
 
 const ISSUER = 'https://idp.example.org/';
-const AUDIENCE = 'openmaic';
+const AUDIENCE = 'dojolearn';
 const JWKS = createRemoteJWKSet(new URL('https://idp.example.org/.well-known/jwks.json'));
-const ADMIN_GROUPS = new Set(['openmaic-admins']);
+const ADMIN_GROUPS = new Set(['dojolearn-admins']);
 /** jose errors that mean "this token is bad", as opposed to "the keys could not be fetched". */
 const TOKEN_ERRORS = [
   errors.JWTExpired, // exp / nbf
@@ -720,7 +720,7 @@ signs in. The cookie is unsigned and not bound to the account, and it is the
 claim candidate core reads. It is host-only, but a sibling subdomain under the
 same registrable domain can set a Domain-scoped `anonymous_id` that the browser
 may send first, so a hostile subdomain could plant which anonymous identity a
-signed-in visitor claims. Serve OpenMAIC on a registrable domain of its own
+signed-in visitor claims. Serve DojoLearn on a registrable domain of its own
 (or where no untrusted party controls a sibling subdomain). Hardening the
 cookie itself (a `__Host-` name on HTTPS deployments, refusing a request that
 presents more than one `anonymous_id`) is a deferred item.
@@ -909,7 +909,7 @@ configureAssetByteStore({
 | `onCreate(tx, actor, stageId)` | Right after `authorizeCreate` allowed it, same transaction | Statements on `tx` commit with the course; a throw rolls the whole create back. |
 | `library.list({ principal, queryable, ownedStageIds })` | `GET /api/stages` | Resolve at most 5000 stage ids (more is a `500`). The route lists them in that order as the usual items, without duplicates, and drops every id the read path would refuse (deleted, unclaimed, or not addressable at all, such as `..` or one containing NUL). `folderId` is shown only on the principal's own courses. |
 | `beforeAssetAllocate(principal, req)` | Every upload over `/api/persistence/assets`: `POST /assets` (`req.operation: 'create'`) and `PUT /assets/{id}/content` (`'replace'`, with the decoded `req.assetId`), after the owner is resolved and before the body is read | Resolve `undefined` to proceed or a `Response` to answer with it; nothing is stored and no quota is counted. Decide on `operation` / `assetId`, which are the storage handler's own routing; `url` is the request as received. Media an agent run generates on the server is not an HTTP upload and does not pass this hook; the per-owner quota still bounds it. |
-| `configureAssetByteStore({ name, create, signsReadUrls? })` | Lazily, by the persistence route and by the asset collector | `create({ queryable })` returns an `AssetByteStore` (`@openmaic/storage`) that keeps bytes outside the registry database and declares it with `writesOutsideRegistryDatabase: true`. The flag is trusted: a store that sets it but writes through the registry database can deadlock. Replaces the `ASSET_S3_BUCKET` switch; setting both stops the server. |
+| `configureAssetByteStore({ name, create, signsReadUrls? })` | Lazily, by the persistence route and by the asset collector | `create({ queryable })` returns an `AssetByteStore` (`@dojolearn/storage`) that keeps bytes outside the registry database and declares it with `writesOutsideRegistryDatabase: true`. The flag is trusted: a store that sets it but writes through the registry database can deadlock. Replaces the `ASSET_S3_BUCKET` switch; setting both stops the server. |
 
 **What counts as a create.** A course is created by the transaction that
 records its owner for the first time: the first save of a new stage id, from a

@@ -12,13 +12,13 @@
 import {
   PgAgentSessionMaterialStore,
   ensureAgentSessionMaterialSchema,
-} from '@openmaic/storage/material/pg';
+} from '@dojolearn/storage/material/pg';
 import {
   createMaterialId,
   type AgentSessionMaterial,
   type AgentSessionMeta,
   type ListAgentSessionMaterialsOptions,
-} from '@openmaic/storage';
+} from '@dojolearn/storage';
 import {
   attachOwnerMaterialsToSession,
   ensureSessionMaterialLinkSchema,
@@ -29,8 +29,8 @@ import { getMaterialByteStore } from '@/lib/server/materials/bytes';
 
 import { getAgentSessionStore } from './store';
 import type { ExtractedWebPage } from './fetch-url';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 import { withSchemaBootstrapLock } from '@/lib/persistence/schema-bootstrap-lock';
 
 interface AgentSessionMaterialStoreState {
@@ -38,7 +38,7 @@ interface AgentSessionMaterialStoreState {
   storePromise?: Promise<PgAgentSessionMaterialStore>;
 }
 
-const MATERIAL_STORE_STATE_KEY = Symbol.for('openmaic.agent-session-material.store');
+const MATERIAL_STORE_STATE_KEY = Symbol.for('dojolearn.agent-session-material.store');
 
 export class SessionMaterialBindingError extends Error {
   override readonly name = 'SessionMaterialBindingError';

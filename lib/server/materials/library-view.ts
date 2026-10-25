@@ -15,7 +15,7 @@ import type { OwnerMaterialEntry } from '@/lib/persistence/session-material-link
 import type { ResolvedMaterial } from '@/lib/server/agent-runtime/material-resolver';
 import { publicMaterialView } from '@/lib/server/agent-runtime/session-materials';
 import { opensInline } from '@/lib/server/materials/original-response';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 import { resolveAssetQuotaBytes } from '@/lib/persistence/asset-quota';
 import { agentRuntimeConfig } from '@/lib/server/agent-runtime/config';
 

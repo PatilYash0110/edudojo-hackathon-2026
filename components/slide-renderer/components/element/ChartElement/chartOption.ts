@@ -7,7 +7,7 @@ import type {
   ScatterSeriesOption,
   RadarSeriesOption,
 } from 'echarts/charts';
-import type { ChartData, ChartType } from '@openmaic/dsl';
+import type { ChartData, ChartType } from '@dojolearn/dsl';
 
 type EChartOption = ComposeOption<
   | BarSeriesOption

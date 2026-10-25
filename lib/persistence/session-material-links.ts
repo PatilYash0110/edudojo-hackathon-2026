@@ -32,8 +32,8 @@
  * again reuses the copy instead of adding a link, so the conversation never
  * lists the same file twice under two ids. Copies are never migrated.
  */
-import { applySchemaMigrations, type SchemaMigrationSet } from '@openmaic/storage/pg-migrations';
-import type { Queryable, WithTransaction } from '@openmaic/storage/document/pg';
+import { applySchemaMigrations, type SchemaMigrationSet } from '@dojolearn/storage/pg-migrations';
+import type { Queryable, WithTransaction } from '@dojolearn/storage/document/pg';
 
 import type { OwnerExtractionResult } from './owner-material-extraction';
 import {

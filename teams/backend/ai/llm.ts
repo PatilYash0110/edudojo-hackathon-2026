@@ -1,6 +1,6 @@
 /**
  * The one door to the model for DojoLearn's own calls (guard, floors,
- * questions, grading). Goes through OpenMAIC's callLLM, so usage accounting
+ * questions, grading). Goes through DojoLearn's callLLM, so usage accounting
  * and provider config (openmaic.yml) apply. Stage `quiz-grade` resolves to the
  * `classroom` slot → deepseek-flash in our config.
  *

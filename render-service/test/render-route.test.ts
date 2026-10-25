@@ -151,7 +151,7 @@ describe('POST /owner-bound/render buffering/extraction bound', () => {
       chromiumPath: '/usr/bin/chromium-headless-shell',
       ffmpeg: 'ffmpeg version 5.1.9-0+deb12u1',
       ffmpegPath: '/usr/bin/ffmpeg',
-      containerImage: 'openmaic/render-service:test',
+      containerImage: 'dojolearn/render-service:test',
     };
     const app = createApp({
       jobs,
@@ -753,7 +753,7 @@ describe('render project CSP hardening', () => {
     const { jobId } = (await submit.json()) as { jobId: string };
     await waitForPoll(app, jobId, 'succeeded');
 
-    expect(observedHtml).toContain('data-openmaic-untrusted-csp');
+    expect(observedHtml).toContain('data-dojolearn-untrusted-csp');
     expect(observedHtml).toContain("connect-src 'none'");
   });
 });

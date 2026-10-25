@@ -48,7 +48,7 @@ const REGISTRY_SOURCES: readonly RegistrySource[] = [
 ] as const;
 
 const PACKAGE_EXPORT_SOURCES = [
-  { file: 'packages/@openmaic/storage/package.json', prefix: './asset/', suffix: '-bytes' },
+  { file: 'packages/@dojolearn/storage/package.json', prefix: './asset/', suffix: '-bytes' },
 ] as const;
 
 /**

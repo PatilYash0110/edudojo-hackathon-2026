@@ -1,5 +1,5 @@
-import type { PPTShapeElement } from '@openmaic/dsl';
-import { validateSvgPath } from '@openmaic/geometry';
+import type { PPTShapeElement } from '@dojolearn/dsl';
+import { validateSvgPath } from '@dojolearn/geometry';
 import { SVGPathData } from 'svg-pathdata';
 import tinycolor from 'tinycolor2';
 

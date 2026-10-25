@@ -12,7 +12,7 @@ import type {
   QuizContent,
   Scene,
   SlideContent,
-} from '@openmaic/dsl';
+} from '@dojolearn/dsl';
 import puppeteer from 'puppeteer-core';
 import type { Browser, Frame, HTTPRequest, Page } from 'puppeteer-core';
 import { katexPreviewStylesheet } from './preview-katex.js';
@@ -262,7 +262,7 @@ export function buildSlideClientBundle(builder: SlideBundleBuilder = build): Pro
         import React from 'react';
         import { flushSync } from 'react-dom';
         import { createRoot } from 'react-dom/client';
-        import { SlideCanvas, completeInlineMath } from '@openmaic/renderer';
+        import { SlideCanvas, completeInlineMath } from '@dojolearn/renderer';
 
         const props = window.__OPENMAIC_PREVIEW_PROPS__;
         const root = document.getElementById('preview-slide-root');

@@ -45,5 +45,5 @@ if (process.env.TEST_LOAD_LOCAL_ENV === '1') {
 // globalThis (lib/server/model-config/runtime.ts), which vi.resetModules does
 // not clear. Each test starts without it, so it is read from that test's env.
 beforeEach(() => {
-  delete (globalThis as Record<symbol, unknown>)[Symbol.for('openmaic.model-config.deployment')];
+  delete (globalThis as Record<symbol, unknown>)[Symbol.for('dojolearn.model-config.deployment')];
 });

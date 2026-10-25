@@ -5,7 +5,7 @@ description: Enable experimental vocational lessons with procedural practice, de
 
 The vocational task engine generates lessons around a workplace task: what the learner needs to do, which tools are involved, when to continue or stop, and how to check completion. It combines briefing slides, interactive procedural practice, explanations, and task challenges.
 
-This feature is experimental and disabled by default. Start with [Getting started](./getting-started.mdx) to configure OpenMAIC and an LLM provider, then enable the flags below on your deployment.
+This feature is experimental and disabled by default. Start with [Getting started](./getting-started.mdx) to configure DojoLearn and an LLM provider, then enable the flags below on your deployment.
 
 ## Suitable tasks
 
@@ -15,7 +15,7 @@ The outline prompt asks for a task briefing first, followed by practice segments
 
 ## Enable the feature
 
-Add these entries to the OpenMAIC application's `.env.local`:
+Add these entries to the DojoLearn application's `.env.local`:
 
 ```bash
 OPENMAIC_ENABLE_VOCATIONAL=true
@@ -27,13 +27,13 @@ NEXT_PUBLIC_SHOW_VOCATIONAL_TEST_UI=true
 | `OPENMAIC_ENABLE_VOCATIONAL`          | Allows the server to use vocational task planning and procedural content generation. | At runtime; restart the application after changing its process environment. |
 | `NEXT_PUBLIC_SHOW_VOCATIONAL_TEST_UI` | Shows the experimental vocational switch on the home page.                           | At build time; rebuild the production application after changing it.        |
 
-Both flags accept `true` or `1`; unset values leave them disabled. Restart `pnpm dev` after editing local development configuration. For production, set the public flag before `pnpm build`, and provide the server flag when starting the application. These flags belong to the OpenMAIC application, not the documentation server. See [Configuration](./configuration.mdx#feature-flags).
+Both flags accept `true` or `1`; unset values leave them disabled. Restart `pnpm dev` after editing local development configuration. For production, set the public flag before `pnpm build`, and provide the server flag when starting the application. These flags belong to the DojoLearn application, not the documentation server. See [Configuration](./configuration.mdx#feature-flags).
 
 Showing the switch does not enable the server path by itself. Vocational generation requires both the server flag and `requirements.taskEngineMode` from the generation request. When the server flag is off, the request follows the ordinary standard or interactive generation path.
 
 ## Generate a vocational lesson
 
-1. Open the OpenMAIC home page and configure the model you want to use.
+1. Open the DojoLearn home page and configure the model you want to use.
 2. Turn on the experimental switch labelled **职教任务** (vocational task).
 3. Describe the work task, learner level, tools, decision points, and completion criteria. Attach relevant course materials when available.
 4. Generate the outline, review it, then continue into the classroom.
@@ -68,16 +68,16 @@ Completion conditions are intended to follow the exercise's state. Reset should 
 
 ## Implementation notes
 
-The feature introduced by [PR #685](https://github.com/THU-MAIC/OpenMAIC/pull/685) uses the existing generation and interactive rendering pipeline. The relevant components on current `main` are:
+The feature introduced by PR #685 uses the existing generation and interactive rendering pipeline. The relevant components on current `main` are:
 
 | Component                                                                                                                                                                                                                                     | Responsibility                                                                                                                                                                                                                |
 | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Feature flags](https://github.com/THU-MAIC/OpenMAIC/blob/main/lib/config/feature-flags.ts)                                                                                                                                                   | `resolveVocationalActive` combines the request's `taskEngineMode` with the server flag; the UI flag is separate.                                                                                                              |
-| [Outline route](https://github.com/THU-MAIC/OpenMAIC/blob/main/app/api/generate/scene-outlines-stream/route.ts) and [task-engine prompt](https://github.com/THU-MAIC/OpenMAIC/tree/main/lib/prompts/templates/task-engine-outlines)           | Select the vocational planner and carry the effective mode in the stream's completion event.                                                                                                                                  |
-| [Scene-content route](https://github.com/THU-MAIC/OpenMAIC/blob/main/app/api/generate/scene-content/route.ts) and [generation package](https://github.com/THU-MAIC/OpenMAIC/blob/main/packages/%40openmaic/generation/src/scene-generator.ts) | Re-check the server gate and pass task fields to the procedural content prompt. Disabled procedural outlines can be downgraded to diagrams by outline fallback; the widget generator also refuses ungated procedural content. |
-| [Preview mode helper](https://github.com/THU-MAIC/OpenMAIC/blob/main/app/generation-preview/vocational-mode.ts) and [scene-generation hook](https://github.com/THU-MAIC/OpenMAIC/blob/main/lib/hooks/use-scene-generator.ts)                  | Persist the effective course mode and forward it for later scenes and retries, including the follow-up fix in [PR #716](https://github.com/THU-MAIC/OpenMAIC/pull/716).                                                       |
+| [Feature flags](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/lib/config/feature-flags.ts)                                                                                                                                                   | `resolveVocationalActive` combines the request's `taskEngineMode` with the server flag; the UI flag is separate.                                                                                                              |
+| [Outline route](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/app/api/generate/scene-outlines-stream/route.ts) and [task-engine prompt](https://github.com/PatilYash0110/edudojo-hackathon-2026/tree/main/lib/prompts/templates/task-engine-outlines)           | Select the vocational planner and carry the effective mode in the stream's completion event.                                                                                                                                  |
+| [Scene-content route](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/app/api/generate/scene-content/route.ts) and [generation package](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/packages/%40dojolearn/generation/src/scene-generator.ts) | Re-check the server gate and pass task fields to the procedural content prompt. Disabled procedural outlines can be downgraded to diagrams by outline fallback; the widget generator also refuses ungated procedural content. |
+| [Preview mode helper](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/app/generation-preview/vocational-mode.ts) and [scene-generation hook](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/lib/hooks/use-scene-generator.ts)                  | Persist the effective course mode and forward it for later scenes and retries, including the follow-up fix in PR #716.                                                       |
 
-Procedural outlines carry `procedureType` (`repair`, `assembly`, `inspection`, `operation`, or `custom`), `task`, `tools`, `steps`, `successCriteria`, and `errorConsequences`. The [content templates](https://github.com/THU-MAIC/OpenMAIC/tree/main/packages/%40openmaic/generation/templates/procedural-skill-content) turn these fields into the generated exercise.
+Procedural outlines carry `procedureType` (`repair`, `assembly`, `inspection`, `operation`, or `custom`), `task`, `tools`, `steps`, `successCriteria`, and `errorConsequences`. The [content templates](https://github.com/PatilYash0110/edudojo-hackathon-2026/tree/main/packages/%40dojolearn/generation/templates/procedural-skill-content) turn these fields into the generated exercise.
 
 Teacher actions reuse the existing platform-to-iframe messages: `SET_WIDGET_STATE`, `HIGHLIGHT_ELEMENT`, `ANNOTATE_ELEMENT`, and `REVEAL_ELEMENT`. The procedural prompt asks for stable step selectors and a shared state update path for learner controls and `SET_WIDGET_STATE`, including `completedSteps`. This keeps procedural practice within the existing scene and action contracts.
 

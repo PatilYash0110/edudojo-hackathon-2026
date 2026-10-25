@@ -15,9 +15,9 @@ import { PGlite } from '@electric-sql/pglite';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { NextRequest } from 'next/server';
 
-import { PgAgentSessionStore, ensureAgentSessionSchema } from '@openmaic/storage/agent-session/pg';
-import { ensureAgentSessionMaterialSchema } from '@openmaic/storage/material/pg';
-import type { Queryable } from '@openmaic/storage/asset/pg';
+import { PgAgentSessionStore, ensureAgentSessionSchema } from '@dojolearn/storage/agent-session/pg';
+import { ensureAgentSessionMaterialSchema } from '@dojolearn/storage/material/pg';
+import type { Queryable } from '@dojolearn/storage/asset/pg';
 import { setMaterialByteStoreForTests } from '@/lib/server/materials/bytes';
 import { ensureOwnerMaterialSchema } from '@/lib/persistence/owner-materials';
 
@@ -77,8 +77,8 @@ import {
   readResolvedMaterialRaw,
   resolveMaterial,
 } from '@/lib/server/agent-runtime/material-resolver';
-import { PgAssetByteStore } from '@openmaic/storage/asset/pg-bytes';
-import { PgAssetStore, ensureAssetSchema } from '@openmaic/storage/asset/pg';
+import { PgAssetByteStore } from '@dojolearn/storage/asset/pg-bytes';
+import { PgAssetStore, ensureAssetSchema } from '@dojolearn/storage/asset/pg';
 import { assetPrincipalForOwner } from '@/lib/persistence/owner-assets';
 
 let dbCounter = 0;

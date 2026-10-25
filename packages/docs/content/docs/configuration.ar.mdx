@@ -3,7 +3,7 @@ title: شرح الإعدادات
 description: النماذج والمزودون (openmaic.yml وإعدادات النماذج)، والتحكم في الوصول، ومفاتيح الميزات، وخيارات الخادم الأخرى.
 ---
 
-لدى OpenMAIC ثلاثة مصادر للإعدادات، ولكل منها مهمة واحدة:
+لدى DojoLearn ثلاثة مصادر للإعدادات، ولكل منها مهمة واحدة:
 
 | المصدر | من يكتبه | ما يحتويه | متى يسري |
 | --- | --- | --- | --- |
@@ -11,7 +11,7 @@ description: النماذج والمزودون (openmaic.yml وإعدادات ا
 | إعدادات النماذج في تطبيق الويب | مستخدمو مساحة العمل | مزودوهم الخاصون، وتعيينات كل خانة لا يقفلها `openmaic.yml`، وتُحفظ في قاعدة البيانات | فورًا |
 | متغيرات البيئة (`.env.local`، أو Secret الحاوية) | المشغّل | الأسرار التي يشير إليها `openmaic.yml`، وكل خيارات الخادم الأخرى | عند بدء التشغيل |
 
-`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/THU-MAIC/OpenMAIC/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/THU-MAIC/OpenMAIC/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
+`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
 
 في الإصدارات السابقة كانت النماذج تُضبط فقط عبر متغيرات بيئة المزودين و`server-providers.yml` و`DEFAULT_MODEL` و`MODEL_ROUTES`. ما زالت هذه الطرق تعمل حاليًا، باستثناء `MODEL_ROUTES`، لكنها مهملة؛ راجع [الانتقال من الإعدادات القديمة](#الانتقال-من-الإعدادات-القديمة).
 
@@ -238,7 +238,7 @@ allowUserKeys: false
 
 ```bash
 OPENMAIC_SECRET_KEY=...        # سر المثيل للمفاتيح المحفوظة في إعدادات النماذج
-OPENMAIC_CONFIG=/etc/openmaic/openmaic.yml   # اختياري: مسار آخر لـ openmaic.yml
+OPENMAIC_CONFIG=/etc/dojolearn/openmaic.yml   # اختياري: مسار آخر لـ openmaic.yml
 ```
 
 ### ما يمكن لمساحات العمل إضافته
@@ -417,7 +417,7 @@ slots:
 
 ```yaml
 services:
-  openmaic:
+  dojolearn:
     volumes:
       - ./openmaic.yml:/app/openmaic.yml:ro
 ```
@@ -530,7 +530,7 @@ AZURE_OPENAI_MODELS=your-deployment-name
 
 للاتصال بخدمة LLM أخرى متوافقة مع OpenAI، أعلن في `openmaic.yml` مزودًا من نوع `openai-compatible` مع `baseUrl` و`models` الخاصة به، أو أضفه عبر **إضافة مزود** ضمن **الإعدادات ← خدمات النماذج ← نماذج اللغة**.
 
-للتفاعل مع Gemini في الصف، استخدم الإعداد المسبق الأصلي `google`: أضف Google في **الإعدادات ← خدمات النماذج** ثم اختره لـ **الصف** في **إعداد نماذج المقرر**. يرفض Pi مبكرًا عنوان Google الرسمي المتوافق مع OpenAI (`https://generativelanguage.googleapis.com/v1beta/openai`) ويعرض إرشادات الانتقال؛ تُتابَع مسألة استدعاء الأدوات عبر المسار المتوافق في [#1556](https://github.com/THU-MAIC/OpenMAIC/issues/1556). يتعرف هذا الفحص على ذلك العنوان الرسمي فقط ولا يحدد المزود خلف بوابات الجهات الخارجية.
+للتفاعل مع Gemini في الصف، استخدم الإعداد المسبق الأصلي `google`: أضف Google في **الإعدادات ← خدمات النماذج** ثم اختره لـ **الصف** في **إعداد نماذج المقرر**. يرفض Pi مبكرًا عنوان Google الرسمي المتوافق مع OpenAI (`https://generativelanguage.googleapis.com/v1beta/openai`) ويعرض إرشادات الانتقال؛ تُتابَع مسألة استدعاء الأدوات عبر المسار المتوافق في #1556. يتعرف هذا الفحص على ذلك العنوان الرسمي فقط ولا يحدد المزود خلف بوابات الجهات الخارجية.
 
 ### النماذج المحلية (Ollama و Lemonade)
 
@@ -655,7 +655,7 @@ slots:
   image: comfyui
 ```
 
-ضع ملفات JSON لسير العمل المصدّرة بصيغة API في مجلد `public/` الخاص بـ OpenMAIC. يجب أن تطابق أسماء الملفات `comfyui-*.json` أو تحتوي على `workflow`؛ يكتشف OpenMAIC هذه الملفات تلقائيًا ويعرضها كسير عمل. مع Docker، أضف سير العمل قبل بناء الصورة أو اربط ملف سير عمل منفردًا في `/app/public/` داخل الحاوية. بما أن المزود مُعلن من النشر، فلا يحتاج خادم ComfyUI على المضيف أو على شبكة خاصة إلى `ALLOW_LOCAL_NETWORKS`.
+ضع ملفات JSON لسير العمل المصدّرة بصيغة API في مجلد `public/` الخاص بـ DojoLearn. يجب أن تطابق أسماء الملفات `comfyui-*.json` أو تحتوي على `workflow`؛ يكتشف DojoLearn هذه الملفات تلقائيًا ويعرضها كسير عمل. مع Docker، أضف سير العمل قبل بناء الصورة أو اربط ملف سير عمل منفردًا في `/app/public/` داخل الحاوية. بما أن المزود مُعلن من النشر، فلا يحتاج خادم ComfyUI على المضيف أو على شبكة خاصة إلى `ALLOW_LOCAL_NETWORKS`.
 
 ### موفرو توليد الفيديو
 
@@ -684,7 +684,7 @@ ALIDOCMIND_ACCESS_KEY_SECRET=
 ALIDOCMIND_BASE_URL=       # تجاوز اختياري
 ```
 
-`unpdf` مدمج في OpenMAIC ويستخدم لتحليل PDF الأساسي. لتحليل مستندات Office، الصور، أو المواد التي تحتاج إلى OCR، جداول، معادلات أو تحليل تخطيط، يجب اختيار موفر MinerU أو AliDocMind المتوافق.
+`unpdf` مدمج في DojoLearn ويستخدم لتحليل PDF الأساسي. لتحليل مستندات Office، الصور، أو المواد التي تحتاج إلى OCR، جداول، معادلات أو تحليل تخطيط، يجب اختيار موفر MinerU أو AliDocMind المتوافق.
 
 يدعم AliDocMind تحليل PDF، DOCX، PPTX، XLSX، بالإضافة إلى PNG، JPG/JPEG، BMP، GIF. حاليًا، يدعم تحليل الوسائط الصوتية والفيديو فقط عبر AliDocMind: صيغ الفيديو MP4، MOV، AVI، MKV، WMV، وصيغ الصوت MP3، WAV، AAC؛ لا يدعم M4A.
 

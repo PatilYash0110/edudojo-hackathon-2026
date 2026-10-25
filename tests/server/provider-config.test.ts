@@ -106,7 +106,7 @@ vi.mock('fs', async (importOriginal) => {
 
 describe('provider-config', () => {
   beforeEach(() => {
-    delete (globalThis as Record<symbol, unknown>)[Symbol.for('openmaic.model-config.deployment')];
+    delete (globalThis as Record<symbol, unknown>)[Symbol.for('dojolearn.model-config.deployment')];
     vi.resetModules();
     vi.unstubAllEnvs();
     clearProviderEnv();
@@ -213,7 +213,7 @@ describe('provider-config', () => {
     it('treats zero, negative, and non-numeric values as off', async () => {
       for (const value of ['0', '-2', 'abc']) {
         delete (globalThis as Record<symbol, unknown>)[
-          Symbol.for('openmaic.model-config.deployment')
+          Symbol.for('dojolearn.model-config.deployment')
         ];
         vi.resetModules();
         vi.stubEnv('PARALLEL_SCENE_CONCURRENCY', value);
@@ -1230,7 +1230,7 @@ video:
 
 describe('Kimi shared search credentials', () => {
   beforeEach(() => {
-    delete (globalThis as Record<symbol, unknown>)[Symbol.for('openmaic.model-config.deployment')];
+    delete (globalThis as Record<symbol, unknown>)[Symbol.for('dojolearn.model-config.deployment')];
     vi.resetModules();
     vi.unstubAllEnvs();
     clearProviderEnv();
@@ -1294,7 +1294,7 @@ describe('Kimi search opt-in', () => {
       process.env.KIMI_API_KEY = 'chat-key';
       if (envName)
         process.env[envName] =
-          envName === 'SEARXNG_BASE_URL' ? 'https://search.openmaic.test' : 'search-key';
+          envName === 'SEARXNG_BASE_URL' ? 'https://search.dojolearn.test' : 'search-key';
       const {
         getServerProviderConfig,
         resolveServerWebSearchProviderId,
@@ -1325,7 +1325,7 @@ describe('Kimi search opt-in', () => {
   });
 
   it.each([
-    ['SEARXNG_BASE_URL', 'https://search.openmaic.test', 'searxng'],
+    ['SEARXNG_BASE_URL', 'https://search.dojolearn.test', 'searxng'],
     ['BRAVE_BASE_URL', 'https://search.brave.com', 'brave'],
     ['WEB_SEARCH_DOUBAO_API_KEY', 'doubao-key', 'doubao'],
   ])(
@@ -1401,7 +1401,7 @@ describe('Kimi search opt-in', () => {
 
 describe('DeepSeek shared search credentials', () => {
   beforeEach(() => {
-    delete (globalThis as Record<symbol, unknown>)[Symbol.for('openmaic.model-config.deployment')];
+    delete (globalThis as Record<symbol, unknown>)[Symbol.for('dojolearn.model-config.deployment')];
     vi.resetModules();
     vi.unstubAllEnvs();
     clearProviderEnv();
@@ -1465,7 +1465,7 @@ describe('DeepSeek search opt-in', () => {
       process.env.DEEPSEEK_API_KEY = 'chat-key';
       if (envName)
         process.env[envName] =
-          envName === 'SEARXNG_BASE_URL' ? 'https://search.openmaic.test' : 'search-key';
+          envName === 'SEARXNG_BASE_URL' ? 'https://search.dojolearn.test' : 'search-key';
       const {
         getServerProviderConfig,
         resolveServerWebSearchProviderId,
@@ -1496,7 +1496,7 @@ describe('DeepSeek search opt-in', () => {
   });
 
   it.each([
-    ['SEARXNG_BASE_URL', 'https://search.openmaic.test', 'searxng'],
+    ['SEARXNG_BASE_URL', 'https://search.dojolearn.test', 'searxng'],
     ['BRAVE_BASE_URL', 'https://search.brave.com', 'brave'],
     ['WEB_SEARCH_DOUBAO_API_KEY', 'doubao-key', 'doubao'],
   ])(

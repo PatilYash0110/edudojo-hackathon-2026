@@ -25,7 +25,7 @@ interface RegistryState {
   inUse?: boolean;
 }
 
-const REGISTRY_KEY = Symbol.for('openmaic.generation-run-hooks.registry');
+const REGISTRY_KEY = Symbol.for('dojolearn.generation-run-hooks.registry');
 const globalState = globalThis as typeof globalThis & { [REGISTRY_KEY]?: RegistryState };
 function registry(): RegistryState {
   return (globalState[REGISTRY_KEY] ??= {});

@@ -2,7 +2,7 @@
 import { act, createElement } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { ShapePathFormulasKeys, type PPTShapeElement } from '@openmaic/dsl';
+import { ShapePathFormulasKeys, type PPTShapeElement } from '@dojolearn/dsl';
 import { useCanvasStore } from '@/lib/store/canvas';
 import { Operate } from '@/components/slide-renderer/Editor/Canvas/Operate';
 import { MultiSelectOperate } from '@/components/slide-renderer/Editor/Canvas/Operate/MultiSelectOperate';

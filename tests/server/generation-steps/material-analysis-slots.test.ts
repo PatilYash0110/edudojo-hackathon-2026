@@ -7,7 +7,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { StepRefusal } from '@/lib/server/generation/steps/context';
 import { analyzeMaterial } from '@/lib/server/generation/steps/material-analysis';
 import type { ExtractionServices } from '@/lib/server/material-extraction/services';
-import type { ModelConfigFile } from '@/lib/server/model-config/openmaic-yml';
+import type { ModelConfigFile } from '@/lib/server/model-config/dojolearn-yml';
 
 import { testLogger } from './helpers';
 

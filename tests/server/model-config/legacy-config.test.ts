@@ -2,7 +2,7 @@ import yaml from 'js-yaml';
 import fs from 'fs';
 import { describe, expect, it, vi } from 'vitest';
 import { translateLegacyConfig } from '@/lib/server/model-config/legacy-config';
-import { parseModelConfig } from '@/lib/server/model-config/openmaic-yml';
+import { parseModelConfig } from '@/lib/server/model-config/dojolearn-yml';
 import { resolveSlot } from '@/lib/server/model-config/resolve-slot';
 import { lookupFromLayers } from '@/lib/server/model-config/runtime';
 import type { ServerConfig } from '@/lib/server/provider-config';
@@ -404,7 +404,7 @@ it('loads the real legacy Google compatible env through translation, slots and P
   const boundary = vi
     .spyOn(fs, 'existsSync')
     .mockImplementation((path) =>
-      /(?:openmaic|server-providers)\.ya?ml$/.test(String(path)) ? false : exists(path),
+      /(?:dojolearn|server-providers)\.ya?ml$/.test(String(path)) ? false : exists(path),
     );
   let runtime: typeof import('@/lib/server/model-config/runtime') | undefined;
   try {

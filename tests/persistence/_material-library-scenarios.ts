@@ -9,7 +9,7 @@
  */
 import { createHash, randomUUID } from 'node:crypto';
 
-import { ensureAgentSessionMaterialSchema } from '@openmaic/storage/material/pg';
+import { ensureAgentSessionMaterialSchema } from '@dojolearn/storage/material/pg';
 import sharp from 'sharp';
 import { expect, vi } from 'vitest';
 

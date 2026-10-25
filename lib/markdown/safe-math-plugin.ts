@@ -1,5 +1,5 @@
 import { createMathPlugin, type MathPlugin, type MathPluginOptions } from '@streamdown/math';
-import { safeKatexOptions } from '@openmaic/dsl';
+import { safeKatexOptions } from '@dojolearn/dsl';
 
 /**
  * Streamdown's math plugin with the hardened KaTeX options merged in.

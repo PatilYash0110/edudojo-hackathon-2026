@@ -1,10 +1,10 @@
 import { PGlite } from '@electric-sql/pglite';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
-import { ensureAgentSessionSchema, PgAgentSessionStore } from '@openmaic/storage/agent-session/pg';
+import { ensureAgentSessionSchema, PgAgentSessionStore } from '@dojolearn/storage/agent-session/pg';
 import {
   ensureAgentSessionMaterialSchema,
   PgAgentSessionMaterialStore,
-} from '@openmaic/storage/material/pg';
+} from '@dojolearn/storage/material/pg';
 import { ModelAuthorizationError } from '@/lib/server/model-config/model-authorization';
 import {
   setDeploymentConfigForTests,

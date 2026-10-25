@@ -1,9 +1,9 @@
 ---
 title: 部署
-description: 用 Docker 部署 OpenMAIC，或在你自己的主機上用 pnpm start 執行。
+description: 用 Docker 部署 DojoLearn，或在你自己的主機上用 pnpm start 執行。
 ---
 
-OpenMAIC 是一個 Next.js 應用程式，需要一個常駐的 Node.js 行程和 PostgreSQL。課程產生在伺服器端進行：每次產生都以紀錄的形式儲存在資料庫中，由伺服器行程內的 worker 執行；瀏覽器離開頁面後產生仍會繼續，行程結束後由另一個行程（或重新啟動後的同一行程）從最近完成的步驟接手。支援兩種部署方式：
+DojoLearn 是一個 Next.js 應用程式，需要一個常駐的 Node.js 行程和 PostgreSQL。課程產生在伺服器端進行：每次產生都以紀錄的形式儲存在資料庫中，由伺服器行程內的 worker 執行；瀏覽器離開頁面後產生仍會繼續，行程結束後由另一個行程（或重新啟動後的同一行程）從最近完成的步驟接手。支援兩種部署方式：
 
 - **Docker Compose**（建議）：應用程式和 PostgreSQL 兩個容器。
 - **Docker 映像檔或 `pnpm start`**，搭配你自己執行的 PostgreSQL。
@@ -15,9 +15,9 @@ OpenMAIC 是一個 Next.js 應用程式，需要一個常駐的 Node.js 行程�
 儲存庫中提供適合正式環境的 `Dockerfile`。映像內部使用 Node.js 22，建置及執行方式如下：
 
 ```bash
-docker build -t openmaic .
+docker build -t dojolearn .
 
-docker run --env-file .env.local -e DATABASE_URL=postgres://user:password@db-host:5432/openmaic -v openmaic-data:/app/data -p 3000:3000 openmaic
+docker run --env-file .env.local -e DATABASE_URL=postgres://user:password@db-host:5432/openmaic -v openmaic-data:/app/data -p 3000:3000 dojolearn
 ```
 
 建議使用儲存庫中的 Docker Compose 設定：
@@ -28,7 +28,7 @@ cp .env.example .env.local
 docker compose up --build
 ```
 
-預設 Compose 部署會啟動 OpenMAIC 應用程式和 PostgreSQL 兩個容器，自動設定兩者之間的 `DATABASE_URL`，並掛載 `openmaic-data` 與 `openmaic-postgres` 資料卷。其他 provider 與功能可依需求設定，詳見[設定說明](./configuration.mdx)。
+預設 Compose 部署會啟動 DojoLearn 應用程式和 PostgreSQL 兩個容器，自動設定兩者之間的 `DATABASE_URL`，並掛載 `openmaic-data` 與 `openmaic-postgres` 資料卷。其他 provider 與功能可依需求設定，詳見[設定說明](./configuration.mdx)。
 
 模型有兩種設定方式。個人安裝時，啟動服務後開啟應用程式，在模型設定中連接模型服務，設定儲存在資料庫中。若希望以檔案方式管理部署，把 `openmaic.example.yml` 複製為 `openmaic.yml`，key 放在 `.env.local` 中，再掛載該檔案（見下文）。詳見[設定說明](./configuration.mdx#模型與供應商)。
 
@@ -52,14 +52,14 @@ docker compose --profile video-export up --build
 
 ```yaml
 services:
-  openmaic:
+  dojolearn:
     volumes:
       - ./openmaic.yml:/app/openmaic.yml:ro
 ```
 
 不要掛載主機上不存在的路徑：Docker 會在該位置建立一個目錄，導致服務拒絕啟動。使用 `docker run` 時，加上 `-v "$PWD/openmaic.yml:/app/openmaic.yml:ro"`。修改檔案後需要重新啟動容器。`openmaic.yml` 已列入 `.dockerignore`，不會被打包進從儲存庫建置的映像檔：請在執行時掛載它。沒有 `openmaic.yml` 時，仍會從 `/app/server-providers.yml` 讀取舊版的 `server-providers.yml`。
 
-Docker 容器中的 `localhost` 指向容器本身。若 Ollama、Lemonade、VoxCPM 或 ComfyUI 執行在主機上，請使用 `host.docker.internal`，例如 `http://host.docker.internal:11434/v1` 或 `http://host.docker.internal:8188`。Linux Docker 通常還需要為 `openmaic` 服務加上 `extra_hosts: ["host.docker.internal:host-gateway"]`。在 `openmaic.yml`（或舊版變數）中宣告的供應商由伺服器端管理，其端點可以位於主機或內網，不需要 `ALLOW_LOCAL_NETWORKS`。該變數只影響使用者自行填寫的端點：在 **設定 → 模型服務** 中新增的對話 Base URL，以及已棄用的請求欄位。
+Docker 容器中的 `localhost` 指向容器本身。若 Ollama、Lemonade、VoxCPM 或 ComfyUI 執行在主機上，請使用 `host.docker.internal`，例如 `http://host.docker.internal:11434/v1` 或 `http://host.docker.internal:8188`。Linux Docker 通常還需要為 `dojolearn` 服務加上 `extra_hosts: ["host.docker.internal:host-gateway"]`。在 `openmaic.yml`（或舊版變數）中宣告的供應商由伺服器端管理，其端點可以位於主機或內網，不需要 `ALLOW_LOCAL_NETWORKS`。該變數只影響使用者自行填寫的端點：在 **設定 → 模型服務** 中新增的對話 Base URL，以及已棄用的請求欄位。
 
 ## 自建 VM
 
@@ -89,7 +89,7 @@ DATABASE_URL=postgres://user:password@db-host:5432/openmaic pnpm start      # �
 
 匿名模式下，擁有者 cookie 在正式環境中帶有 `Secure` 標記，`ACCESS_CODE` 的 cookie 也是如此。瀏覽器只在 HTTPS 或 `http://localhost` 上儲存 `Secure` cookie（Safari 連 localhost 也不儲存），因此透過純 HTTP 提供服務的部署必須設定 `COOKIE_SECURE=0`（必須正好是 `0`）：否則每個請求都會成為新的擁有者，寫入以 `403` 失敗，存取碼也會被反覆要求輸入。沒有 TLS 時 cookie 以明文傳輸，只應在可信任的網路中這樣做。
 
-在 `localhost` 以外的位址上使用純 HTTP（區域網路 IP、Tailscale IP 或 MagicDNS 網域）同樣不是安全環境，瀏覽器沒有 Web Locks API。OpenMAIC 在這種情況下仍會儲存，但同一課程的多個分頁之間不做協調：若兩個分頁修改同一個對話，以最後一次儲存為準；在一個分頁刪除的對話會保持刪除，即使另一個分頁當時仍在編輯它。在區域網路內用手機或平板存取時，建議使用 HTTPS，例如在服務前面用 `tailscale serve`。
+在 `localhost` 以外的位址上使用純 HTTP（區域網路 IP、Tailscale IP 或 MagicDNS 網域）同樣不是安全環境，瀏覽器沒有 Web Locks API。DojoLearn 在這種情況下仍會儲存，但同一課程的多個分頁之間不做協調：若兩個分頁修改同一個對話，以最後一次儲存為準；在一個分頁刪除的對話會保持刪除，即使另一個分頁當時仍在編輯它。在區域網路內用手機或平板存取時，建議使用 HTTPS，例如在服務前面用 `tailscale serve`。
 
 **`OPENMAIC_SECRET_KEY`** 用於加密在模型設定中儲存的供應商 key。未設定時，每個實例會在 `data/instance-secret.key` 中產生自己的金鑰，共用資料庫的實例之間就無法讀取彼此儲存的 key。請把它和資料庫備份放在一起，見[金鑰與 OPENMAIC_SECRET_KEY](./configuration.mdx#金鑰與-openmaic_secret_key)。
 
@@ -111,7 +111,7 @@ DATABASE_URL=postgres://user:password@db-host:5432/openmaic pnpm start      # �
 
 ## 伺服器端持久化（PostgreSQL）
 
-OpenMAIC 把課程、對話紀錄、學習進度和產生的媒體儲存在 PostgreSQL 中，**必須提供 `DATABASE_URL`**：沒有它服務會輸出 `[boot] Invalid server configuration; the server will not start: DATABASE_URL is not set. ...` 及修復方法，並以結束碼 `1` 結束。持久化 HTTP API 內嵌在 OpenMAIC 中，不需要額外的 persistence 服務。
+DojoLearn 把課程、對話紀錄、學習進度和產生的媒體儲存在 PostgreSQL 中，**必須提供 `DATABASE_URL`**：沒有它服務會輸出 `[boot] Invalid server configuration; the server will not start: DATABASE_URL is not set. ...` 及修復方法，並以結束碼 `1` 結束。持久化 HTTP API 內嵌在 DojoLearn 中，不需要額外的 persistence 服務。
 
 `docker compose up` 會在應用程式旁啟動 PostgreSQL 並為其設定 `DATABASE_URL`。本機開發時，`pnpm db:up` 以同一服務定義啟動一個獨立的開發資料庫（單獨的 Compose 專案與資料卷 `openmaic-dev-db`，本機所有檢出共用，不會影響該堆疊的資料庫），並發布到 `127.0.0.1`（連接埠 `OPENMAIC_DB_PORT`，預設 `5432`）；`pnpm db:down` 可將其停止。然後在 `.env.local` 中設定連線：
 
@@ -134,7 +134,7 @@ PostgreSQL 資料儲存在 `openmaic-postgres` volume 中。`PERSISTENCE_POSTGRE
 | `docker compose` | 拉取新版本，執行 `docker compose up --build`。把模型設定移到 `openmaic.yml` 或 **設定 → 模型**（沒有 `openmaic.yml` 時，供應商環境變數仍然有效），並把 `MODEL_ROUTES` 改寫為插槽：設定了它卻沒有 `openmaic.yml` 的服務會拒絕啟動。在每個存有本機課程的瀏覽器中開啟一次應用程式，完成匯入。 如果 `.env.local` 設定了 `PERSISTENCE_SHARED_OWNER_ID`，還要設定 `OWNER_SINGLE_USER=false`：Compose 現在預設以單一使用者模式啟動。先前的伺服器端部署中屬於匿名擁有者的課程不會自動合併給單一使用者，需要在建立它們的每個瀏覽器中用 `POST /api/identity/claim` 認領（開啟瀏覽器只會匯入它在本機儲存的資料）。 |
 | `pnpm start` + 自己的 PostgreSQL | 停止服務，拉取新版本，執行 `pnpm install` 和 `pnpm build`，然後在同一個工作目錄裡用 `pnpm start` 重新啟動，這樣會保留 `data/`。設定 `DATABASE_URL`、身分模式；多個實例共用資料庫時設定 `OPENMAIC_SECRET_KEY`，並且多個實例還需要共用同一個資料目錄（見[必要設定](#必要設定)）。模型設定、`MODEL_ROUTES` 和瀏覽器中的課程同上一列。 |
 | Vercel | 留在 1.1.x，或遷移到使用同一資料庫的常駐主機（見下文）。 |
-| Skill / API | 依更新後的 `openmaic` skill 操作：以同一擁有者上傳資料、提交並輪詢。 |
+| Skill / API | 依更新後的 `dojolearn` skill 操作：以同一擁有者上傳資料、提交並輪詢。 |
 
 首次啟動 1.2.0 之前：
 
@@ -144,11 +144,11 @@ PostgreSQL 資料儲存在 `openmaic-postgres` volume 中。`PERSISTENCE_POSTGRE
 - **算繪服務與應用程式一起升級。** 如果使用 MP4 影片匯出，請在升級應用程式的同時或之前升級所有 render-service 執行個體：算繪工作綁定到擁有者，新舊版本混用時會安全失敗（拒絕請求）。
 - **檢查課堂互動模型。** Pi 課堂對話會拒絕內建模型目錄標明不支援工具呼叫的模型（`tool_calling_required`），也會拒絕 Google 的 OpenAI 相容 Gemini 端點（`gemini_native_required`）。Gemini 請使用原生 `google` 預設，請見 [LLM 供應商](./configuration.mdx#llm-供應商)。
 
-瀏覽器中的資料（課程、模型設定、自訂智慧體）會在每個瀏覽器首次開啟升級後的應用程式時匯入一次。遷移模型設定請見[設定](./configuration.mdx#從舊設定遷移)，完整的破壞性變更清單請見 [CHANGELOG](https://github.com/THU-MAIC/OpenMAIC/blob/main/CHANGELOG.md)。
+瀏覽器中的資料（課程、模型設定、自訂智慧體）會在每個瀏覽器首次開啟升級後的應用程式時匯入一次。遷移模型設定請見[設定](./configuration.mdx#從舊設定遷移)，完整的破壞性變更清單請見 [CHANGELOG](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/CHANGELOG.md)。
 
 ## Vercel（1.1.x 及以前）
 
-Serverless 部署支援到 OpenMAIC 1.1.x，[儲存庫 README](https://github.com/THU-MAIC/OpenMAIC#vercel-deployment-up-to-11x) 說明了如何在 Vercel 上部署 `release/1.1.x` 分支。這樣的部署之後可以遷移到常駐主機而不遺失資料：把新主機的 `DATABASE_URL` 指向原本使用的資料庫（如果有用），並沿用同一個存取位址——瀏覽器按網站儲存資料，訪客瀏覽器中的課程會在每個瀏覽器首次開啟升級後的應用程式時匯入。
+Serverless 部署支援到 DojoLearn 1.1.x，[儲存庫 README](https://github.com/PatilYash0110/edudojo-hackathon-2026#vercel-deployment-up-to-11x) 說明了如何在 Vercel 上部署 `release/1.1.x` 分支。這樣的部署之後可以遷移到常駐主機而不遺失資料：把新主機的 `DATABASE_URL` 指向原本使用的資料庫（如果有用），並沿用同一個存取位址——瀏覽器按網站儲存資料，訪客瀏覽器中的課程會在每個瀏覽器首次開啟升級後的應用程式時匯入。
 
 ## 選用：MP4 影片匯出
 
@@ -160,7 +160,7 @@ Serverless 部署支援到 OpenMAIC 1.1.x，[儲存庫 README](https://github.co
 docker compose --profile video-export up --build
 ```
 
-Compose 會透過 `RENDER_SERVICE_URL` 讓 OpenMAIC 連線至渲染服務。若未啟用此 profile，或渲染服務無法使用，匯出功能會改為下載專案 ZIP，以供本機 CLI 渲染。渲染服務使用隔離網路，啟動時需要 `NET_ADMIN` capability；其他限制與獨立部署方式請見儲存庫中的 [`render-service/README.md`](https://github.com/THU-MAIC/OpenMAIC/blob/main/render-service/README.md)。升級時，請在升級應用程式的同時或之前升級算繪服務。
+Compose 會透過 `RENDER_SERVICE_URL` 讓 DojoLearn 連線至渲染服務。若未啟用此 profile，或渲染服務無法使用，匯出功能會改為下載專案 ZIP，以供本機 CLI 渲染。渲染服務使用隔離網路，啟動時需要 `NET_ADMIN` capability；其他限制與獨立部署方式請見儲存庫中的 [`render-service/README.md`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/render-service/README.md)。升級時，請在升級應用程式的同時或之前升級算繪服務。
 
 ## 環境變數
 

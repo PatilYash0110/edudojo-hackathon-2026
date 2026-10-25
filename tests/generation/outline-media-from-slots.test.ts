@@ -17,8 +17,8 @@ vi.mock('@/lib/ai/llm', () => ({ streamLLM: mocks.streamLLM }));
 vi.mock('@/lib/server/generation-capabilities', () => ({
   resolveServerGenerationCapabilities: mocks.capabilities,
 }));
-vi.mock('@openmaic/generation', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@openmaic/generation')>();
+vi.mock('@dojolearn/generation', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@dojolearn/generation')>();
   return {
     ...actual,
     buildOutlinePrompt: (...args: Parameters<typeof actual.buildOutlinePrompt>) => {

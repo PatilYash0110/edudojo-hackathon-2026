@@ -2,7 +2,7 @@
  * What this browser still holds from before persistence moved to the server,
  * read through the read-only legacy module. Nothing here writes.
  */
-import { DocumentVersionError } from '@openmaic/storage';
+import { DocumentVersionError } from '@dojolearn/storage';
 
 import {
   canonicalizeLegacySnapshot,
@@ -97,7 +97,7 @@ export function isUnusableRecordError(error: unknown): boolean {
   // The DSL and storage packages report a record they cannot migrate or
   // accept with a prefixed message; storage failures are DOMExceptions or
   // Dexie errors, which carry no such prefix.
-  return error instanceof Error && /^@openmaic\/(?:dsl|storage): /.test(error.message);
+  return error instanceof Error && /^@dojolearn\/(?:dsl|storage): /.test(error.message);
 }
 
 /**

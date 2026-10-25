@@ -23,7 +23,7 @@ afterEach(async () => {
   await Promise.all(directories.splice(0).map((dir) => rm(dir, { recursive: true, force: true })));
 });
 async function directory() {
-  const dir = await mkdtemp(join(tmpdir(), 'openmaic-settlement-'));
+  const dir = await mkdtemp(join(tmpdir(), 'dojolearn-settlement-'));
   directories.push(dir);
   return dir;
 }

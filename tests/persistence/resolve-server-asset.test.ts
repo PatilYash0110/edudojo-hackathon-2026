@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AssetNotFoundError, toAssetId } from '@openmaic/storage';
+import { AssetNotFoundError, toAssetId } from '@dojolearn/storage';
 
 import { resolveOwnedAsset } from '@/lib/persistence/resolve-server-asset';
 

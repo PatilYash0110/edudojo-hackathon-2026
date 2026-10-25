@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { collectCourseIssues } from '@openmaic/dsl';
+import { collectCourseIssues } from '@dojolearn/dsl';
 import { observeLegacySpeechAudio } from '@/lib/device-storage/observe-legacy-speech-audio';
 import type { Scene } from '@/lib/types/stage';
 import { useModelCapabilities } from '@/lib/model-settings/use-model-settings';

@@ -156,7 +156,7 @@ describe('owner identity boundary', () => {
     // An empty scan would pass every assertion below.
     expect(files.length).toBeGreaterThan(100);
     expect(files).toContain(join('app', 'api', 'stages', 'route.ts'));
-    expect(files).toContain(join('packages', '@openmaic', 'storage', 'src', 'index.ts'));
+    expect(files).toContain(join('packages', '@dojolearn', 'storage', 'src', 'index.ts'));
     // And the patterns match what they are meant to catch.
     const cookieModule = readFileSync(join(ROOT, IDENTITY_MODULE, 'anonymous-cookie.ts'), 'utf8');
     expect(cookieModule).toMatch(/anonymous_id/);

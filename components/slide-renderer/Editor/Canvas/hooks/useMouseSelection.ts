@@ -1,7 +1,7 @@
 import { useState, useCallback, type RefObject } from 'react';
 import { useKeyboardStore } from '@/lib/store/keyboard';
 import { useCanvasStore } from '@/lib/store';
-import type { PPTElement } from '@openmaic/dsl';
+import type { PPTElement } from '@dojolearn/dsl';
 import { getElementRange } from '@/lib/utils/element';
 import { projectInteractionElements } from '../interaction-elements';
 

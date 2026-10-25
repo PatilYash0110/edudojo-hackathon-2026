@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * Create dojo from topic / PDF / OpenMAIC course.
+ * Create dojo from topic / PDF / DojoLearn course.
  *
  * OWNER: FRONTEND TEAM
  * STATUS: placeholder, not implemented.

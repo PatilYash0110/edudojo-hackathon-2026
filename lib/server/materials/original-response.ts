@@ -10,7 +10,7 @@
  */
 import { extname } from 'node:path';
 
-import { DEFAULT_RENDERABLE_TYPES } from '@openmaic/storage';
+import { DEFAULT_RENDERABLE_TYPES } from '@dojolearn/storage';
 
 const INLINE_TYPES = new Set(DEFAULT_RENDERABLE_TYPES.map((type) => type.toLowerCase()));
 

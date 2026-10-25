@@ -133,7 +133,7 @@ describe('standalone player linked media', () => {
   function withLinkedMedia() {
     table = document.createElement('script');
     table.type = 'application/json';
-    table.id = 'openmaic-media';
+    table.id = 'dojolearn-media';
     table.textContent = JSON.stringify({
       'audio/audio-1.mp3': { mimeType: 'audio/mpeg', src: 'audio/audio-1.mp3' },
     });
@@ -178,18 +178,18 @@ describe('standalone player static fallback', () => {
   const fallbackHost = (withData: boolean, manifest: unknown = data.manifest) => {
     host = document.createElement('div');
     host.innerHTML =
-      '<div id="openmaic-player"></div>' +
+      '<div id="dojolearn-player"></div>' +
       (withData
-        ? `<script type="application/json" id="openmaic-classroom">${JSON.stringify(manifest)}</script><script type="application/json" id="openmaic-player-config">${JSON.stringify(data.config)}</script>`
+        ? `<script type="application/json" id="dojolearn-classroom">${JSON.stringify(manifest)}</script><script type="application/json" id="dojolearn-player-config">${JSON.stringify(data.config)}</script>`
         : '') +
-      '<p class="openmaic-fallback" data-failed-text="could not start">needs JavaScript</p>';
+      '<p class="dojolearn-fallback" data-failed-text="could not start">needs JavaScript</p>';
     document.body.append(host);
     return document;
   };
 
   it('is hidden (but still in the DOM) as soon as the player starts', () => {
     fallbackHost(true);
-    const el = host.querySelector('.openmaic-fallback')!;
+    const el = host.querySelector('.dojolearn-fallback')!;
     expect(el.hasAttribute('hidden')).toBe(false);
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     // No act(): rendering has not been committed when mountPlayer returns.
@@ -206,7 +206,7 @@ describe('standalone player static fallback', () => {
   it('is removed when the player mounts', () => {
     fallbackHost(true);
     act(() => mountPlayer(document));
-    expect(host.querySelector('.openmaic-fallback')).toBeNull();
+    expect(host.querySelector('.dojolearn-fallback')).toBeNull();
     expect(host.querySelector('[data-testid=scene]')).not.toBeNull();
     root = createRoot(document.createElement('div'));
   });
@@ -219,13 +219,13 @@ describe('standalone player static fallback', () => {
     // A stage name that is not text makes the first render throw (after render() returned).
     fallbackHost(true, { ...data.manifest, stage: { name: { not: 'text' } } });
     mountPlayer(document);
-    const pending = host.querySelector('.openmaic-fallback')!;
+    const pending = host.querySelector('.dojolearn-fallback')!;
     expect(pending.textContent).toBe('needs JavaScript');
     // Hidden synchronously on start, before the (async) render has failed.
     expect(pending.hasAttribute('hidden')).toBe(true);
     await new Promise((resolve) => setTimeout(resolve, 50));
     env.IS_REACT_ACT_ENVIRONMENT = true;
-    const el = host.querySelector('.openmaic-fallback');
+    const el = host.querySelector('.dojolearn-fallback');
     expect(el).not.toBeNull();
     expect(el!.textContent).toBe('could not start');
     expect(el!.hasAttribute('hidden')).toBe(false);
@@ -237,7 +237,7 @@ describe('standalone player static fallback', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
     fallbackHost(false);
     act(() => mountPlayer(document));
-    const el = host.querySelector('.openmaic-fallback')!;
+    const el = host.querySelector('.dojolearn-fallback')!;
     expect(el.textContent).toBe('could not start');
     expect(el.hasAttribute('data-failed')).toBe(true);
     expect(el.hasAttribute('hidden')).toBe(false);

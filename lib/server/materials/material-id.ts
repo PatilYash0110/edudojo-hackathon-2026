@@ -1,5 +1,5 @@
 /**
- * The grammar of a material id as `createMaterialId` (@openmaic/storage) mints
+ * The grammar of a material id as `createMaterialId` (@dojolearn/storage) mints
  * it: `mat_` plus 26 lowercase Crockford base32 characters (128 random bits).
  * Routes check caller-supplied ids against it before any query, so a
  * malformed id (a NUL byte, say) never reaches the database.

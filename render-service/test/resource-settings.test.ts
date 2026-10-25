@@ -14,12 +14,12 @@ vi.mock('node:fs', () => ({
   readFileSync: vi.fn(),
   realpathSync: vi.fn(),
 }));
-const settings = '/etc/openmaic/settings.json';
+const settings = '/etc/dojolearn/settings.json';
 const stats = new Map<string, { uid: number; mode: number; type: string }>();
 beforeEach(() => {
   vi.clearAllMocks();
   stats.clear();
-  for (const path of ['/', '/etc', '/etc/openmaic', settings])
+  for (const path of ['/', '/etc', '/etc/dojolearn', settings])
     stats.set(path, { uid: 0, mode: 0o755, type: path === settings ? 'file' : 'directory' });
   vi.mocked(lstatSync).mockImplementation(((path: string) => {
     const row = stats.get(path) ?? { uid: 0, mode: 0o755, type: 'directory' };
@@ -37,7 +37,7 @@ it('reads only after checking the full root-controlled chain', () => {
   expect(vi.mocked(lstatSync).mock.calls.map(([path]) => path)).toEqual([
     '/',
     '/etc',
-    '/etc/openmaic',
+    '/etc/dojolearn',
     settings,
   ]);
   expect(vi.mocked(readFileSync).mock.invocationCallOrder[0]).toBeGreaterThan(
@@ -46,9 +46,9 @@ it('reads only after checking the full root-controlled chain', () => {
 });
 it.each([
   ['/etc', { mode: 0o777 }],
-  ['/etc/openmaic', { mode: 0o775 }],
-  ['/etc/openmaic', { uid: 65534 }],
-  ['/etc/openmaic', { type: 'symlink' }],
+  ['/etc/dojolearn', { mode: 0o775 }],
+  ['/etc/dojolearn', { uid: 65534 }],
+  ['/etc/dojolearn', { type: 'symlink' }],
   [settings, { mode: 0o666 }],
   [settings, { uid: 65534 }],
   [settings, { type: 'symlink' }],
@@ -61,14 +61,14 @@ it.each([
 it('rechecks trust on the second privileged read instead of inheriting a previous check', () => {
   readResourceSettings(settings);
   vi.mocked(readFileSync).mockClear();
-  stats.get('/etc/openmaic')!.uid = 65534;
+  stats.get('/etc/dojolearn')!.uid = 65534;
   expect(() => readResourceSettings(settings)).toThrow('root-owned');
   expect(readFileSync).not.toHaveBeenCalled();
 });
 it('rejects a symlink component in the configured project root', () => {
-  vi.mocked(realpathSync).mockReturnValue('/run/openmaic/projects');
-  expect(() => assertCanonicalProjectRoot('/var/run/openmaic/projects')).toThrow('canonical');
-  expect(() => assertCanonicalProjectRoot('/run/openmaic/projects')).not.toThrow();
+  vi.mocked(realpathSync).mockReturnValue('/run/dojolearn/projects');
+  expect(() => assertCanonicalProjectRoot('/var/run/dojolearn/projects')).toThrow('canonical');
+  expect(() => assertCanonicalProjectRoot('/run/dojolearn/projects')).not.toThrow();
 });
 it('rejects relative paths', () => {
   expect(() => assertCanonicalProjectRoot('relative/projects')).toThrow('canonical');

@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import type { NextRequest } from 'next/server';
-import type { ModelConfigFile } from '@/lib/server/model-config/openmaic-yml';
+import type { ModelConfigFile } from '@/lib/server/model-config/dojolearn-yml';
 import {
   assertDeploymentModelAuthorized,
   ModelAuthorizationError,

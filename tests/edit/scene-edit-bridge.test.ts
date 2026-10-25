@@ -11,7 +11,7 @@ import {
   redoSlideEditOperation,
   undoSlideEditOperation,
 } from '@/lib/edit/slide-ops';
-import type { PPTTextElement } from '@openmaic/dsl';
+import type { PPTTextElement } from '@dojolearn/dsl';
 import type { SlideContent } from '@/lib/types/stage';
 
 // The fixture's element 0 is always the default text element; narrow so

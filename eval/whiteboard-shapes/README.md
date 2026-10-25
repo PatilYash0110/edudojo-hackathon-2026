@@ -44,7 +44,7 @@ omit the sequence deliberately; `null` is valid only when the read returns null.
 ## Validation and persistence
 
 Both preparation and direct execution validate before appending or creating a
-session. `@openmaic/geometry` supplies the shared grammar, numeric, scaled-bounds,
+session. `@dojolearn/geometry` supplies the shared grammar, numeric, scaled-bounds,
 and resource checks from #1851. Input limits are 100,000 path code units,
 10,000 commands, and coordinate/dimension magnitudes up to 1,000,000.
 Malformed or excessive input returns an error the model can correct; direct

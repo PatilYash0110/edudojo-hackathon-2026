@@ -40,7 +40,7 @@ const request = {
   baseUrl: 'https://llm.example/v1',
 };
 
-function deployment(config: import('@/lib/server/model-config/openmaic-yml').ModelConfigFile) {
+function deployment(config: import('@/lib/server/model-config/dojolearn-yml').ModelConfigFile) {
   runtime.setDeploymentConfigForTests({
     layer: { source: 'deployment', config },
     legacy: false,

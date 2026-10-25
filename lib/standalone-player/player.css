@@ -6,12 +6,12 @@
  */
 @import 'tailwindcss' source(none);
 
-@source '../../node_modules/@openmaic/renderer/dist/**/*.js';
+@source '../../node_modules/@dojolearn/renderer/dist/**/*.js';
 @source './**/*.{ts,tsx}';
 
 html,
 body,
-#openmaic-player {
+#dojolearn-player {
   height: 100%;
 }
 

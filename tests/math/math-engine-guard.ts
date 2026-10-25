@@ -117,7 +117,7 @@ const OPTIONS_POSITION: Record<string, number> = {
  * bound through a static default or namespace import, and every use must be
  * `engine.<render method>(...)` whose options argument (at that method's own
  * position, with nothing after it) is a call to `safeKatexOptions` imported
- * from `@openmaic/dsl`. Returns violations.
+ * from `@dojolearn/dsl`. Returns violations.
  */
 export function findUnsafeRenderUses(fileName: string, source: string): string[] {
   const file = parse(fileName, source);
@@ -140,7 +140,7 @@ export function findUnsafeRenderUses(fileName: string, source: string): string[]
     }
     const specifier = statement.moduleSpecifier.text;
     const clause = statement.importClause;
-    if (specifier === '@openmaic/dsl' && clause && !clause.isTypeOnly) {
+    if (specifier === '@dojolearn/dsl' && clause && !clause.isTypeOnly) {
       const named = clause.namedBindings;
       if (named && ts.isNamedImports(named)) {
         for (const element of named.elements) {

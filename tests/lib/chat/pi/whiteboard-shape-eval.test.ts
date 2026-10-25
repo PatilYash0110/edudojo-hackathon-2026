@@ -1,4 +1,4 @@
-import type { PPTShapeElement } from '@openmaic/dsl';
+import type { PPTShapeElement } from '@dojolearn/dsl';
 import { describe, expect, it } from 'vitest';
 import {
   areBasicShapes,

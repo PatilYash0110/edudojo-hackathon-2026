@@ -43,9 +43,9 @@ import {
   type AssetIndirectReadRequest,
   type AssetPrincipal,
   type AssetStore,
-} from '@openmaic/storage';
-import type { AssetMeta, AssetRef, BinaryBlob } from '@openmaic/dsl';
-import type { Queryable, WithTransaction } from '@openmaic/storage/document/pg';
+} from '@dojolearn/storage';
+import type { AssetMeta, AssetRef, BinaryBlob } from '@dojolearn/dsl';
+import type { Queryable, WithTransaction } from '@dojolearn/storage/document/pg';
 
 import { fenceOwnerWrite } from './owner-merges';
 

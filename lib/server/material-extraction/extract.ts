@@ -3,7 +3,7 @@ import {
   type ClaimedMaterialExtraction,
   type CompleteMaterialExtractionInput,
   type MaterialExtractionStats,
-} from '@openmaic/storage';
+} from '@dojolearn/storage';
 
 import {
   getDocumentExtractorProviders,

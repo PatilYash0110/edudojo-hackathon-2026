@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { WEB_FETCH_PROVIDERS, getWebFetchProvider } from '@/lib/web-fetch/registry';
 import { resolveSlot } from '@/lib/server/model-config/resolve-slot';
-import { parseModelConfig } from '@/lib/server/model-config/openmaic-yml';
+import { parseModelConfig } from '@/lib/server/model-config/dojolearn-yml';
 import { getProviderPreset } from '@/lib/config/provider-presets';
 import { modelSettingsView } from '@/lib/server/model-config/settings';
 import { setDeploymentConfigForTests } from '@/lib/server/model-config/runtime';

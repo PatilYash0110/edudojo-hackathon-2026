@@ -26,7 +26,7 @@ services:
       - key: OPENMAIC_SECRET_KEY # disk is ephemeral, so the key file would change on every deploy
         generateValue: true
       - key: OPENMAIC_CONFIG
-        value: teams/backend/config/openmaic.dojo.yml
+        value: teams/backend/config/dojolearn.dojo.yml
 
   - type: web
     name: dojolearn-tts

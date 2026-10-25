@@ -308,10 +308,10 @@ export const TOKEN_PLAN_PRESETS: TokenPlanPreset[] = [
   {
     id: 'kimi',
     name: 'Kimi',
-    websiteUrl: 'https://www.kimi.com/code?aff=openmaic',
+    websiteUrl: 'https://www.kimi.com/code',
     subscribeUrls: {
-      domestic: 'https://www.kimi.com/code?aff=openmaic',
-      international: 'https://www.kimi.ai/code?aff=openmaic',
+      domestic: 'https://www.kimi.com/code',
+      international: 'https://www.kimi.ai/code',
     },
     apiKeyPlaceholder: 'sk-...',
     icon: '/logos/kimi.png',

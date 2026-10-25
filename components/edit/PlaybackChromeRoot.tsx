@@ -59,7 +59,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { AlertTriangle } from 'lucide-react';
 import { VisuallyHidden } from 'radix-ui';
-import type { PPTElement } from '@openmaic/dsl';
+import type { PPTElement } from '@dojolearn/dsl';
 import {
   getDisplayedWhiteboard,
   isWhiteboardReferenceAvailable,

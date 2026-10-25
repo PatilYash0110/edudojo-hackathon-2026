@@ -4,8 +4,8 @@ import { useEffect, useState } from 'react';
 import { ScreenElement } from '@/components/slide-renderer/Editor/ScreenElement';
 import { SceneProvider } from '@/lib/contexts/scene-context';
 import { useStageStore } from '@/lib/store/stage';
-import type { PPTElement } from '@openmaic/dsl';
-import { createTextProseStyles } from '@openmaic/renderer';
+import type { PPTElement } from '@dojolearn/dsl';
+import { createTextProseStyles } from '@dojolearn/renderer';
 
 const EVAL_SHAPE_PROSE_STYLES = createTextProseStyles(
   '.eval-whiteboard-canvas .screen-element .slide-renderer-prose',

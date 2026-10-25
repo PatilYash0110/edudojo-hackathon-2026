@@ -1,6 +1,6 @@
 /**
  * Route helpers: one error type, one wrapper that turns it (and zod errors)
- * into the `{ success: false, errorCode, error }` envelope OpenMAIC uses.
+ * into the `{ success: false, errorCode, error }` envelope DojoLearn uses.
  *
  * OWNER: BACKEND TEAM.
  */

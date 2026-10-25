@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo, useState, useEffect, useCallback } from 'react';
-import type { PPTShapeElement, ShapeText } from '@openmaic/dsl';
-import { validateShapeGeometry, RENDER_PATH_LIMITS, shapeToTextFallback } from '@openmaic/geometry';
-import { BaseTextElement } from '@openmaic/renderer/elements';
+import type { PPTShapeElement, ShapeText } from '@dojolearn/dsl';
+import { validateShapeGeometry, RENDER_PATH_LIMITS, shapeToTextFallback } from '@dojolearn/geometry';
+import { BaseTextElement } from '@dojolearn/renderer/elements';
 import { useCanvasStore } from '@/lib/store';
 import { useCanvasOperations } from '@/lib/hooks/use-canvas-operations';
 import { useHistorySnapshot } from '@/lib/hooks/use-history-snapshot';

@@ -6,7 +6,7 @@ import {
   PgAgentSessionStore,
   type Queryable,
   type WithTransaction,
-} from '../../packages/@openmaic/storage/src/agent-session/pg';
+} from '../../packages/@dojolearn/storage/src/agent-session/pg';
 import { readPriorRunRecord } from '@/lib/server/agent-runtime/entry-tree-storage';
 
 const contractUrl = process.env.PG_CONTRACT_URL;

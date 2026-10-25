@@ -1,5 +1,5 @@
 /**
- * @openmaic/render-service — HTTP entrypoint.
+ * @dojolearn/render-service — HTTP entrypoint.
  *
  * Renders exported Hyperframes projects (the ZIP the app builds with
  * `packageVideoZip`) to MP4 using `@hyperframes/producer`, isolated in a
@@ -26,7 +26,7 @@ import { createReadStream } from 'node:fs';
 import { mkdir, stat } from 'node:fs/promises';
 import { Readable } from 'node:stream';
 import { serve } from '@hono/node-server';
-import { validateScene } from '@openmaic/dsl';
+import { validateScene } from '@dojolearn/dsl';
 import { Hono, type Context } from 'hono';
 import { config } from './config.js';
 import { InMemoryJobStore } from './job-store.js';
@@ -635,7 +635,7 @@ export async function startService(resourceExecutor?: RenderExecutor): Promise<v
   });
 
   // Ensure the scratch root exists before accepting work. On the documented
-  // standalone path nothing creates /tmp/openmaic-renders, so without this every
+  // standalone path nothing creates /tmp/dojolearn-renders, so without this every
   // makeProjectDir() would ENOENT. mktemp still creates a fresh subdir per job.
   await mkdir(config.tmpDir, { recursive: true }).catch(() => {});
 

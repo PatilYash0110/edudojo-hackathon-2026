@@ -27,11 +27,11 @@
  */
 import { createHash } from 'node:crypto';
 
-import { DocumentWriteRefusedError } from '@openmaic/storage';
-import type { Queryable } from '@openmaic/storage/document/pg';
-import { applySchemaMigrations, type SchemaMigrationSet } from '@openmaic/storage/pg-migrations';
+import { DocumentWriteRefusedError } from '@dojolearn/storage';
+import type { Queryable } from '@dojolearn/storage/document/pg';
+import { applySchemaMigrations, type SchemaMigrationSet } from '@dojolearn/storage/pg-migrations';
 
-import { StorageBusyError } from '@openmaic/storage';
+import { StorageBusyError } from '@dojolearn/storage';
 
 import { retiredOwnerClearCookies } from '@/lib/server/identity/registry';
 import { principalFromStoredOwner } from '@/lib/server/identity/stored-owner';
@@ -64,7 +64,7 @@ export async function ensureOwnerMergeSchema(queryable: Queryable): Promise<void
  * The namespace of identity lock keys. The key of an owner is a 64-bit hash of
  * this prefix and the id: a lock key, never an owner id.
  */
-const IDENTITY_LOCK_NAMESPACE = 'openmaic.owner-identity:';
+const IDENTITY_LOCK_NAMESPACE = 'dojolearn.owner-identity:';
 
 /**
  * The identity lock key of an owner: the first 64 bits of a SHA-256 of the

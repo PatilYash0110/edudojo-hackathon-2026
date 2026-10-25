@@ -37,8 +37,8 @@
  * (`lib/server/generation-run-hooks`), handed back to the host's hooks on
  * every execution of the run. Null for a run started without them.
  */
-import type { Queryable } from '@openmaic/storage/document/pg';
-import { applySchemaMigrations, type SchemaMigrationSet } from '@openmaic/storage/pg-migrations';
+import type { Queryable } from '@dojolearn/storage/document/pg';
+import { applySchemaMigrations, type SchemaMigrationSet } from '@dojolearn/storage/pg-migrations';
 
 const SCHEMA = `
 CREATE TABLE IF NOT EXISTS generation_runs (

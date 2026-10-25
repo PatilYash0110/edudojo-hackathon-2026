@@ -4,7 +4,7 @@ import { lookup } from 'node:dns/promises';
 import { isIP } from 'node:net';
 import { Type, type Static } from 'typebox';
 import type { AgentTool } from '@earendil-works/pi-agent-core';
-import type { AgentSessionMaterial } from '@openmaic/storage';
+import type { AgentSessionMaterial } from '@dojolearn/storage';
 import {
   backgroundWorkspaceId,
   SlotDisabledError,

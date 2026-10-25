@@ -1,7 +1,7 @@
 import 'fake-indexeddb/auto';
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 
 const mocks = vi.hoisted(() => ({
   learnerKey: vi.fn<() => Promise<string>>(),

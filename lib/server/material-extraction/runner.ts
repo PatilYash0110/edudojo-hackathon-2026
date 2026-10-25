@@ -1,7 +1,7 @@
 import { ModelAuthorizationError } from '@/lib/server/model-config/model-authorization';
 import { randomUUID } from 'node:crypto';
 
-import type { PgAgentSessionMaterialStore } from '@openmaic/storage/material/pg';
+import type { PgAgentSessionMaterialStore } from '@dojolearn/storage/material/pg';
 
 import { agentRuntimeConfig } from '@/lib/server/agent-runtime/config';
 import { getAgentSessionMaterialStore } from '@/lib/server/agent-runtime/session-materials';

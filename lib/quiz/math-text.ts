@@ -1,5 +1,5 @@
 import katex from 'katex';
-import { safeKatexOptions } from '@openmaic/dsl';
+import { safeKatexOptions } from '@dojolearn/dsl';
 
 export type QuizMathTextSegment =
   | {

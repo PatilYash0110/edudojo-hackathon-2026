@@ -11,8 +11,8 @@
  */
 import { Type, type Static } from 'typebox';
 import type { AgentTool } from '@earendil-works/pi-agent-core';
-import { DocumentFolderLimitError, isDocumentWriteRefusedError } from '@openmaic/storage';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import { DocumentFolderLimitError, isDocumentWriteRefusedError } from '@dojolearn/storage';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 import type { StageLinkLifecycleData } from '@/lib/agent-runtime/lifecycle';
 
 import type { AppDocumentOutline } from '@/lib/document-store/persistence-types';

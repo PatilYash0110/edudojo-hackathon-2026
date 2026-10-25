@@ -4,7 +4,7 @@ Status: implemented on `backend/fast-generation` (2026-10-24). See "Measured res
 
 ## Decision
 
-Build a Dojo-only fast path. Keep normal OpenMAIC generation unchanged.
+Build a Dojo-only fast path. Keep normal DojoLearn generation unchanged.
 
 For live demo generation:
 
@@ -116,8 +116,8 @@ The Dojo requirement should ask for the recommended scene profile. The hard cap 
 
 Change action prompts, not TTS storage or playback.
 
-- `packages/@openmaic/generation/templates/slide-actions/system.md`: request 3 to 6 total action/text objects and at most 2 speech objects.
-- `packages/@openmaic/generation/templates/interactive-actions/user.md`: request 3 to 6 total items and at most 2 speech objects.
+- `packages/@dojolearn/generation/templates/slide-actions/system.md`: request 3 to 6 total action/text objects and at most 2 speech objects.
+- `packages/@dojolearn/generation/templates/interactive-actions/user.md`: request 3 to 6 total items and at most 2 speech objects.
 - Quiz and PBL prompts already request 1 to 2 speech segments.
 - Keep speech useful. Each segment may cover several related visual elements.
 
@@ -195,7 +195,7 @@ Keep a change only when the timing improvement exceeds normal run-to-run variati
 - Seeded showcase contains all four supported scene types, including `pbl`.
 - Each generated scene has no more than two speech actions unless a provider length limit must split one action.
 - Scene order remains contiguous after capping.
-- Normal OpenMAIC generation behaves as before when `maxScenes` is absent.
+- Normal DojoLearn generation behaves as before when `maxScenes` is absent.
 - With concurrency 3, no provider 429 errors, TTS corruption, missing `audioId`, or scene-order changes occur.
 - Existing generation tests, TypeScript, and lint pass.
 
@@ -203,7 +203,7 @@ Suggested checks:
 
 ```bash
 pnpm test tests/server/generation-run/input.test.ts tests/server/provider-config.test.ts
-pnpm test packages/@openmaic/generation/test/outline-prompt.test.ts packages/@openmaic/generation/test/scene-generation.test.ts
+pnpm test packages/@dojolearn/generation/test/outline-prompt.test.ts packages/@dojolearn/generation/test/scene-generation.test.ts
 npx tsc --noEmit
 pnpm lint
 ```
@@ -217,7 +217,7 @@ Run the PostgreSQL generation contract test when its test database is available.
 - Parallelizing scene actions across scenes. They consume previous speech for continuity.
 - Changing player auto-advance.
 - Generating images or video during the live demo.
-- Changing general OpenMAIC scene limits.
+- Changing general DojoLearn scene limits.
 
 ## Stop condition
 

@@ -13,9 +13,9 @@
  *   rows, and no `oss_key`.
  */
 import { expect } from 'vitest';
-import { applySchemaMigrations } from '@openmaic/storage/pg-migrations';
+import { applySchemaMigrations } from '@dojolearn/storage/pg-migrations';
 
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 
 import {
   ensureOwnerMaterialSchema,

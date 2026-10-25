@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest';
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 import { CourseThumbnailLoader } from '@/lib/utils/course-thumbnail-loader';
 
 function slide(id: string): Slide {

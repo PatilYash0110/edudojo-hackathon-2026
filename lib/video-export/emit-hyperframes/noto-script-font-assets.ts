@@ -5,9 +5,9 @@
  */
 const NOTO_SCRIPT_FONT_CSS_TEMPLATES = {
   cyrillic:
-    '@font-face{font-family:"OpenMAIC Noto Sans Cyrillic";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-cyrillic-400-normal.woff2") format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}\n@font-face{font-family:"OpenMAIC Noto Sans Cyrillic";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-cyrillic-ext-400-normal.woff2") format("woff2");unicode-range:U+0460-048F,U+0492-04AF,U+04B2-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}',
+    '@font-face{font-family:"DojoLearn Noto Sans Cyrillic";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-cyrillic-400-normal.woff2") format("woff2");unicode-range:U+0301,U+0400-045F,U+0490-0491,U+04B0-04B1,U+2116}\n@font-face{font-family:"DojoLearn Noto Sans Cyrillic";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-cyrillic-ext-400-normal.woff2") format("woff2");unicode-range:U+0460-048F,U+0492-04AF,U+04B2-052F,U+1C80-1C88,U+20B4,U+2DE0-2DFF,U+A640-A69F,U+FE2E-FE2F}',
   arabic:
-    '@font-face{font-family:"OpenMAIC Noto Sans Arabic";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-arabic-arabic-400-normal.woff2") format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FBC2,U+FBD3-FD8F,U+FD92-FDC7,U+FDCF,U+FDF0-FDFF,U+FE70-FE74,U+FE76-FEFC,U+10EFD-10EFF}',
+    '@font-face{font-family:"DojoLearn Noto Sans Arabic";font-style:normal;font-weight:400;font-display:block;src:url("__OPENMAIC_QUIZ_FONT_BASE__/noto-sans-arabic-arabic-400-normal.woff2") format("woff2");unicode-range:U+0600-06FF,U+0750-077F,U+0870-088E,U+0890-0891,U+0898-08E1,U+08E3-08FF,U+200C-200E,U+2010-2011,U+204F,U+2E41,U+FB50-FBC2,U+FBD3-FD8F,U+FD92-FDC7,U+FDCF,U+FDF0-FDFF,U+FE70-FE74,U+FE76-FEFC,U+10EFD-10EFF}',
 } as const;
 const materializeCss = (template: string, base: string) =>
   template.replaceAll('__OPENMAIC_QUIZ_FONT_BASE__', base);
@@ -34,7 +34,7 @@ export const NOTO_SCRIPT_FONT_PLANS = {
       },
     ] as const,
     licenses: [{ path: 'LICENSES/Noto-Sans-OFL-1.1.txt', content: NOTO_SANS_OFL_LICENSE }] as const,
-    requiredFontLoads: [{ family: 'OpenMAIC Noto Sans Cyrillic', text: 'Привет Ёж Ԁ' }] as const,
+    requiredFontLoads: [{ family: 'DojoLearn Noto Sans Cyrillic', text: 'Привет Ёж Ԁ' }] as const,
     coverage: [
       [769, 769],
       [1024, 1327],
@@ -61,7 +61,7 @@ export const NOTO_SCRIPT_FONT_PLANS = {
     licenses: [
       { path: 'LICENSES/Noto-Sans-Arabic-OFL-1.1.txt', content: NOTO_SANS_ARABIC_OFL_LICENSE },
     ] as const,
-    requiredFontLoads: [{ family: 'OpenMAIC Noto Sans Arabic', text: 'العربية' }] as const,
+    requiredFontLoads: [{ family: 'DojoLearn Noto Sans Arabic', text: 'العربية' }] as const,
     coverage: [
       [1536, 1791],
       [1872, 1919],

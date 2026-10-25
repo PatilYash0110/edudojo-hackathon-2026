@@ -16,18 +16,18 @@
  * identity lock first like every owner write (`./owner-merges.ts`), and a
  * claim moves the row to the account unless the account has one already.
  */
-import type { Queryable } from '@openmaic/storage/document/pg';
-import { applySchemaMigrations, type SchemaMigrationSet } from '@openmaic/storage/pg-migrations';
-import { encodeJson } from '@openmaic/storage/pg-json';
+import type { Queryable } from '@dojolearn/storage/document/pg';
+import { applySchemaMigrations, type SchemaMigrationSet } from '@dojolearn/storage/pg-migrations';
+import { encodeJson } from '@dojolearn/storage/pg-json';
 import {
   nodePostgresTransaction,
   type ConnectableQueryable,
-} from '@openmaic/storage/server/reference';
+} from '@dojolearn/storage/server/reference';
 
 import {
   checkModelConfigShape,
   type ModelConfigFile,
-} from '@/lib/server/model-config/openmaic-yml';
+} from '@/lib/server/model-config/dojolearn-yml';
 import { isSealedSecret, openSecret, sealSecret, type SealedSecret } from '@/lib/server/secret-box';
 
 import { ensureOwnerMergeSchema, fenceOwnerWrite } from './owner-merges';

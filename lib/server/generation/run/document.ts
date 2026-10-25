@@ -10,7 +10,7 @@
  * by the run's lease and commits with the run's checkpoint, so a worker whose
  * run was taken over cannot write, and a write and its checkpoint never part.
  */
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import type { AppDocumentOutline } from '@/lib/document-store/persistence-types';
 import { forwardOwnerWrite } from '@/lib/persistence/owner-merges';

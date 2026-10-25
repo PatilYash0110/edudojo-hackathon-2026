@@ -6,7 +6,7 @@ import {
 } from '@/lib/server/agent-runtime/course-edit/element-schema';
 import { applySlideEdit } from '@/lib/server/agent-runtime/course-edit/apply';
 import { applySlideEditOperation, createSlideEditHistory } from '@/lib/edit/slide-ops';
-import type { SlideContent } from '@openmaic/dsl';
+import type { SlideContent } from '@dojolearn/dsl';
 
 function content(): SlideContent {
   return {

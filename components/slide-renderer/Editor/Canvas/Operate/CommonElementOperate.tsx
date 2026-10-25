@@ -5,7 +5,7 @@ import type {
   PPTLatexElement,
   PPTAudioElement,
   PPTChartElement,
-} from '@openmaic/dsl';
+} from '@dojolearn/dsl';
 import type { OperateResizeHandlers } from '@/lib/types/edit';
 import { useCommonOperate } from '../hooks/useCommonOperate';
 import { RotateHandler } from './RotateHandler';

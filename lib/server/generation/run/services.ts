@@ -6,7 +6,7 @@
  * The engine depends on this interface only, so a test runs the engine with
  * its own step outputs and checks the inputs each step received.
  */
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import type { AgentConfig } from '@/lib/orchestration/registry/types';
 import { MAX_EXTRACT_DOCUMENT_FILE_SIZE_BYTES } from '@/lib/constants/generation';

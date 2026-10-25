@@ -1,16 +1,16 @@
 import { readMaterialExtractionResult } from '@/lib/server/materials/extraction';
 import { PGlite } from '@electric-sql/pglite';
 import { afterEach, expect, it, vi } from 'vitest';
-import { applySchemaMigrations } from '@openmaic/storage/pg-migrations';
-import { ASSET_PG_MIGRATIONS, ensureAssetSchema } from '@openmaic/storage/asset/pg';
+import { applySchemaMigrations } from '@dojolearn/storage/pg-migrations';
+import { ASSET_PG_MIGRATIONS, ensureAssetSchema } from '@dojolearn/storage/asset/pg';
 import {
   AGENT_SESSION_PG_MIGRATIONS,
   ensureAgentSessionSchema,
-} from '@openmaic/storage/agent-session/pg';
+} from '@dojolearn/storage/agent-session/pg';
 import {
   AGENT_SESSION_MATERIAL_PG_MIGRATIONS,
   ensureAgentSessionMaterialSchema,
-} from '@openmaic/storage/material/pg';
+} from '@dojolearn/storage/material/pg';
 import {
   OWNER_MATERIAL_MIGRATIONS,
   ensureOwnerMaterialSchema,

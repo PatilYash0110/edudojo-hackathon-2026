@@ -9,7 +9,7 @@
  * route's 500 for content and actions (retried) and its 400 for narration
  * (not retried).
  */
-import { isAbortError, withGenerationRetry, type GenerationRetryEvent } from '@openmaic/generation';
+import { isAbortError, withGenerationRetry, type GenerationRetryEvent } from '@dojolearn/generation';
 
 import {
   classifyHostFailure,

@@ -78,10 +78,10 @@
 import {
   PgAgentSessionStore,
   type Queryable as AgentSessionQueryable,
-} from '@openmaic/storage/agent-session/pg';
-import { reassignDocumentFolders, type Queryable } from '@openmaic/storage/document/pg';
-import { PgRuntimeStore } from '@openmaic/storage/runtime/pg';
-import { PgUserSkillStore } from '@openmaic/storage/skill/pg';
+} from '@dojolearn/storage/agent-session/pg';
+import { reassignDocumentFolders, type Queryable } from '@dojolearn/storage/document/pg';
+import { PgRuntimeStore } from '@dojolearn/storage/runtime/pg';
+import { PgUserSkillStore } from '@dojolearn/storage/skill/pg';
 
 import { APP_RUNTIME_PAYLOAD_VALIDATORS } from '@/lib/runtime/payload-validators';
 import { rekeyOwnerAgents } from '@/lib/server/agents/store';
@@ -116,7 +116,7 @@ interface RegistryState {
   sealed?: boolean;
 }
 
-const REGISTRY_KEY = Symbol.for('openmaic.owner-claims.registry');
+const REGISTRY_KEY = Symbol.for('dojolearn.owner-claims.registry');
 const globalState = globalThis as typeof globalThis & { [REGISTRY_KEY]?: RegistryState };
 function registry(): RegistryState {
   return (globalState[REGISTRY_KEY] ??= { participants: [] });

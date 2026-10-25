@@ -11,7 +11,7 @@
  * persistence moved to the server is partitioned by such a key, stored under
  * {@link LEARNER_KEY_KV_KEY}; the one-way importer reads it from there.
  */
-import type { KVStore } from '@openmaic/storage';
+import type { KVStore } from '@dojolearn/storage';
 
 import { registerRuntimeStorageResetHook, resolveConfiguredLearnerKey } from './config';
 

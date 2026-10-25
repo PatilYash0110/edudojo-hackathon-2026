@@ -3,7 +3,7 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { chromium, type Browser } from '@playwright/test';
-import { postProcessInteractiveHtml, interactiveLibraryUrl } from '@openmaic/generation/browser';
+import { postProcessInteractiveHtml, interactiveLibraryUrl } from '@dojolearn/generation/browser';
 import { patchHtmlForIframe } from '@/lib/utils/iframe';
 import { inlineSceneContent } from '@/lib/export/use-export-classroom';
 import { prepareInteractiveHtmlScenes } from '@/lib/video-export-app/prepare-interactive-html';
@@ -237,7 +237,7 @@ describe.skipIf(!REQUIRED)('self-hosted interactive libraries in Chromium', () =
         expect(requests.filter((url) => /^https?:/.test(url))).toEqual([]);
         if (kind === 'video')
           await expect
-            .poll(() => page.locator('html').getAttribute('data-openmaic-static-state'))
+            .poll(() => page.locator('html').getAttribute('data-dojolearn-static-state'))
             .toBe('frozen');
       } finally {
         await page.close();

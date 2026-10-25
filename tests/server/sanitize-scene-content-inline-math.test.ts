@@ -11,8 +11,8 @@ import { describe, expect, it } from 'vitest';
 import {
   createTextDocument,
   serializeTextDocument,
-} from '../../packages/@openmaic/editor/src/react/text/prosemirror/document';
-import { MAX_INLINE_MATH_SOURCE } from '@openmaic/renderer';
+} from '../../packages/@dojolearn/editor/src/react/text/prosemirror/document';
+import { MAX_INLINE_MATH_SOURCE } from '@dojolearn/renderer';
 import { sanitizeProseHtml, sanitizeSceneContent } from '@/lib/server/sanitize-scene-content';
 
 const LATEX = '\\sqrt{x}+\\frac{a}{b}';
@@ -240,16 +240,16 @@ describe('sanitizeSceneContent — inline formulas', () => {
 
   it('does not let marker-like text duplicate or inject formulas', () => {
     const forged = [
-      'openmaicmath&#48;x0x',
-      'openmaic<foo></foo>math0x0x',
-      'openmaicmath0x0x',
-      '<a href="#" title="openmaicmath0x0x">link</a> ',
+      'dojolearnmath&#48;x0x',
+      'dojolearn<foo></foo>math0x0x',
+      'dojolearnmath0x0x',
+      '<a href="#" title="dojolearnmath0x0x">link</a> ',
     ].join(' ');
     for (const html of proseFields(sanitizeSceneContent(sceneWith(editorHtmlFor('y^2', forged))))) {
       const fragment = parse(html);
       expect(fragment.querySelectorAll('[data-inline-math]')).toHaveLength(1);
-      expect(fragment.querySelector('a')?.getAttribute('title')).toBe('openmaicmath0x0x');
-      expect(fragment.textContent).toContain('openmaicmath0x0x');
+      expect(fragment.querySelector('a')?.getAttribute('title')).toBe('dojolearnmath0x0x');
+      expect(fragment.textContent).toContain('dojolearnmath0x0x');
     }
   });
 

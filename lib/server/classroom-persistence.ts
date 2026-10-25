@@ -11,7 +11,7 @@
  */
 import { randomBytes } from 'node:crypto';
 
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import type { AppDocumentOutline } from '@/lib/document-store/persistence-types';
 import { getBackgroundDocumentStore } from '@/lib/server/agent-runtime/owner-scoped-documents';

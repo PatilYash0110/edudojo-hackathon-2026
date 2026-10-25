@@ -13,8 +13,8 @@ import type {
   RuntimeRecord,
   RuntimeRecordInit,
   RuntimeSession,
-} from '@openmaic/dsl';
-import type { RuntimeSessionInit, RuntimeStore } from '@openmaic/storage';
+} from '@dojolearn/dsl';
+import type { RuntimeSessionInit, RuntimeStore } from '@dojolearn/storage';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { PBLProjectV2 } from '@/lib/pbl/v2/types';

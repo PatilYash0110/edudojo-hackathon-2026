@@ -1,9 +1,9 @@
 {
-  "name": "@openmaic/render-service",
+  "name": "@dojolearn/render-service",
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "description": "Isolated Node 22 + Chromium + FFmpeg service that renders exported Hyperframes projects to MP4 (OpenMAIC issue #866).",
+  "description": "Isolated Node 22 + Chromium + FFmpeg service that renders exported Hyperframes projects to MP4 (DojoLearn issue #866).",
   "engines": {
     "node": ">=22"
   },
@@ -17,8 +17,8 @@
   "dependencies": {
     "@hono/node-server": "^1.13.7",
     "@hyperframes/producer": "^0.7.107",
-    "@openmaic/dsl": "0.11.3",
-    "@openmaic/renderer": "0.1.14",
+    "@dojolearn/dsl": "0.11.3",
+    "@dojolearn/renderer": "0.1.14",
     "echarts": "^6.0.0",
     "esbuild": "0.28.1",
     "fflate": "^0.8.2",

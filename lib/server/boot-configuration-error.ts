@@ -10,7 +10,7 @@
  * (see `lib/server/boot-failure.ts`).
  */
 
-const BRAND = Symbol.for('openmaic.boot.invalid-configuration');
+const BRAND = Symbol.for('dojolearn.boot.invalid-configuration');
 
 export class InvalidBootConfigurationError extends Error {
   readonly [BRAND] = true;

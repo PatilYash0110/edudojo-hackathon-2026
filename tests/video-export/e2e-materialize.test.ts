@@ -242,7 +242,7 @@ const COMPLETE_PROJECT_FILES = [
   'README.md',
   'assets/vendor/gsap.min.js',
   'index.html',
-  'openmaic-video-manifest.json',
+  'dojolearn-video-manifest.json',
   'subtitles.srt',
   'subtitles.vtt',
 ].sort();
@@ -436,7 +436,7 @@ describe.skipIf(!OUT_DIR)('materialize a Hyperframes project for real-CLI E2E', 
     const mixedLabels = getVideoExportCoverLabels('en-US');
     const arabicLabels = getVideoExportCoverLabels('ar-SA');
 
-    expect(DEFAULT_SAMPLE_CTA).toEqual({ destination: 'open.maic.chat' });
+    expect(DEFAULT_SAMPLE_CTA).toEqual({ destination: 'dojolearn.onrender.com' });
     expect(quizHtml).toContain('data-visual-kind="quiz-question-list"');
     expect(quizHtml).not.toContain('SECRET_SAMPLE_ANALYSIS');
     for (const expected of [

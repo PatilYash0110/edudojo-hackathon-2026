@@ -34,7 +34,7 @@ interface RegistryState {
   byteStoreInUse?: boolean;
 }
 
-const REGISTRY_KEY = Symbol.for('openmaic.persistence-hooks.registry');
+const REGISTRY_KEY = Symbol.for('dojolearn.persistence-hooks.registry');
 const globalState = globalThis as typeof globalThis & { [REGISTRY_KEY]?: RegistryState };
 function registry(): RegistryState {
   return (globalState[REGISTRY_KEY] ??= {});

@@ -6,7 +6,7 @@
  */
 import 'fake-indexeddb/auto';
 
-import { HttpAssetStore } from '@openmaic/storage';
+import { HttpAssetStore } from '@dojolearn/storage';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { OTHER_OWNER_RECHECK_MS, runLegacyBrowserImport } from '@/lib/legacy-browser-import';

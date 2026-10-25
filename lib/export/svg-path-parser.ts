@@ -1,4 +1,4 @@
-import { validateSvgPath, RENDER_PATH_LIMITS } from '@openmaic/geometry';
+import { validateSvgPath, RENDER_PATH_LIMITS } from '@dojolearn/geometry';
 import { SVGPathData } from 'svg-pathdata';
 import arcToBezier from 'svg-arc-to-cubic-bezier';
 import { createLogger } from '@/lib/logger';

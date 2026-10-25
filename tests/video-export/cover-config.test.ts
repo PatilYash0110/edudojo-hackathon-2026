@@ -22,7 +22,7 @@ const BIDI_CONTROL_CASES = [
 
 describe('resolveVideoExportCta', () => {
   it.each([undefined, '', '   '])('defaults an absent or blank value (%j)', (raw) => {
-    expect(resolveVideoExportCta(raw)).toEqual({ destination: 'open.maic.chat' });
+    expect(resolveVideoExportCta(raw)).toEqual({ destination: 'dojolearn.onrender.com' });
   });
 
   it.each(['off', 'OFF', ' Off '])('disables the CTA for %j', (raw) => {
@@ -31,7 +31,7 @@ describe('resolveVideoExportCta', () => {
 
   it.each([
     ['https://Example.COM/learn/', 'example.com/learn'],
-    ['http://open.maic.chat/', 'open.maic.chat'],
+    ['http://dojolearn.onrender.com/', 'dojolearn.onrender.com'],
     ['courses.example.com/start/', 'courses.example.com/start'],
   ])('normalizes %j to the display destination %j', (raw, destination) => {
     expect(resolveVideoExportCta(raw)).toEqual({ destination });

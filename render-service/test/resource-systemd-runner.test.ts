@@ -344,11 +344,11 @@ it('builds the bounded task unit before any Producer import', () => {
       owner: { cleanupTimeoutMs: 10_000, taskPidsMax: 256, taskSlice: 'system.slice' },
       task: { cpuMillis: 1000, memoryBytes: 805_306_368 },
     },
-    'openmaic-render-abc.service',
+    'dojolearn-render-abc.service',
     '/run/openmaic-resource/task-abc/request.json',
     45_001,
   );
-  expect(args).toContain('--unit=openmaic-render-abc');
+  expect(args).toContain('--unit=dojolearn-render-abc');
   expect(args).toContain('--slice=system.slice');
   expect(args).toContain('RuntimeMaxSec=46s');
   expect(args).toContain('TimeoutStopSec=25s');

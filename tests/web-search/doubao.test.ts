@@ -22,8 +22,8 @@ describe('searchWithDoubao', () => {
             ResultCount: 3,
             WebResults: [
               {
-                Title: 'OpenMAIC',
-                Url: 'https://github.com/THU-MAIC/OpenMAIC',
+                Title: 'DojoLearn',
+                Url: 'https://github.com/PatilYash0110/edudojo-hackathon-2026',
                 Snippet: 'short blurb',
                 Summary: 'a longer, query-relevant summary',
                 Content: 'full article body',
@@ -48,7 +48,7 @@ describe('searchWithDoubao', () => {
     );
 
     const result = await searchWithDoubao({
-      query: 'OpenMAIC token plan',
+      query: 'DojoLearn token plan',
       apiKey: 'ark-key',
       maxResults: 10,
     });
@@ -62,19 +62,19 @@ describe('searchWithDoubao', () => {
           Authorization: 'Bearer ark-key',
         },
         body: JSON.stringify({
-          Query: 'OpenMAIC token plan',
+          Query: 'DojoLearn token plan',
           SearchType: 'web',
           Count: 10,
           NeedSummary: true,
         }),
       }),
     );
-    expect(result.query).toBe('OpenMAIC token plan');
+    expect(result.query).toBe('DojoLearn token plan');
     expect(result.answer).toBe('');
     expect(result.sources).toEqual([
       {
-        title: 'OpenMAIC',
-        url: 'https://github.com/THU-MAIC/OpenMAIC',
+        title: 'DojoLearn',
+        url: 'https://github.com/PatilYash0110/edudojo-hackathon-2026',
         content: 'a longer, query-relevant summary',
         score: 0.95,
       },

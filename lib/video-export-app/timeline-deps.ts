@@ -25,7 +25,7 @@ import type {
   SceneCore,
   SpotlightAction,
   LaserAction,
-} from '@openmaic/dsl';
+} from '@dojolearn/dsl';
 import type {
   AssetMeta,
   AssetSource,
@@ -34,9 +34,9 @@ import type {
   TimingProbe,
 } from '@/lib/video-export';
 import type { Scene, SlideContent, Stage } from '@/lib/types/stage';
-import { enumerateAssetManifest } from '@openmaic/dsl';
+import { enumerateAssetManifest } from '@dojolearn/dsl';
 import { isMediaPlaceholder } from '@/lib/store/media-generation';
-import { measureSlideElementGeometry, type MeasuredGeometry } from '@openmaic/renderer/snapshot';
+import { measureSlideElementGeometry, type MeasuredGeometry } from '@dojolearn/renderer/snapshot';
 import {
   db,
   mediaFileKey,

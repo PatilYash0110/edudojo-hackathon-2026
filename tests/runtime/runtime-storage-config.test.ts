@@ -1,4 +1,4 @@
-import type { KVStore, RuntimeStore } from '@openmaic/storage';
+import type { KVStore, RuntimeStore } from '@dojolearn/storage';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 function stubStore(deleteStageRuntime = vi.fn().mockResolvedValue(undefined)): RuntimeStore {

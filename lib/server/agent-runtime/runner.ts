@@ -16,7 +16,7 @@ import {
   type AgentSessionMeta,
   type AgentSessionUserMessage,
   type ClaimedAgentSession,
-} from '@openmaic/storage';
+} from '@dojolearn/storage';
 
 import { buildAgent } from '@/lib/agent/runtime/build-agent';
 import { createCallLlmStreamFn } from '@/lib/agent/runtime/stream-fn';
@@ -702,7 +702,7 @@ export function elementRefsPromptBlock(targets: readonly ResolvedElementRef[]): 
   ].join('\n');
 }
 
-const DURABLE_USER_MESSAGE_SEQ = 'openmaicDurableUserMessageSeq';
+const DURABLE_USER_MESSAGE_SEQ = 'dojolearnDurableUserMessageSeq';
 
 /** Tag the exact durable message represented by a user transcript frame. */
 export function tagDurableUserMessage(message: AgentMessage, seq: number): AgentMessage {

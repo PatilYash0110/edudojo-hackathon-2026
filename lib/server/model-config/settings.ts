@@ -53,7 +53,7 @@ import {
   thinkingEffortIssue,
   type ModelConfigFile,
   type SlotAssignment,
-} from './openmaic-yml';
+} from './dojolearn-yml';
 import {
   defaultWebFetchProviderId,
   findAssignment,

@@ -1,5 +1,5 @@
 /**
- * Chat with the classroom's three agents. Reuses OpenMAIC's multi-agent
+ * Chat with the classroom's three agents. Reuses DojoLearn's multi-agent
  * director (`POST /api/chat/pi`): we build its request from the generated
  * course + our agents, stream its events through, and save each finished
  * message. Off-topic messages get a scripted redirect instead.

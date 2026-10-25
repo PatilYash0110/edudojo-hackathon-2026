@@ -1,6 +1,6 @@
 /**
  * Who is calling: the `dojo_session` cookie → a row in dojo_users.
- * The cookie is signed with a key derived from OpenMAIC's instance secret
+ * The cookie is signed with a key derived from DojoLearn's instance secret
  * (`OPENMAIC_SECRET_KEY`, or data/instance-secret.key).
  *
  * OWNER: BACKEND TEAM.

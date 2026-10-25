@@ -13,7 +13,7 @@ import {
 
 const dirs: string[] = [];
 function tempDir(): string {
-  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openmaic-secret-'));
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dojolearn-secret-'));
   dirs.push(dir);
   return dir;
 }

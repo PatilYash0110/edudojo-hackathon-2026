@@ -45,9 +45,9 @@
 import { promises as fs } from 'fs';
 import path from 'path';
 
-import { isDocumentWriteRefusedError } from '@openmaic/storage';
-import type { Queryable } from '@openmaic/storage/document/pg';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import { isDocumentWriteRefusedError } from '@dojolearn/storage';
+import type { Queryable } from '@dojolearn/storage/document/pg';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 
 import { validateAppScene, validateAppStage } from '@/lib/document-store/validators';
 import { createLogger } from '@/lib/logger';
@@ -72,7 +72,7 @@ import { isGeneratedMediaPlaceholder } from '@/lib/media/media-ref';
 import { storeGeneratedAsset, type GeneratedAssetKind } from '@/lib/server/store-generated-asset';
 import type { SpeechAction } from '@/lib/types/action';
 import type { Scene, Stage } from '@/lib/types/stage';
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 
 const log = createLogger('LegacyClassroomImport');
 

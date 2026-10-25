@@ -1,5 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest';
-import { parseModelConfig } from '@/lib/server/model-config/openmaic-yml';
+import { parseModelConfig } from '@/lib/server/model-config/dojolearn-yml';
 import { setDeploymentConfigForTests } from '@/lib/server/model-config/runtime';
 import { resolveMediaSlot } from '@/lib/server/model-config/media';
 import {

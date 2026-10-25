@@ -1,7 +1,7 @@
-import { validateShapeGeometry, shapeGeometryChanged } from '@openmaic/geometry';
+import { validateShapeGeometry, shapeGeometryChanged } from '@dojolearn/geometry';
 import { current, produce } from 'immer';
 import type { SlideContent } from '@/lib/types/stage';
-import type { PPTElement, Slide } from '@openmaic/dsl';
+import type { PPTElement, Slide } from '@dojolearn/dsl';
 import { getElementListRange } from '@/lib/utils/element';
 
 type ElementPatch = Partial<PPTElement>;

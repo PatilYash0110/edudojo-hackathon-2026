@@ -33,7 +33,7 @@ import {
 
 const log = createLogger('GenerationRunner');
 
-const RUNNER_KEY = Symbol.for('openmaic.generation-runs.runner');
+const RUNNER_KEY = Symbol.for('dojolearn.generation-runs.runner');
 const runnerState = globalThis as typeof globalThis & {
   [RUNNER_KEY]?: GenerationRunnerHandle;
 };

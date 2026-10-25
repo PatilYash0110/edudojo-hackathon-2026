@@ -1,5 +1,5 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
-import { safeKatexOptions } from '@openmaic/dsl';
+import { safeKatexOptions } from '@dojolearn/dsl';
 import type { StageStore } from '@/lib/api/stage-api';
 import { ActionEngine } from '@/lib/action/engine';
 

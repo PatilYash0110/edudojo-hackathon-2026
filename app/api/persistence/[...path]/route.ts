@@ -2,13 +2,13 @@ import { randomUUID } from 'node:crypto';
 import type { IncomingMessage, RequestListener, ServerResponse } from 'node:http';
 import { Readable } from 'node:stream';
 
-import { DocumentWriteRefusedError, type RuntimeStore } from '@openmaic/storage';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import { DocumentWriteRefusedError, type RuntimeStore } from '@dojolearn/storage';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 import {
   createStorageHttpHandler,
   DEFAULT_SIGNED_URL_TTL_SECONDS,
   type AssetIndirectByteEgress,
-} from '@openmaic/storage/server';
+} from '@dojolearn/storage/server';
 
 import { validateAppScene, validateAppStage } from '@/lib/document-store/validators';
 import { createLogger } from '@/lib/logger';
@@ -556,7 +556,7 @@ async function handlePersistenceRequestInner(
       const admission: AssetAdmission = {};
       const handled =
         access === 'not-found'
-          ? jsonError(404, 'DOCUMENT_NOT_FOUND', '@openmaic/storage: document not found')
+          ? jsonError(404, 'DOCUMENT_NOT_FOUND', '@dojolearn/storage: document not found')
           : await runNodeHandler(
               await createPersistenceHandler(
                 connectionString,

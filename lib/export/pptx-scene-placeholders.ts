@@ -1,6 +1,6 @@
 import type pptxgen from 'pptxgenjs';
 import tinycolor from 'tinycolor2';
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 import type { PBLContent, Scene } from '@/lib/types/stage';
 import { classroomSceneUrl } from '@/lib/classroom/scene-deep-link';
 import { pblBriefing, type PblBriefing } from './pbl-briefing';

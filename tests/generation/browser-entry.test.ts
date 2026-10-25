@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { init, parse } from 'es-module-lexer';
 import { describe, expect, it } from 'vitest';
-import { changeOutlineType, isAbortError } from '@openmaic/generation/browser';
+import { changeOutlineType, isAbortError } from '@dojolearn/generation/browser';
 
 describe('generation browser entry', () => {
   it('retains the public browser-safe helpers', () => {
@@ -43,7 +43,7 @@ describe('generation browser entry', () => {
       }
     }
 
-    visit(resolve('packages/@openmaic/generation/dist/browser.js'));
+    visit(resolve('packages/@dojolearn/generation/dist/browser.js'));
     expect(visited.size).toBeGreaterThan(5);
   });
 });

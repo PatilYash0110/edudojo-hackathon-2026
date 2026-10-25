@@ -600,7 +600,7 @@ export async function extractMediaMaterial(
   );
   const commands = dependencies.commands ?? defaultMediaCommands;
   const transcribe = dependencies.transcribe ?? transcribeAudio;
-  const sessionDir = await deadline.beforeAwait(() => mkdtemp(join(tmpdir(), 'openmaic-media-')));
+  const sessionDir = await deadline.beforeAwait(() => mkdtemp(join(tmpdir(), 'dojolearn-media-')));
   const sourcePath = join(sessionDir, `source${sourceExtension(input.mimeType)}`);
   try {
     await deadline.beforeAwait(() => writeFile(sourcePath, input.buffer));

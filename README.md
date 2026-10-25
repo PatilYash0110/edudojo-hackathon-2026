@@ -1,6 +1,6 @@
 # DojoLearn
 
-DojoLearn extends [OpenMAIC](https://github.com/THU-MAIC/OpenMAIC) with a Street-Fighter-style learning dojo (every
+DojoLearn is an AI classroom platform with a Street-Fighter-style learning dojo (every
 floor is a topic), AI characters (Sensei, Rival, Classmate, Boss), assessments, and teacher/student dashboards.
 
 > **Status: skeleton.** Folders, placeholder pages, stub functions and 501 endpoints only. Nothing is implemented yet.
@@ -29,9 +29,9 @@ cp openmaic.example.yml openmaic.yml
 pnpm dev
 ```
 
-Open <http://localhost:3000/dojo> for the placeholder pages and <http://localhost:3000> for the original OpenMAIC.
+Open <http://localhost:3000/dojo> for the placeholder pages and <http://localhost:3000> for the classroom platform.
 Find open work with `grep -rn TODO teams`.
 
 ## License
 
-This project keeps OpenMAIC's MIT license. See [LICENSE](LICENSE).
+This project is MIT licensed. See [LICENSE](LICENSE).

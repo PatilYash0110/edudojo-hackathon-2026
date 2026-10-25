@@ -2,10 +2,10 @@
 
 ## Product boundary
 
-- **The Backend Team's OpenMAIC runtime remains the learning engine.** It owns generated lessons, narration, interactive learning, and lesson completion inside the game flow.
-- **The game layer wraps OpenMAIC.** It owns the 2D tower map, floor locks, return-to-dojo loop, battles, and Final Boss mastery gate.
-- One user input creates one Dojo topic. Its OpenMAIC sections become tower floors; the Final Boss draws from every objective in that input.
-- The mock lesson scenes occupy an embedded runtime slot. Backend replaces that slot and emits `LESSON_COMPLETED`; the game never navigates to the existing OpenMAIC course library.
+- **The Backend Team's DojoLearn runtime remains the learning engine.** It owns generated lessons, narration, interactive learning, and lesson completion inside the game flow.
+- **The game layer wraps DojoLearn.** It owns the 2D tower map, floor locks, return-to-dojo loop, battles, and Final Boss mastery gate.
+- One user input creates one Dojo topic. Its DojoLearn sections become tower floors; the Final Boss draws from every objective in that input.
+- The mock lesson scenes occupy an embedded runtime slot. Backend replaces that slot and emits `LESSON_COMPLETED`; the game never navigates to the existing DojoLearn course library.
 
 ## Technical direction: 2D only
 
@@ -24,7 +24,7 @@
 - Close-range face-off movement, three rotating guard/feint poses, and alternate player/enemy strike motions.
 - Cooldowns, HP, victory, defeat, restart, German sample questions, and an English Dev Set.
 - A player equipment selector with a Training Katana and a transparent Dragon Fang test sprite.
-- Persistent flow: embedded OpenMAIC lesson → room entry → floor battle → next lesson → Final Boss.
+- Persistent flow: embedded DojoLearn lesson → room entry → floor battle → next lesson → Final Boss.
 - The tower marker walks with `A/D`, changes floors with `W/S`, and enters open doors automatically.
 - Winning teleports the learner directly to the next lesson.
 

@@ -192,7 +192,7 @@ describe.skipIf(!contractUrl)('legacy classroom import on PostgreSQL', () => {
     process.env.ASSET_S3_BUCKET = '';
     await getServerPersistenceProvider(databaseUrl, () => pool);
 
-    directory = await fs.mkdtemp(path.join(os.tmpdir(), 'openmaic-legacy-classrooms-'));
+    directory = await fs.mkdtemp(path.join(os.tmpdir(), 'dojolearn-legacy-classrooms-'));
     const write = async (file: string, data: string | Buffer) => {
       await fs.mkdir(path.dirname(path.join(directory, file)), { recursive: true });
       await fs.writeFile(path.join(directory, file), data);
@@ -240,7 +240,7 @@ describe.skipIf(!contractUrl)('legacy classroom import on PostgreSQL', () => {
 
   const scratch: string[] = [];
   async function freshDirectory(files: Record<string, unknown>): Promise<string> {
-    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'openmaic-legacy-classrooms-'));
+    const dir = await fs.mkdtemp(path.join(os.tmpdir(), 'dojolearn-legacy-classrooms-'));
     scratch.push(dir);
     for (const [name, value] of Object.entries(files)) {
       await fs.writeFile(path.join(dir, name), JSON.stringify(value));

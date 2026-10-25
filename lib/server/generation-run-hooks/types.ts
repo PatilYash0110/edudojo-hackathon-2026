@@ -19,7 +19,7 @@
  * `register()` (see `./registry.ts`). With nothing registered, generation
  * behaves exactly as it did before the hooks existed.
  */
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import type { GenerationRunInput } from '@/lib/server/generation/run/types';
 import type { OwnerPrincipal } from '@/lib/server/identity/types';

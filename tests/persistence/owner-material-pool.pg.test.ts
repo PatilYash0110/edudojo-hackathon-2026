@@ -8,7 +8,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 
 import { Pool, type PoolClient } from 'pg';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { withMaterialRoots } from '@/lib/persistence/material-roots';

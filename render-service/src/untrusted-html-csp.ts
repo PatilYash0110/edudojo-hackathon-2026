@@ -10,7 +10,7 @@
  */
 
 /** Attribute that identifies a policy `<meta>` written by this module. */
-export const UNTRUSTED_HTML_CSP_MARKER = 'data-openmaic-untrusted-csp';
+export const UNTRUSTED_HTML_CSP_MARKER = 'data-dojolearn-untrusted-csp';
 
 /**
  * Policy equivalent to the app packager's interactive-scene policy

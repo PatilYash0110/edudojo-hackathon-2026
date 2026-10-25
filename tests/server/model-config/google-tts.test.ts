@@ -22,7 +22,7 @@ const { resolveMediaSlot, WorkspaceEndpointError } =
   await import('@/lib/server/model-config/media');
 const { translateLegacyConfig } = await import('@/lib/server/model-config/legacy-config');
 
-type Config = import('@/lib/server/model-config/openmaic-yml').ModelConfigFile;
+type Config = import('@/lib/server/model-config/dojolearn-yml').ModelConfigFile;
 type ServerConfig = import('@/lib/server/provider-config').ServerConfig;
 
 const workspaces = new Map<string, Config>();

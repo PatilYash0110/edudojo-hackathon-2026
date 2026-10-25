@@ -38,8 +38,8 @@
  */
 import { createHash, randomUUID } from 'node:crypto';
 
-import { AssetQuotaExceededError } from '@openmaic/storage';
-import { AssetRootTargetError } from '@openmaic/storage/asset/pg';
+import { AssetQuotaExceededError } from '@dojolearn/storage';
+import { AssetRootTargetError } from '@dojolearn/storage/asset/pg';
 
 import { asrRequestUrl } from '@/lib/audio/asr-providers';
 import { derivedStem, keyframeTitle } from '@/lib/document/extractors/local-media';

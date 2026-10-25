@@ -39,7 +39,7 @@ const DEPRECATED = /^The model configuration comes from the legacy provider vari
 let dir: string;
 
 beforeEach(() => {
-  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'openmaic-deployment-layer-'));
+  dir = fs.mkdtempSync(path.join(os.tmpdir(), 'dojolearn-deployment-layer-'));
   vi.spyOn(process, 'cwd').mockReturnValue(dir);
   for (const name of [
     'OPENMAIC_CONFIG',
@@ -95,7 +95,7 @@ describe('loadDeploymentLayer', () => {
     vi.stubEnv('MODEL_ROUTES', '{"scene-content":{"model":"openai:gpt-5.6"}}');
     expect(() => loadDeploymentLayer()).toThrow(LegacyRoutesError);
     expect(() => loadDeploymentLayer()).toThrow(
-      /write the per-stage models as slots in openmaic\.yml/,
+      /write the per-stage models as slots in dojolearn\.yml/,
     );
   });
 
@@ -105,7 +105,7 @@ describe('loadDeploymentLayer', () => {
     const { layer, notices } = loadDeploymentLayer();
     expect(layer?.config).toEqual({ slots: { video: null } });
     expect(notices).toHaveLength(1);
-    expect(notices[0]).toMatch(/^openmaic\.yml is present/);
+    expect(notices[0]).toMatch(/^dojolearn\.yml is present/);
   });
 
   it('reports a legacy configuration that only switches providers off', () => {
@@ -128,7 +128,7 @@ describe('loadDeploymentLayer', () => {
     expect(layer?.config.slots).toEqual({ llm: 'ds:deepseek-v4-pro' });
     expect(layer?.config.providers).toEqual({ ds: { preset: 'deepseek', apiKey: 'sk-ds' } });
     expect(notices).toHaveLength(2);
-    expect(notices[0]).toMatch(/^openmaic\.yml is present/);
+    expect(notices[0]).toMatch(/^dojolearn\.yml is present/);
   });
 
   it('leaves a retired Veo provider unused, with a notice, instead of refusing the file', () => {

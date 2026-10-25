@@ -1,5 +1,5 @@
-import { SlideCanvas, type SlideEffects } from '@openmaic/renderer';
-import type { PPTVideoElement, Slide } from '@openmaic/dsl';
+import { SlideCanvas, type SlideEffects } from '@dojolearn/renderer';
+import type { PPTVideoElement, Slide } from '@dojolearn/dsl';
 import type { StandalonePlayerStrings } from '@/lib/export/standalone-html/contract';
 import type { MediaLibrary } from '../playback/media-library';
 import type { VideoRegistry } from '../playback/media-ports';

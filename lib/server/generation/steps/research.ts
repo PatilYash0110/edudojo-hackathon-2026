@@ -4,7 +4,7 @@
  * rewrite model is available. The logic of 1.1.x's POST /api/web-search; the
  * caller resolves the webSearch slot and the rewrite model.
  */
-import type { AICallFn } from '@openmaic/generation';
+import type { AICallFn } from '@dojolearn/generation';
 
 import { callLLM } from '@/lib/ai/llm';
 import { formatSearchResultsAsContext, searchWeb } from '@/lib/web-search';

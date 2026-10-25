@@ -1,7 +1,7 @@
 /**
  * The three chat agents: teacher, curious classmate, correcting classmate.
  * Random German first names per classroom; the role label is always shown.
- * Teacher and curious classmate reuse OpenMAIC's built-in personas; the
+ * Teacher and curious classmate reuse DojoLearn's built-in personas; the
  * corrector is new. Every persona gets the classroom scope rules (guard layer 2).
  *
  * OWNER: BACKEND TEAM.
@@ -71,7 +71,7 @@ export function pickChatAgents(random: () => number = Math.random): ChatAgent[] 
   });
 }
 
-/** OpenMAIC agent config for the chat director, scoped to this classroom. */
+/** DojoLearn agent config for the chat director, scoped to this classroom. */
 export function agentConfig(agent: ChatAgent, classroom: { title: string; objectives: string[] }) {
   const builtIn = ROLES[agent.role].builtIn;
   const base = (builtIn && getBuiltInAgent(builtIn)?.persona) || CORRECTOR_PERSONA;

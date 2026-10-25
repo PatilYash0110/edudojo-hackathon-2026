@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
 import { resolveMediaSlot, WorkspaceEndpointError } from '@/lib/server/model-config/media';
-import type { ModelConfigFile } from '@/lib/server/model-config/openmaic-yml';
+import type { ModelConfigFile } from '@/lib/server/model-config/dojolearn-yml';
 import {
   setDeploymentConfigForTests,
   setWorkspaceLayerLoaderForTests,

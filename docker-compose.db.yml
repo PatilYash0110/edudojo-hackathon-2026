@@ -3,7 +3,7 @@
 # A separate development database. It runs the `postgres` service definition
 # of docker-compose.yml (same image and settings, through `extends`) under its
 # own Compose project, `openmaic-dev-db`, so it has its own container and its
-# own data volume (`openmaic-dev-db_openmaic-postgres`). Starting or stopping
+# own data volume (`dojolearn-dev-db_openmaic-postgres`). Starting or stopping
 # it never touches the database of a `docker compose up` stack from the same
 # checkout, and that stack's data is not visible here. The project name is
 # fixed (and pinned with `-p` in package.json, so COMPOSE_PROJECT_NAME cannot

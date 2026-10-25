@@ -41,8 +41,8 @@
  * owner-bound document store); a worker executing it loses its lease.
  */
 import { ModelAuthorizationError } from '@/lib/server/model-config/model-authorization';
-import { isAbortError } from '@openmaic/generation';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import { isAbortError } from '@dojolearn/generation';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import { pickNarratorAgent, resolveServerAgentVoiceOptions } from '@/lib/audio/agent-voice-options';
 import { voiceBindingKey } from '@/lib/audio/unavailable-voice-bindings';

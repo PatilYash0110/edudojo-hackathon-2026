@@ -11,7 +11,7 @@
 import { validateToolArguments } from '@earendil-works/pi-ai';
 import { describe, expect, it, vi } from 'vitest';
 import type { AgentTool } from '@earendil-works/pi-agent-core';
-import type { AgentSessionMaterial } from '@openmaic/storage';
+import type { AgentSessionMaterial } from '@dojolearn/storage';
 
 import type { OwnerMaterialEntry } from '@/lib/persistence/session-material-links';
 import { buildMaterialTools, MATERIAL_TOOL_NAMES } from '@/lib/server/agent-runtime/material-tools';

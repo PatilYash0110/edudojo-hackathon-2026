@@ -53,8 +53,8 @@ import { CLASSIC_EXTRACTION_SQL } from '@/lib/persistence/material-extraction-fo
  */
 import { createHash } from 'node:crypto';
 
-import type { BinaryBlob } from '@openmaic/dsl';
-import { AssetQuotaExceededError } from '@openmaic/storage';
+import type { BinaryBlob } from '@dojolearn/dsl';
+import { AssetQuotaExceededError } from '@dojolearn/storage';
 
 import { withMaterialRoots } from '@/lib/persistence/material-roots';
 import { assetPrincipalForOwner } from '@/lib/persistence/owner-assets';

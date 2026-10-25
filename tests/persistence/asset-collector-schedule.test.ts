@@ -28,7 +28,7 @@ vi.mock('@/lib/persistence/schema-bootstrap-lock', () => ({
  * survive dev-time module reloads, which `vi.resetModules()` deliberately does
  * not touch.
  */
-const SCHEDULE_KEY = Symbol.for('openmaic.asset-collector.schedule');
+const SCHEDULE_KEY = Symbol.for('dojolearn.asset-collector.schedule');
 
 interface CollectorRecord {
   queryable: unknown;
@@ -135,7 +135,7 @@ function mockStorage(collect: () => Promise<Partial<CollectionPass>>): Harness {
     getServerPersistenceProvider: harness.getServerPersistenceProvider,
   }));
 
-  vi.doMock('@openmaic/storage/asset/collector', () => ({
+  vi.doMock('@dojolearn/storage/asset/collector', () => ({
     DEFAULT_ASSET_COLLECTION_GRACE_MS: 60 * 60 * 1000,
     AssetReferenceTrackingNotEnabledError: MockReferenceTrackingNotEnabled,
     AssetReferenceRuleVersionError: MockReferenceRuleVersion,
@@ -147,21 +147,21 @@ function mockStorage(collect: () => Promise<Partial<CollectionPass>>): Harness {
       }
     },
   }));
-  vi.doMock('@openmaic/storage/asset/pg', () => ({
+  vi.doMock('@dojolearn/storage/asset/pg', () => ({
     ensureAssetSchema: harness.ensureAssetSchema,
     PgAssetStore: class {},
   }));
-  vi.doMock('@openmaic/storage/asset/pg-bytes', () => ({
+  vi.doMock('@dojolearn/storage/asset/pg-bytes', () => ({
     PgAssetByteStore: class {
       constructor(queryable: unknown) {
         harness.pgByteStores.push(queryable);
       }
     },
   }));
-  vi.doMock('@openmaic/storage/asset/s3-bytes', () => ({
+  vi.doMock('@dojolearn/storage/asset/s3-bytes', () => ({
     loadS3AssetByteStore: harness.loadS3AssetByteStore,
   }));
-  vi.doMock('@openmaic/storage/server/reference', () => ({
+  vi.doMock('@dojolearn/storage/server/reference', () => ({
     nodePostgresTransaction: vi.fn(() => vi.fn()),
   }));
   vi.doMock('pg', () => ({

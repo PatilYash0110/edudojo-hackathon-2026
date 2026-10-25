@@ -280,7 +280,7 @@ async function loadAndWait(url, { evaluate } = {}) {
 }
 
 async function runRenderPayload(harden) {
-  const dir = await mkdtemp(join(tmpdir(), 'openmaic-csp-render-'));
+  const dir = await mkdtemp(join(tmpdir(), 'dojolearn-csp-render-'));
   try {
     await writeRenderProject(dir, { legit: false, harden });
     const server = await startProjectServer(dir);
@@ -295,7 +295,7 @@ async function runRenderPayload(harden) {
 }
 
 async function runRenderPrefix(target) {
-  const dir = await mkdtemp(join(tmpdir(), 'openmaic-csp-prefix-'));
+  const dir = await mkdtemp(join(tmpdir(), 'dojolearn-csp-prefix-'));
   try {
     await writeRenderPrefixProject(dir, target);
     await hardenProjectDirectory(dir);
@@ -311,7 +311,7 @@ async function runRenderPrefix(target) {
 }
 
 async function runRenderSvgProject({ sanitize }) {
-  const dir = await mkdtemp(join(tmpdir(), 'openmaic-csp-svg-'));
+  const dir = await mkdtemp(join(tmpdir(), 'dojolearn-csp-svg-'));
   try {
     await writeRenderSvgProject(dir);
     if (sanitize) await hardenProjectDirectory(dir);
@@ -327,7 +327,7 @@ async function runRenderSvgProject({ sanitize }) {
 }
 
 async function runRenderXhtmlProject({ sanitize }) {
-  const dir = await mkdtemp(join(tmpdir(), 'openmaic-csp-xhtml-'));
+  const dir = await mkdtemp(join(tmpdir(), 'dojolearn-csp-xhtml-'));
   try {
     await writeRenderXhtmlProject(dir);
     if (sanitize) await hardenProjectDirectory(dir);
@@ -343,7 +343,7 @@ async function runRenderXhtmlProject({ sanitize }) {
 }
 
 async function runRenderFormProject() {
-  const dir = await mkdtemp(join(tmpdir(), 'openmaic-csp-form-'));
+  const dir = await mkdtemp(join(tmpdir(), 'dojolearn-csp-form-'));
   try {
     await writeRenderFormProject(dir);
     await hardenProjectDirectory(dir);
@@ -359,7 +359,7 @@ async function runRenderFormProject() {
 }
 
 async function runRenderLegit() {
-  const dir = await mkdtemp(join(tmpdir(), 'openmaic-csp-legit-'));
+  const dir = await mkdtemp(join(tmpdir(), 'dojolearn-csp-legit-'));
   try {
     await writeRenderProject(dir, { legit: true, harden: true });
     const server = await startProjectServer(dir);

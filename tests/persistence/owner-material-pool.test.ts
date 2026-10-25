@@ -6,8 +6,8 @@
 import { createHash, randomUUID } from 'node:crypto';
 
 import { PGlite } from '@electric-sql/pglite';
-import type { Queryable, WithTransaction } from '@openmaic/storage/document/pg';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import type { Queryable, WithTransaction } from '@dojolearn/storage/document/pg';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { withMaterialRoots } from '@/lib/persistence/material-roots';

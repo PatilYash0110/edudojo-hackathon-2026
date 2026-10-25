@@ -30,7 +30,7 @@ const roots: string[] = [];
 afterEach(() => roots.splice(0).forEach((path) => rmSync(path, { recursive: true, force: true })));
 
 function root() {
-  const path = mkdtempSync(join(tmpdir(), 'openmaic-task-closeout-'));
+  const path = mkdtempSync(join(tmpdir(), 'dojolearn-task-closeout-'));
   roots.push(path);
   return path;
 }
@@ -215,9 +215,9 @@ function closeoutFixture(overrides: Record<string, unknown> = {}) {
       workerGid: 1001,
     },
     group: '/sys/fs/cgroup/tasks/task.service',
-    privateRoot: '/run/openmaic/task/private',
-    privateProject: '/run/openmaic/task/private/project',
-    candidate: '/run/openmaic/task/private/out/candidate.mp4',
+    privateRoot: '/run/dojolearn/task/private',
+    privateProject: '/run/dojolearn/task/private/project',
+    candidate: '/run/dojolearn/task/private/out/candidate.mp4',
     workerExit: { code: 0, signal: null },
     isStopping: () => false,
     projectMounted: true,
@@ -249,8 +249,8 @@ it('runs the production drain, reference, transfer, and unmount gates in order',
     'drain',
     'scan',
     'transfer',
-    'umount:/run/openmaic/task/private/project',
-    'umount:/run/openmaic/task/private',
+    'umount:/run/dojolearn/task/private/project',
+    'umount:/run/dojolearn/task/private',
     'remove-private-root',
   ]);
   expect(result).toMatchObject({ status: 'succeeded', cleanupVerified: true });

@@ -7,14 +7,14 @@
 import { z } from 'zod';
 import { ChallengeSchema } from './challenge';
 
-export const OpenMaicLessonReferenceSchema = z.object({
-  /** Runtime generated and served by the Backend Team's OpenMAIC integration. */
+export const DojoLearnLessonReferenceSchema = z.object({
+  /** Runtime generated and served by the Backend Team's DojoLearn integration. */
   runtimeId: z.string().min(1),
   sceneIds: z.array(z.string().min(1)),
   /** Same-origin player page for this runtime, e.g. `/classroom/<stageId>`. */
   playerUrl: z.string().min(1).optional(),
 });
-export type OpenMaicLessonReference = z.infer<typeof OpenMaicLessonReferenceSchema>;
+export type DojoLearnLessonReference = z.infer<typeof DojoLearnLessonReferenceSchema>;
 
 export const LearningObjectiveSchema = z.object({
   id: z.string().min(1),
@@ -30,7 +30,7 @@ export const FloorSchema = z.object({
   objectives: z.array(LearningObjectiveSchema).min(1),
   challenges: z.array(ChallengeSchema),
   /** Embedded lesson runtime from the Backend Team; never an external navigation target. */
-  lesson: OpenMaicLessonReferenceSchema.optional(),
+  lesson: DojoLearnLessonReferenceSchema.optional(),
 });
 export type Floor = z.infer<typeof FloorSchema>;
 
@@ -67,7 +67,7 @@ export type Dojo = z.infer<typeof DojoSchema>;
 
 export const CreateDojoInputSchema = z.object({
   topic: z.string().trim().min(1).max(2000),
-  /** PDFs uploaded first through OpenMAIC's materials API. */
+  /** PDFs uploaded first through DojoLearn's materials API. */
   materialIds: z.array(z.string().min(1)).max(5).optional(),
 });
 export type CreateDojoInput = z.infer<typeof CreateDojoInputSchema>;

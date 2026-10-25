@@ -9,7 +9,7 @@
  * static files served with CORS, and on a localhost or private-address
  * deployment the proxy's SSRF guard would reject them.
  */
-import { interactiveAssetBaseUrl } from '@openmaic/generation/browser';
+import { interactiveAssetBaseUrl } from '@dojolearn/generation/browser';
 import { fetchProxiedMediaUrl } from '@/lib/media/proxy-media-cache';
 
 function isInteractiveAsset(url: URL, pageHref: string | undefined): boolean {

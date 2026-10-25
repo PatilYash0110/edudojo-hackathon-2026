@@ -1,9 +1,9 @@
 import { createElement, type ReactNode } from 'react';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { SlideContent } from '@openmaic/dsl';
-import type { EditorTransaction } from '@openmaic/editor/core';
-import type { EditableSlideCanvasWithUIProps } from '@openmaic/editor/ui';
+import type { SlideContent } from '@dojolearn/dsl';
+import type { EditorTransaction } from '@dojolearn/editor/core';
+import type { EditableSlideCanvasWithUIProps } from '@dojolearn/editor/ui';
 
 const state = vi.hoisted(() => ({
   rendererEnabled: true,
@@ -134,7 +134,7 @@ vi.mock('@/lib/store/canvas', () => ({
   },
 }));
 
-vi.mock('@openmaic/editor/ui', () => ({
+vi.mock('@dojolearn/editor/ui', () => ({
   EditableSlideCanvasWithUI: (props: EditableSlideCanvasWithUIProps) => {
     state.lastRendererProps = props;
     return createElement('div', { 'data-renderer-editor': '' });

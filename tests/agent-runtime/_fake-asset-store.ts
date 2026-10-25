@@ -1,5 +1,5 @@
-import type { AssetMeta, BinaryBlob } from '@openmaic/dsl';
-import { AssetQuotaExceededError, type AssetPrincipal, type AssetStore } from '@openmaic/storage';
+import type { AssetMeta, BinaryBlob } from '@dojolearn/dsl';
+import { AssetQuotaExceededError, type AssetPrincipal, type AssetStore } from '@dojolearn/storage';
 
 export interface RecordedPut {
   principalKey: string;

@@ -2,11 +2,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 
-import { parseModelConfig } from '@/lib/server/model-config/openmaic-yml';
+import { parseModelConfig } from '@/lib/server/model-config/dojolearn-yml';
 
 describe('DojoLearn openmaic.yml', () => {
-  it('parses with OpenMAIC schema', () => {
-    const file = path.resolve(__dirname, '../config/openmaic.dojo.yml');
+  it('parses with DojoLearn schema', () => {
+    const file = path.resolve(__dirname, '../config/dojolearn.dojo.yml');
     const config = parseModelConfig(fs.readFileSync(file, 'utf-8'), {
       file,
       env: {

@@ -1,6 +1,6 @@
 /** A step's budget: a timeout is a retryable failure; the run's own abort is an abort. */
 import { describe, expect, it } from 'vitest';
-import { isAbortError } from '@openmaic/generation';
+import { isAbortError } from '@dojolearn/generation';
 
 import { StepTimeoutError, withDeadline } from '@/lib/server/generation/run/deadline';
 import { withRouteRetry } from '@/lib/server/generation/run/retry';

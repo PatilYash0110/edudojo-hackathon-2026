@@ -8,7 +8,7 @@ import type {
   PPTShapeElement,
   PPTTextElement,
   Whiteboard,
-} from '@openmaic/dsl';
+} from '@dojolearn/dsl';
 
 vi.mock('motion/react', () => ({
   AnimatePresence: ({ children }: { children: ReactNode }) =>

@@ -18,8 +18,8 @@
  * that exists on the server but is not in the ledger was written by the app
  * itself; the server copy wins and the legacy one is not copied.
  */
-import type { RuntimeRecord, RuntimeSession } from '@openmaic/dsl';
-import type { RuntimeStore } from '@openmaic/storage';
+import type { RuntimeRecord, RuntimeSession } from '@dojolearn/dsl';
+import type { RuntimeStore } from '@dojolearn/storage';
 
 import { failureOrStop } from './errors';
 import { rewriteStageSegment } from './ids';

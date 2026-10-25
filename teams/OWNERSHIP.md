@@ -33,9 +33,9 @@ there's a disagreement. Nobody else edits an owned folder. Ask the owner instead
 
 | Slot | Person | Owns | Delivers |
 | --- | --- | --- | --- |
-| **F1 · Frontend lead / design system** | _name_ | `frontend/docs/STYLE_GUIDE.md`, `frontend/theme/`, `frontend/app-shell/`, `frontend/lib/`, `teams/OPENMAIC.md` | Style guide, design tokens, layout + navigation, API client, i18n hook, responsive + accessibility rules, hiding unused OpenMAIC screens |
+| **F1 · Frontend lead / design system** | _name_ | `frontend/docs/STYLE_GUIDE.md`, `frontend/theme/`, `frontend/app-shell/`, `frontend/lib/`, `teams/DOJOLEARN.md` | Style guide, design tokens, layout + navigation, API client, i18n hook, responsive + accessibility rules, hiding unused DojoLearn screens |
 | **F2 · Game UI** | _name_ | `features/battle/`, `features/boss/`, `features/progress/`, `public/dojo/` | Battle screen, arena, fighters, health / combo / skill bars, animations + sound, Final Boss screens, XP bar, achievement toasts, assets |
-| **F3 · Learning UI** | _name_ | `features/dojo-map/`, `features/lesson/`, `features/challenges/`, `features/agents/`, `features/student-chat/` | Dojo map, lesson screen (OpenMAIC slides + narration), whiteboard, coding / simulation / project screens, Sensei / Rival / Classmate chat, voice mode + subtitles, student chat |
+| **F3 · Learning UI** | _name_ | `features/dojo-map/`, `features/lesson/`, `features/challenges/`, `features/agents/`, `features/student-chat/` | Dojo map, lesson screen (DojoLearn slides + narration), whiteboard, coding / simulation / project screens, Sensei / Rival / Classmate chat, voice mode + subtitles, student chat |
 | **F4 · Dashboards + teacher** | _name_ | `features/dashboards/`, `features/leaderboard/`, `features/teacher-tools/` | Student + teacher dashboards, bar / line / radar / progress charts, leaderboard, create-a-dojo screen |
 
 ### Backend Team
@@ -43,8 +43,8 @@ there's a disagreement. Nobody else edits an owned folder. Ask the owner instead
 | Slot | Person | Owns | Delivers |
 | --- | --- | --- | --- |
 | **B1 · Backend lead / platform** | _name_ | `backend/api/`, `backend/auth/`, `backend/data/`, `backend/docs/API.md`, `app/api/dojo/` | All endpoints, student/teacher roles + teacher access, in-memory then Postgres storage, deployment, environment + AI provider config |
-| **B2 · AI content generation** | _name_ | `backend/generation/`, `backend/ai/` | Dojo from a topic or uploaded PDF (via OpenMAIC), floors, objectives, lessons, challenges, hints, boss questions |
-| **B3 · Agents, chat, voice** | _name_ | `backend/agents/`, `backend/voice/`, `backend/social/chat.ts` | Sensei / Rival / Classmate / Boss agents (OpenMAIC multi-agent), adaptive boss, real-time Q&A, web search, student chat, TTS + speech recognition |
+| **B2 · AI content generation** | _name_ | `backend/generation/`, `backend/ai/` | Dojo from a topic or uploaded PDF (via DojoLearn), floors, objectives, lessons, challenges, hints, boss questions |
+| **B3 · Agents, chat, voice** | _name_ | `backend/agents/`, `backend/voice/`, `backend/social/chat.ts` | Sensei / Rival / Classmate / Boss agents (DojoLearn multi-agent), adaptive boss, real-time Q&A, web search, student chat, TTS + speech recognition |
 | **B4 · Assessment + analytics** | _name_ | `backend/assessment/`, `backend/analytics/`, `backend/social/leaderboard.ts` | Grading (quiz, AI short answer, code, project/debate), personalized feedback, mastery tracking, difficulty adaptation, battle + boss assessment, dashboard data, leaderboard, export |
 
 ### Shared files
@@ -55,7 +55,7 @@ there's a disagreement. Nobody else edits an owned folder. Ask the owner instead
 | `package.json`, `pnpm-lock.yaml` | B1 | ask B1 before adding a dependency, and B1 merges it |
 | `eslint.config.mjs`, `vitest.config.ts` | B1 | |
 | `.github/CODEOWNERS`, `teams/*.md` | the three leads | |
-| Anything else (OpenMAIC upstream code) | F1 decides for UI, B1 for server | don't edit without telling both |
+| Anything else (core platform code) | F1 decides for UI, B1 for server | don't edit without telling both |
 
 ## 3. Cross-team features: who does which part
 
@@ -75,7 +75,7 @@ there's a disagreement. Nobody else edits an owned folder. Ask the owner instead
 | Student chat | — | **R** UI (F3) | **A R** server (B3) |
 | Voice mode | **C** character voices (G4) | **R** playback + subtitles (F3) | **A R** TTS / ASR (B3) |
 | Teacher access | **A** what teachers see in the game (G1) | **R** teacher screens (F4) | **R** roles + permissions (B1) |
-| Style guide, OpenMAIC cleanup | **C** | **A R** (F1) | **C** |
+| Style guide, DojoLearn cleanup | **C** | **A R** (F1) | **C** |
 | Contracts (`teams/shared`) | **A R** (G1) | **A R** (F1) | **A R** (B1) |
 
 ## 4. Handoffs: what each team owes the others

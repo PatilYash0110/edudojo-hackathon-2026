@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import type { ModelConfigFile } from '@/lib/server/model-config/openmaic-yml';
+import type { ModelConfigFile } from '@/lib/server/model-config/dojolearn-yml';
 import type { ModelConfigLayer } from '@/lib/server/model-config/resolve-slot';
 import { setDeploymentConfigForTests } from '@/lib/server/model-config/runtime';
 import { applyModelSettingsChange, modelSettingsView } from '@/lib/server/model-config/settings';
@@ -356,7 +356,7 @@ describe('Kimi wizard endpoints', () => {
     async (presetId) => {
       const view = viewOf(await configure(addPlan(presetId)));
       // Even if a view offers search, the wizard must check the typed endpoint.
-      view.providers[0] = { ...view.providers[0], baseUrl: 'https://proxy.openmaic.test/v1' };
+      view.providers[0] = { ...view.providers[0], baseUrl: 'https://proxy.dojolearn.test/v1' };
       const preset = view.presets.find((entry) => entry.id === presetId)!;
       expect(wizardAssignments(view, preset, presetId)).not.toHaveProperty('webSearch');
       expect(wizardAssignments(view, preset, presetId)).toHaveProperty('llm');

@@ -16,7 +16,7 @@
  * interval, only while there is something to watch, and nothing after the
  * run ends.
  */
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 export interface ExtractionObservation {
   /** Start watching sources whose extraction has not settled. */

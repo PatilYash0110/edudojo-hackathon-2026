@@ -3,7 +3,7 @@ title: 設定
 description: モデルとプロバイダー（openmaic.yml とモデル設定）、アクセス制御、機能フラグ、その他のサーバーオプション。
 ---
 
-OpenMAIC には 3 つの設定ソースがあり、それぞれが 1 つの役割だけを担います。
+DojoLearn には 3 つの設定ソースがあり、それぞれが 1 つの役割だけを担います。
 
 | ソース | 書く人 | 内容 | 反映タイミング |
 | --- | --- | --- | --- |
@@ -11,7 +11,7 @@ OpenMAIC には 3 つの設定ソースがあり、それぞれが 1 つの役�
 | Web アプリのモデル設定 | ワークスペースのユーザー | ユーザー自身のプロバイダーと、`openmaic.yml` がロックしていないスロットの割り当て。データベースに保存 | 即時 |
 | 環境変数（`.env.local`、コンテナの Secret） | 運用者 | `openmaic.yml` が参照するシークレットと、その他すべてのサーバーオプション | 起動時 |
 
-`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/THU-MAIC/OpenMAIC/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/THU-MAIC/OpenMAIC/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
+`DATABASE_URL` is required; other environment variables are optional (see [Deployment](./deployment.mdx)). Providers that use server credentials for model selection also need authorized model lists, as described below. See [`.env.example`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/.env.example) for environment variables, [`openmaic.example.yml`](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/openmaic.example.yml) for a sample model configuration, and [Supported models](./supported-models.mdx) for preset and model IDs.
 
 以前のリリースでは、モデルはプロバイダー環境変数、`server-providers.yml`、`DEFAULT_MODEL`、`MODEL_ROUTES` でしか設定できませんでした。`MODEL_ROUTES` を除き、これらは現在も動作しますが非推奨です。[旧設定からの移行](#旧設定からの移行)を参照してください。
 
@@ -238,7 +238,7 @@ allowUserKeys: false
 
 ```bash
 OPENMAIC_SECRET_KEY=...        # モデル設定に保存されるキー用のインスタンスシークレット
-OPENMAIC_CONFIG=/etc/openmaic/openmaic.yml   # 任意：openmaic.yml の別のパス
+OPENMAIC_CONFIG=/etc/dojolearn/openmaic.yml   # 任意：openmaic.yml の別のパス
 ```
 
 ### ワークスペースが追加できるもの
@@ -417,7 +417,7 @@ slots:
 
 ```yaml
 services:
-  openmaic:
+  dojolearn:
     volumes:
       - ./openmaic.yml:/app/openmaic.yml:ro
 ```
@@ -530,7 +530,7 @@ AZURE_OPENAI_MODELS=your-deployment-name
 
 別の OpenAI 互換 LLM サービスに接続するには、`openmaic.yml` で `baseUrl` と `models` を指定した `openai-compatible` プロバイダーを宣言するか、**設定 → モデルサービス → 言語モデル** の **プロバイダーを追加** で追加してください。
 
-Gemini の教室チャットにはネイティブの `google` プリセットを使います。**設定 → モデルサービス**で Google を追加し、**コースモデル設定**の**教室**で選択してください。Pi は Google 公式の OpenAI 互換エンドポイント（`https://generativelanguage.googleapis.com/v1beta/openai`）を早期に拒否し、移行を案内します。互換経路のツール呼び出し対応は [#1556](https://github.com/THU-MAIC/OpenMAIC/issues/1556) で追跡しています。このチェックは公式エンドポイントのみを識別し、任意のサードパーティゲートウェイの接続先は識別できません。
+Gemini の教室チャットにはネイティブの `google` プリセットを使います。**設定 → モデルサービス**で Google を追加し、**コースモデル設定**の**教室**で選択してください。Pi は Google 公式の OpenAI 互換エンドポイント（`https://generativelanguage.googleapis.com/v1beta/openai`）を早期に拒否し、移行を案内します。互換経路のツール呼び出し対応は #1556 で追跡しています。このチェックは公式エンドポイントのみを識別し、任意のサードパーティゲートウェイの接続先は識別できません。
 
 ### ローカルモデル（Ollama と Lemonade）
 
@@ -655,7 +655,7 @@ slots:
   image: comfyui
 ```
 
-API 形式でエクスポートしたワークフロー JSON を OpenMAIC の `public/` ディレクトリに置きます。ファイル名は `comfyui-*.json` に一致するか `workflow` を含む必要があり、OpenMAIC はこれらを自動的に検出してワークフローとして提供します。Docker では、イメージをビルドする前にワークフローを追加するか、個々のワークフローファイルをコンテナ内の `/app/public/` にマウントしてください。プロバイダーはデプロイで宣言されているため、ホストやプライベートネットワーク上の ComfyUI に `ALLOW_LOCAL_NETWORKS` は不要です。
+API 形式でエクスポートしたワークフロー JSON を DojoLearn の `public/` ディレクトリに置きます。ファイル名は `comfyui-*.json` に一致するか `workflow` を含む必要があり、DojoLearn はこれらを自動的に検出してワークフローとして提供します。Docker では、イメージをビルドする前にワークフローを追加するか、個々のワークフローファイルをコンテナ内の `/app/public/` にマウントしてください。プロバイダーはデプロイで宣言されているため、ホストやプライベートネットワーク上の ComfyUI に `ALLOW_LOCAL_NETWORKS` は不要です。
 
 ### 動画生成プロバイダー
 
@@ -684,7 +684,7 @@ ALIDOCMIND_ACCESS_KEY_SECRET=
 ALIDOCMIND_BASE_URL=       # 任意の上書き
 ```
 
-`unpdf` は OpenMAIC に組み込み済みで、基本的な PDF 解析に使えます。Office 文書、画像、OCR、表、数式、レイアウト解析が必要な教材は MinerU または AliDocMind の互換 provider を選択してください。
+`unpdf` は DojoLearn に組み込み済みで、基本的な PDF 解析に使えます。Office 文書、画像、OCR、表、数式、レイアウト解析が必要な教材は MinerU または AliDocMind の互換 provider を選択してください。
 
 AliDocMind のドキュメント解析は PDF、DOCX、PPTX、XLSX、PNG、JPG/JPEG、BMP、GIF に対応します。現在の音声・動画素材は AliDocMind でのみ解析可能で、動画は MP4、MOV、AVI、MKV、WMV、音声は MP3、WAV、AAC に対応し、M4A は非対応です。
 

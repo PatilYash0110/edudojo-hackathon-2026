@@ -33,7 +33,7 @@ import { aspectRatioToDimensions, IMAGE_PROVIDERS } from '../image-providers';
 import { assertNotRedirected } from '../redirect-guard';
 
 // ---------------------------------------------------------------------------
-// Logger  (matches openmaic's [TIMESTAMP] [LEVEL] [Component] format)
+// Logger  (matches dojolearn's [TIMESTAMP] [LEVEL] [Component] format)
 // ---------------------------------------------------------------------------
 
 const COMPONENT = 'ComfyUI Image';
@@ -608,7 +608,7 @@ export async function generateWithComfyuiImage(
   patchWorkflow(workflow, options, maxWidth, maxHeight);
 
   // 2. Client ID for this request --------------------------------------------
-  const clientId = `openmaic-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+  const clientId = `dojolearn-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
   // 3. Submit to the queue ---------------------------------------------------
   const promptId = await queuePrompt(mediaFetchFor(config), baseUrl, workflow, clientId);

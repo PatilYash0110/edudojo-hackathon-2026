@@ -10,7 +10,7 @@ import {
   type PPTChartElement,
   type Slide,
   type PPTAnimation,
-} from '@openmaic/dsl';
+} from '@dojolearn/dsl';
 import type { OperateLineHandlers, OperateResizeHandlers } from '@/lib/types/edit';
 import { ImageElementOperate } from './ImageElementOperate';
 import { TextElementOperate } from './TextElementOperate';
@@ -19,7 +19,7 @@ import { LineElementOperate } from './LineElementOperate';
 import { TableElementOperate } from './TableElementOperate';
 import { CommonElementOperate } from './CommonElementOperate';
 import type { SlideContent } from '@/lib/types/stage';
-import { validateShapeGeometry } from '@openmaic/geometry';
+import { validateShapeGeometry } from '@dojolearn/geometry';
 import { projectInteractionElement } from '../interaction-elements';
 
 interface OperateProps {

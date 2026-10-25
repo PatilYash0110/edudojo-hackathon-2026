@@ -16,7 +16,7 @@ import type { LlmStage } from '@/lib/server/model-routes';
 import type { OwnerAuthRequest } from '@/lib/server/identity/types';
 
 import { loadDeploymentLayer, type DeploymentLayer } from './deployment-layer';
-import type { ModelConfigFile } from './openmaic-yml';
+import type { ModelConfigFile } from './dojolearn-yml';
 import {
   resolveModelReference,
   resolveSlot,
@@ -30,7 +30,7 @@ import {
 
 const log = createLogger('ModelConfig');
 
-const STATE_KEY = Symbol.for('openmaic.model-config.deployment');
+const STATE_KEY = Symbol.for('dojolearn.model-config.deployment');
 const globalState = globalThis as typeof globalThis & { [STATE_KEY]?: DeploymentLayer };
 
 /**

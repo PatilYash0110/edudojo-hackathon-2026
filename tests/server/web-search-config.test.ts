@@ -361,7 +361,7 @@ describe('Kimi official search bases', () => {
   it('rejects lookalike endpoints', async () => {
     const { resolveSafeClientWebSearchBaseUrl } = await import('@/lib/server/web-search-config');
     expect(() =>
-      resolveSafeClientWebSearchBaseUrl('kimi', 'https://api.kimi.com.openmaic.test/coding/v1'),
+      resolveSafeClientWebSearchBaseUrl('kimi', 'https://api.kimi.com.dojolearn.test/coding/v1'),
     ).toThrow('Unsupported Kimi base URL');
   });
 });

@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest';
 
-import { uniquifyMediaElementIds } from '@openmaic/generation';
-import type { SceneOutline } from '@openmaic/generation';
+import { uniquifyMediaElementIds } from '@dojolearn/generation';
+import type { SceneOutline } from '@dojolearn/generation';
 
 function makeOutline(mediaGenerations?: unknown): SceneOutline {
   return {

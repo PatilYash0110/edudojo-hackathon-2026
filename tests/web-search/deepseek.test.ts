@@ -28,7 +28,7 @@ describe('DeepSeek web search', () => {
   ])('selects the endpoint for %s', async (baseUrl, endpoint) => {
     const signal = new AbortController().signal;
     const result = await searchWithDeepSeek({
-      query: ' OpenMAIC ',
+      query: ' DojoLearn ',
       apiKey: 'key',
       baseUrl,
       signal,
@@ -36,10 +36,10 @@ describe('DeepSeek web search', () => {
     expect(proxyFetch).toHaveBeenCalledExactlyOnceWith(endpoint, {
       method: 'POST',
       headers: { Authorization: 'Bearer key', 'Content-Type': 'application/json' },
-      body: JSON.stringify({ query: 'OpenMAIC', count: 10, need_content: false }),
+      body: JSON.stringify({ query: 'DojoLearn', count: 10, need_content: false }),
       signal,
     });
-    expect(result).toMatchObject({ query: 'OpenMAIC', sources: [], answer: '' });
+    expect(result).toMatchObject({ query: 'DojoLearn', sources: [], answer: '' });
     expect(result.responseTime).toBeGreaterThanOrEqual(0);
   });
 

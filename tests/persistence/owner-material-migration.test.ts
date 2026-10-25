@@ -7,7 +7,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 
 import { PGlite } from '@electric-sql/pglite';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import { assetPrincipalForOwner } from '@/lib/persistence/owner-assets';

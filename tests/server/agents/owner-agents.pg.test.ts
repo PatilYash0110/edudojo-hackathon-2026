@@ -6,7 +6,7 @@
  * Works in a schema of its own, so it shares nothing with the other suites on
  * the contract database.
  */
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 import { Pool } from 'pg';
 import { afterAll, beforeAll, beforeEach, describe, expect, it } from 'vitest';
 

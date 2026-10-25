@@ -15,9 +15,9 @@ import {
   type ServerProviderEntry,
 } from '@/lib/server/provider-config';
 import { WEB_SEARCH_PROVIDERS } from '@/lib/web-search/constants';
-import type { ModelConfigFile } from './openmaic-yml';
+import type { ModelConfigFile } from './dojolearn-yml';
 import { translateLegacyConfig } from '@/lib/server/model-config/legacy-config';
-import { loadModelConfigFile } from '@/lib/server/model-config/openmaic-yml';
+import { loadModelConfigFile } from '@/lib/server/model-config/dojolearn-yml';
 import { presetIdFor, RETIRED_PRESETS, retiredPresetReason } from '@/lib/config/preset-ids';
 import { usesServerCredentials, selectsUpstreamModel } from './model-authorization';
 import { getProviderPreset } from '@/lib/config/provider-presets';

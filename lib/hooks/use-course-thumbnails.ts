@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 import { createLogger } from '@/lib/logger';
 import { loadCourseThumbnail } from '@/lib/utils/course-thumbnail-cache';
 import { CourseThumbnailLoader } from '@/lib/utils/course-thumbnail-loader';

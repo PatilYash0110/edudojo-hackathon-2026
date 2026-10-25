@@ -36,7 +36,7 @@ function firstHeadElement(html: string): DefaultTreeAdapterTypes.Element | undef
 function firstHeadMetaMarker(html: string): string | undefined {
   const first = firstHeadElement(html);
   if (!first || first.tagName !== 'meta') return undefined;
-  return first.attrs.find((attribute) => attribute.name === 'data-openmaic-untrusted-csp')
+  return first.attrs.find((attribute) => attribute.name === 'data-dojolearn-untrusted-csp')
     ? 'meta'
     : undefined;
 }
@@ -275,7 +275,7 @@ describe('project HTML hardening', () => {
   });
 
   async function makeProject(): Promise<string> {
-    const dir = await mkdtemp(join(tmpdir(), 'openmaic-csp-'));
+    const dir = await mkdtemp(join(tmpdir(), 'dojolearn-csp-'));
     scratch.push(dir);
     return dir;
   }
@@ -311,7 +311,7 @@ describe('project HTML hardening', () => {
 
   it('is a no-op for a missing directory and for already-hardened HTML', async () => {
     await expect(
-      hardenProjectDirectory(join(tmpdir(), 'openmaic-missing-dir')),
+      hardenProjectDirectory(join(tmpdir(), 'dojolearn-missing-dir')),
     ).resolves.toBeUndefined();
     expect(hardenProjectHtml(`<!doctype html>${renderMeta}<html></html>`)).toBe(
       `<!doctype html>${renderMeta}<html></html>`,

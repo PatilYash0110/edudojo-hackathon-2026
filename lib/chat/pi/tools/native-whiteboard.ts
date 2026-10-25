@@ -8,15 +8,15 @@ import type {
   PPTShapeElement,
   PPTTableElement,
   PPTTextElement,
-} from '@openmaic/dsl';
+} from '@dojolearn/dsl';
 import type { AgentTool, AgentToolResult } from '@earendil-works/pi-agent-core';
-import { RuntimeAppendConflictError } from '@openmaic/storage';
+import { RuntimeAppendConflictError } from '@dojolearn/storage';
 import { Type, type Static, type TSchema } from 'typebox';
 import { Value } from 'typebox/value';
 import { createHash } from 'node:crypto';
 import katex from 'katex';
-import { safeKatexOptions } from '@openmaic/dsl';
-import { INPUT_PATH_LIMITS, validateShapeGeometry } from '@openmaic/geometry';
+import { safeKatexOptions } from '@dojolearn/dsl';
+import { INPUT_PATH_LIMITS, validateShapeGeometry } from '@dojolearn/geometry';
 
 import type { AgentConfig } from '@/lib/orchestration/registry/types';
 import {

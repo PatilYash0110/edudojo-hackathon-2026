@@ -3,13 +3,13 @@ import {
   ensureAgentSessionSchema,
   type Queryable,
   type WithTransaction,
-} from '@openmaic/storage/agent-session/pg';
-import { extractObservedUrls } from '@openmaic/storage';
+} from '@dojolearn/storage/agent-session/pg';
+import { extractObservedUrls } from '@dojolearn/storage';
 import type { Pool } from 'pg';
 
 import { getServerPersistenceProvider } from '@/lib/persistence/server-provider';
 import { notifyDurableAgentEvent } from './event-notify-bus';
-import type { ConnectableQueryable } from '@openmaic/storage/server/reference';
+import type { ConnectableQueryable } from '@dojolearn/storage/server/reference';
 import { forwardOwnerWrite } from '@/lib/persistence/owner-merges';
 import { withSchemaBootstrapLock } from '@/lib/persistence/schema-bootstrap-lock';
 
@@ -18,7 +18,7 @@ interface AgentSessionStoreState {
   storePromise?: Promise<PgAgentSessionStore>;
 }
 
-const AGENT_SESSION_STORE_STATE_KEY = Symbol.for('openmaic.agent-session.store');
+const AGENT_SESSION_STORE_STATE_KEY = Symbol.for('dojolearn.agent-session.store');
 const globalState = globalThis as typeof globalThis & {
   [AGENT_SESSION_STORE_STATE_KEY]?: AgentSessionStoreState;
 };

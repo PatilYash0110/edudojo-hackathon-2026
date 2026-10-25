@@ -1,7 +1,7 @@
 /**
  * KaTeX stylesheet for slide previews.
  *
- * `@openmaic/renderer` typesets formulas (inline formulas in prose and LaTeX
+ * `@dojolearn/renderer` typesets formulas (inline formulas in prose and LaTeX
  * elements) as KaTeX HTML, which only lays out correctly with KaTeX's CSS and
  * math fonts; the host page is expected to load them. A preview document is
  * set with `setContent` (an `about:blank` URL), so the stylesheet's relative
@@ -22,7 +22,7 @@ export function resolveKatexDistDirectory(): string {
   const require = createRequire(import.meta.url);
   // `fonts.css` is exported without conditions, so it resolves from CommonJS
   // and locates the renderer package; KaTeX is resolved from there.
-  const rendererAsset = require.resolve('@openmaic/renderer/fonts.css');
+  const rendererAsset = require.resolve('@dojolearn/renderer/fonts.css');
   return dirname(createRequire(rendererAsset).resolve('katex'));
 }
 

@@ -43,7 +43,7 @@ export const LEGACY_AGENT_REGISTRY_KEY = 'agent-registry-storage';
 export const AGENTS_IMPORT_ENDPOINT = '/api/agents/import';
 
 /** The Web Lock that serializes agents import runs across tabs. */
-export const AGENTS_IMPORT_LOCK_NAME = 'openmaic:legacy-agents-import';
+export const AGENTS_IMPORT_LOCK_NAME = 'dojolearn:legacy-agents-import';
 
 export type AgentsImportOutcome =
   /** Nothing to import, or this browser's agents were imported before. */

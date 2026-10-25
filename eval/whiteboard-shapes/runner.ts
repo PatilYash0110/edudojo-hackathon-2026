@@ -2,8 +2,8 @@
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { parseArgs } from 'node:util';
 import { IDBFactory, IDBKeyRange } from 'fake-indexeddb';
-import type { PPTShapeElement } from '@openmaic/dsl';
-import { BrowserRuntimeStore } from '@openmaic/storage';
+import type { PPTShapeElement } from '@dojolearn/dsl';
+import { BrowserRuntimeStore } from '@dojolearn/storage';
 import { createCallLlmStreamFn } from '@/lib/agent/runtime/stream-fn';
 import { runNativeChild } from '@/lib/agent/runtime/run-native-child';
 import { buildNativeChildPrompt, buildNativeChildTurnPrompt } from '@/lib/chat/pi/prompts';

@@ -1,5 +1,5 @@
-import type { PPTElement } from '@openmaic/dsl';
-import { RENDER_PATH_LIMITS, shapeToTextFallback, validateShapeGeometry } from '@openmaic/geometry';
+import type { PPTElement } from '@dojolearn/dsl';
+import { RENDER_PATH_LIMITS, shapeToTextFallback, validateShapeGeometry } from '@dojolearn/geometry';
 
 /** Match recovered text bounds while retaining the stored shape's geometry. */
 export function projectInteractionElement(element: PPTElement): PPTElement | null {

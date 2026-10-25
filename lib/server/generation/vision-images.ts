@@ -1,5 +1,5 @@
 import sharp from 'sharp';
-import { parseBase64DataUrl, type GenerationLogger } from '@openmaic/generation';
+import { parseBase64DataUrl, type GenerationLogger } from '@dojolearn/generation';
 import {
   MAX_VISION_IMAGE_BASE64_BYTES,
   MAX_VISION_IMAGE_DIMENSION,

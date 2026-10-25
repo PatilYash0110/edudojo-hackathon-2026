@@ -8,7 +8,7 @@
  * one, no secret can be created and saving a key fails. This warns about both
  * at boot. It never refuses to start, and costs one query.
  */
-import type { Queryable } from '@openmaic/storage/document/pg';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import { createLogger } from '@/lib/logger';
 import { inspectInstanceSecret, type InstanceSecretState } from '@/lib/server/secret-box';

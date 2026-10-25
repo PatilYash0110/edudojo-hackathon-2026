@@ -1,12 +1,12 @@
 import { useMemo, useEffect, useState } from 'react';
 import { useCanvasStore } from '@/lib/store';
-import type { PPTElement } from '@openmaic/dsl';
+import type { PPTElement } from '@dojolearn/dsl';
 import { getElementListRange } from '@/lib/utils/element';
 import type { OperateResizeHandlers, MultiSelectRange } from '@/lib/types/edit';
 import { useCommonOperate } from '../hooks/useCommonOperate';
 import { ResizeHandler } from './ResizeHandler';
 import { BorderLine } from './BorderLine';
-import { validateShapeGeometry } from '@openmaic/geometry';
+import { validateShapeGeometry } from '@dojolearn/geometry';
 import { projectInteractionElements } from '../interaction-elements';
 
 interface MultiSelectOperateProps {

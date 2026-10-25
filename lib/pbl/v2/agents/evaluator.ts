@@ -45,7 +45,7 @@ import type { LanguageModel } from 'ai';
 
 import { createLogger } from '@/lib/logger';
 import { streamLLM } from '@/lib/ai/llm';
-import { buildVisionUserContent } from '@openmaic/generation';
+import { buildVisionUserContent } from '@dojolearn/generation';
 import { prepareVisionImages } from '@/lib/server/generation/vision-images';
 import type { ThinkingConfig } from '@/lib/types/provider';
 
@@ -168,7 +168,7 @@ async function* runShared(args: RunSharedArgs): AsyncGenerator<PBLSSEEvent, void
         model: languageModel,
         system: systemPrompt,
         // Image submission on a vision-capable model → send the picture as a
-        // multimodal user turn (reusing OpenMAIC's buildVisionUserContent).
+        // multimodal user turn (reusing DojoLearn's buildVisionUserContent).
         // Everything else keeps the plain text prompt unchanged.
         ...(safeImages.length
           ? {

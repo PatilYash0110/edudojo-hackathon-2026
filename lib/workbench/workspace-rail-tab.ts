@@ -15,7 +15,7 @@
 
 export type RailTab = 'sessions' | 'courses';
 
-export const RAIL_TAB_STORAGE_KEY = 'openmaic:workspace:rail-tab';
+export const RAIL_TAB_STORAGE_KEY = 'dojolearn:workspace:rail-tab';
 
 const TABS: readonly RailTab[] = ['sessions', 'courses'];
 

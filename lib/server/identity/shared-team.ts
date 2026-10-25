@@ -87,7 +87,7 @@ export function resolveSharedOwnerId(): string | undefined {
 
 const SHARED_ROLES: ReadonlySet<string> = new Set<string>([OWNER_ROLES.coursePublish]);
 
-const SHARED_TEAM_METHOD = Symbol.for('openmaic.owner-identity.shared-team-method');
+const SHARED_TEAM_METHOD = Symbol.for('dojolearn.owner-identity.shared-team-method');
 
 /** Whether `method` is the built-in from {@link sharedTeamAuthMethod}. */
 export function isSharedTeamAuthMethod(method: OwnerAuthMethod): boolean {

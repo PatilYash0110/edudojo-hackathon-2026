@@ -18,8 +18,8 @@
  * Deleting one's own runtime for a stage (`deleteLearnerRuntime`) is left
  * through: removing data of a deleted course is what a user would want.
  */
-import type { RuntimeSession } from '@openmaic/dsl';
-import { RuntimeStageNotFoundError, type RuntimeStore } from '@openmaic/storage';
+import type { RuntimeSession } from '@dojolearn/dsl';
+import { RuntimeStageNotFoundError, type RuntimeStore } from '@dojolearn/storage';
 
 import { readStageMeta } from './stage-meta';
 

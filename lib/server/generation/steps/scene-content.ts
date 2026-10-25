@@ -12,8 +12,8 @@ import {
   generateSceneContent as generateContent,
   buildVisionUserContent,
   partitionImagesForVision,
-} from '@openmaic/generation';
-import type { AgentInfo } from '@openmaic/generation';
+} from '@dojolearn/generation';
+import type { AgentInfo } from '@dojolearn/generation';
 import type {
   SceneOutline,
   PdfImage,

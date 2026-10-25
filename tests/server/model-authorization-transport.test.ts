@@ -1,6 +1,6 @@
 import { beforeEach, afterEach, it, expect, vi } from 'vitest';
 import { NextRequest } from 'next/server';
-import type { ModelConfigFile } from '@/lib/server/model-config/openmaic-yml';
+import type { ModelConfigFile } from '@/lib/server/model-config/dojolearn-yml';
 
 const captures = vi.hoisted(() => ({
   calls: [] as { model?: string; target?: string; key: string | null }[],

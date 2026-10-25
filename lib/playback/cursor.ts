@@ -6,7 +6,7 @@
  * row is migrated only from an injected `legacyStore` (the one-way importer
  * hands one in); the regular load path has none.
  */
-import { BrowserKVStore, type KVStore } from '@openmaic/storage';
+import { BrowserKVStore, type KVStore } from '@dojolearn/storage';
 
 export interface PlaybackCursor {
   sceneId: string;

@@ -8,9 +8,9 @@
 import { createElement, type ComponentType } from 'react';
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import type { PPTShapeElement, PPTTableElement, PPTTextElement } from '@openmaic/dsl';
+import type { PPTShapeElement, PPTTableElement, PPTTextElement } from '@dojolearn/dsl';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { MAX_INLINE_MATH_SOURCE } from '@openmaic/renderer';
+import { MAX_INLINE_MATH_SOURCE } from '@dojolearn/renderer';
 import { BaseShapeElement } from '@/components/slide-renderer/components/element/ShapeElement/BaseShapeElement';
 import { StaticTable } from '@/components/slide-renderer/components/element/TableElement/StaticTable';
 import { BaseTextElement } from '@/components/slide-renderer/components/element/TextElement/BaseTextElement';

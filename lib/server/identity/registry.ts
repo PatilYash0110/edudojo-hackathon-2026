@@ -67,7 +67,7 @@ interface RegistryState {
   inUse?: boolean;
 }
 
-const REGISTRY_KEY = Symbol.for('openmaic.owner-identity.registry');
+const REGISTRY_KEY = Symbol.for('dojolearn.owner-identity.registry');
 const globalState = globalThis as typeof globalThis & { [REGISTRY_KEY]?: RegistryState };
 function registry(): RegistryState {
   return (globalState[REGISTRY_KEY] ??= {});

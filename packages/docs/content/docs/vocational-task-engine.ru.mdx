@@ -5,7 +5,7 @@ description: Включение экспериментальных уроков 
 
 Движок профессиональных задач создаёт урок вокруг рабочей задачи: что должен сделать учащийся, какие инструменты нужны, когда продолжать или остановиться и как проверить завершение. Урок сочетает вводные слайды, интерактивную отработку процедур, пояснения и задания по той же рабочей ситуации.
 
-Функция экспериментальная и по умолчанию выключена. Сначала настройте OpenMAIC и провайдера LLM по инструкции [Быстрый старт](./getting-started.mdx), затем включите приведённые ниже флаги в своём развёртывании.
+Функция экспериментальная и по умолчанию выключена. Сначала настройте DojoLearn и провайдера LLM по инструкции [Быстрый старт](./getting-started.mdx), затем включите приведённые ниже флаги в своём развёртывании.
 
 ## Подходящие задачи
 
@@ -15,7 +15,7 @@ description: Включение экспериментальных уроков 
 
 ## Включение функции
 
-Добавьте в `.env.local` приложения OpenMAIC:
+Добавьте в `.env.local` приложения DojoLearn:
 
 ```bash
 OPENMAIC_ENABLE_VOCATIONAL=true
@@ -27,13 +27,13 @@ NEXT_PUBLIC_SHOW_VOCATIONAL_TEST_UI=true
 | `OPENMAIC_ENABLE_VOCATIONAL`          | Разрешает серверу планирование профессиональных задач и генерацию практических процедур. | Во время выполнения; перезапустите приложение после изменения окружения процесса. |
 | `NEXT_PUBLIC_SHOW_VOCATIONAL_TEST_UI` | Показывает экспериментальный переключатель на главной странице.                          | Во время сборки; после изменения пересоберите приложение для production.          |
 
-Оба флага принимают `true` или `1`; без значения они выключены. После изменения локальных настроек перезапустите `pnpm dev`. В production задайте публичный флаг до `pnpm build`, а серверный — при запуске приложения. Это настройки приложения OpenMAIC, а не сервера документации. См. [Конфигурация](./configuration.mdx).
+Оба флага принимают `true` или `1`; без значения они выключены. После изменения локальных настроек перезапустите `pnpm dev`. В production задайте публичный флаг до `pnpm build`, а серверный — при запуске приложения. Это настройки приложения DojoLearn, а не сервера документации. См. [Конфигурация](./configuration.mdx).
 
 Само отображение переключателя не включает серверную функцию. Для профессионального режима нужны и серверный флаг, и `requirements.taskEngineMode` в запросе генерации. Если серверный флаг выключен, используется обычный стандартный или интерактивный путь генерации.
 
 ## Создание профессионального урока
 
-1. Откройте главную страницу OpenMAIC и настройте нужную модель.
+1. Откройте главную страницу DojoLearn и настройте нужную модель.
 2. Включите экспериментальный переключатель **职教任务** — профессиональная задача.
 3. Опишите рабочую задачу, подготовку учащихся, инструменты, точки принятия решений и критерии завершения. При наличии приложите учебные материалы.
 4. Сгенерируйте и проверьте план, затем продолжите создание класса.
@@ -68,16 +68,16 @@ NEXT_PUBLIC_SHOW_VOCATIONAL_TEST_UI=true
 
 ## Устройство реализации
 
-Функция из [PR #685](https://github.com/THU-MAIC/OpenMAIC/pull/685) использует существующие пути генерации и интерактивного отображения. Основные компоненты текущей ветки `main`:
+Функция из PR #685 использует существующие пути генерации и интерактивного отображения. Основные компоненты текущей ветки `main`:
 
 | Компонент                                                                                                                                                                                                                                   | Ответственность                                                                                                                                                                                                |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| [Флаги функций](https://github.com/THU-MAIC/OpenMAIC/blob/main/lib/config/feature-flags.ts)                                                                                                                                                 | `resolveVocationalActive` объединяет `taskEngineMode` запроса с серверным флагом; флаг отображения интерфейса независим.                                                                                       |
-| [Маршрут планирования](https://github.com/THU-MAIC/OpenMAIC/blob/main/app/api/generate/scene-outlines-stream/route.ts) и [промпт движка задач](https://github.com/THU-MAIC/OpenMAIC/tree/main/lib/prompts/templates/task-engine-outlines)   | Выбирают профессиональный планировщик и возвращают действующий режим в событии завершения потока.                                                                                                              |
-| [Маршрут контента сцены](https://github.com/THU-MAIC/OpenMAIC/blob/main/app/api/generate/scene-content/route.ts) и [пакет генерации](https://github.com/THU-MAIC/OpenMAIC/blob/main/packages/%40openmaic/generation/src/scene-generator.ts) | Повторно проверяют серверный флаг и передают поля задачи в промпт. При выключенном режиме процедурный план может быть заменён диаграммой; генератор виджета также отклоняет неразрешённый процедурный контент. |
-| [Помощник режима предпросмотра](https://github.com/THU-MAIC/OpenMAIC/blob/main/app/generation-preview/vocational-mode.ts) и [хук генерации сцен](https://github.com/THU-MAIC/OpenMAIC/blob/main/lib/hooks/use-scene-generator.ts)           | Сохраняют действующий режим и передают его последующим сценам и повторным попыткам, включая исправление [PR #716](https://github.com/THU-MAIC/OpenMAIC/pull/716).                                              |
+| [Флаги функций](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/lib/config/feature-flags.ts)                                                                                                                                                 | `resolveVocationalActive` объединяет `taskEngineMode` запроса с серверным флагом; флаг отображения интерфейса независим.                                                                                       |
+| [Маршрут планирования](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/app/api/generate/scene-outlines-stream/route.ts) и [промпт движка задач](https://github.com/PatilYash0110/edudojo-hackathon-2026/tree/main/lib/prompts/templates/task-engine-outlines)   | Выбирают профессиональный планировщик и возвращают действующий режим в событии завершения потока.                                                                                                              |
+| [Маршрут контента сцены](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/app/api/generate/scene-content/route.ts) и [пакет генерации](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/packages/%40dojolearn/generation/src/scene-generator.ts) | Повторно проверяют серверный флаг и передают поля задачи в промпт. При выключенном режиме процедурный план может быть заменён диаграммой; генератор виджета также отклоняет неразрешённый процедурный контент. |
+| [Помощник режима предпросмотра](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/app/generation-preview/vocational-mode.ts) и [хук генерации сцен](https://github.com/PatilYash0110/edudojo-hackathon-2026/blob/main/lib/hooks/use-scene-generator.ts)           | Сохраняют действующий режим и передают его последующим сценам и повторным попыткам, включая исправление PR #716.                                              |
 
-Процедурный план содержит `procedureType` (`repair`, `assembly`, `inspection`, `operation` или `custom`), `task`, `tools`, `steps`, `successCriteria` и `errorConsequences`. [Шаблоны контента](https://github.com/THU-MAIC/OpenMAIC/tree/main/packages/%40openmaic/generation/templates/procedural-skill-content) преобразуют эти поля в упражнение.
+Процедурный план содержит `procedureType` (`repair`, `assembly`, `inspection`, `operation` или `custom`), `task`, `tools`, `steps`, `successCriteria` и `errorConsequences`. [Шаблоны контента](https://github.com/PatilYash0110/edudojo-hackathon-2026/tree/main/packages/%40dojolearn/generation/templates/procedural-skill-content) преобразуют эти поля в упражнение.
 
 Действия преподавателя используют существующие сообщения от платформы к iframe: `SET_WIDGET_STATE`, `HIGHLIGHT_ELEMENT`, `ANNOTATE_ELEMENT` и `REVEAL_ELEMENT`. Промпт требует стабильные селекторы шагов и единый путь обновления состояния для действий учащегося и `SET_WIDGET_STATE`, включая `completedSteps`. Это сохраняет существующие контракты сцен и действий.
 

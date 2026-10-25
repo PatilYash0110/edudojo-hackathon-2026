@@ -32,7 +32,7 @@ const compose = yaml.load(readFileSync(path.join(root, 'docker-compose.yml'), 'u
   services: Record<string, ComposeService>;
   volumes: Record<string, unknown>;
 };
-const app = compose.services.openmaic;
+const app = compose.services.dojolearn;
 const postgres = compose.services.postgres;
 
 /** `KEY=value` lines of an env file, comments and blanks skipped. */
@@ -84,7 +84,7 @@ describe('docker-compose.yml', () => {
       'postgres://openmaic:${PERSISTENCE_POSTGRES_PASSWORD:-openmaic-dev}@postgres:5432/openmaic',
     );
     expect(postgres.environment).toContain(
-      'POSTGRES_PASSWORD=${PERSISTENCE_POSTGRES_PASSWORD:-openmaic-dev}',
+      'POSTGRES_PASSWORD=${PERSISTENCE_POSTGRES_PASSWORD:-dojolearn-dev}',
     );
   });
 
@@ -117,7 +117,7 @@ describe('docker-compose.yml', () => {
   it('defaults to single-user mode and leaves claims explicit', () => {
     const defaults = readEnvFile('docker-compose.defaults.env');
     expect(defaults).toEqual({
-      DATABASE_URL: expect.stringMatching(/@postgres:5432\/openmaic$/),
+      DATABASE_URL: expect.stringMatching(/@postgres:5432\/dojolearn$/),
       OWNER_SINGLE_USER: 'true',
     });
     // An automatic claim irreversibly merges every browser's anonymous library
@@ -195,7 +195,7 @@ describe('docker-compose.db.yml (`pnpm db:up`)', () => {
     expect(example).toContain(
       '# DATABASE_URL=postgres://openmaic:openmaic-dev@127.0.0.1:5432/openmaic',
     );
-    expect(postgres.environment).toContain('POSTGRES_USER=openmaic');
-    expect(postgres.environment).toContain('POSTGRES_DB=openmaic');
+    expect(postgres.environment).toContain('POSTGRES_USER=dojolearn');
+    expect(postgres.environment).toContain('POSTGRES_DB=dojolearn');
   });
 });

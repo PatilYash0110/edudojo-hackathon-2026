@@ -1,4 +1,4 @@
-import { enumerateAssetManifest, type Slide } from '@openmaic/dsl';
+import { enumerateAssetManifest, type Slide } from '@dojolearn/dsl';
 import type { Scene, Stage } from '@/lib/types/stage';
 import { slideMediaReferenceSlots } from './slide-media-slots';
 

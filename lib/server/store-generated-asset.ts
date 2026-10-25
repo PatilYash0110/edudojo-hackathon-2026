@@ -1,6 +1,6 @@
-import { AssetQuotaExceededError, type AssetStore } from '@openmaic/storage';
-import type { AssetMeta } from '@openmaic/dsl';
-import type { Queryable } from '@openmaic/storage/document/pg';
+import { AssetQuotaExceededError, type AssetStore } from '@dojolearn/storage';
+import type { AssetMeta } from '@dojolearn/dsl';
+import type { Queryable } from '@dojolearn/storage/document/pg';
 
 import { assetPrincipalForOwner } from '@/lib/persistence/owner-assets';
 import { forwardOwnerWrite } from '@/lib/persistence/owner-merges';
@@ -88,7 +88,7 @@ export class AssetStorageFullError extends Error {
  * Whether a store error is the contract's "no room" refusal.
  *
  * Both the class and the declared code are checked, for the same reason the
- * HTTP handler checks both (`@openmaic/storage/server/asset.ts`): a store
+ * HTTP handler checks both (`@dojolearn/storage/server/asset.ts`): a store
  * constructed in another module realm fails `instanceof` while its `code` is
  * still exactly right, and a quota refusal that degraded into an unclassified
  * failure would be reported to the model as a provider error it should retry.

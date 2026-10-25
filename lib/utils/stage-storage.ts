@@ -36,7 +36,7 @@ import {
   withRuntimeStorageExclusiveLockUntilSettled,
   withRuntimeStorageSharedLock,
 } from './chat-storage-lock';
-import { DocumentVersionError, type DocumentSummary } from '@openmaic/storage';
+import { DocumentVersionError, type DocumentSummary } from '@dojolearn/storage';
 import { preparePBLScenesForDocumentPersistence } from '@/lib/pbl/v2/runtime/document-persistence';
 import {
   MISSING_ASSET_LEASE,
@@ -78,7 +78,7 @@ const log = createLogger('StageStorage');
  * the owner's courses or folders in the background (the one-way importer of
  * pre-server browser data does), so an open library can list them again.
  */
-export const LIBRARY_CHANGED_EVENT = 'openmaic:library-changed';
+export const LIBRARY_CHANGED_EVENT = 'dojolearn:library-changed';
 
 export interface StageStoreData {
   stage: Stage;
@@ -766,7 +766,7 @@ type ThumbnailMediaElement = {
   poster?: string;
 };
 
-type ThumbnailSlide = import('@openmaic/dsl').Slide;
+type ThumbnailSlide = import('@dojolearn/dsl').Slide;
 
 function isResolvableThumbnailMediaRef(value: unknown): value is string {
   return typeof value === 'string' && !!value && !isConcreteMediaAddress(value);
@@ -975,7 +975,7 @@ export async function loadFirstSlideThumbnail(
         el.type === 'video'
           ? resolveVideoMediaForElement(
               taskEntries,
-              el as import('@openmaic/dsl').PPTVideoElement,
+              el as import('@dojolearn/dsl').PPTVideoElement,
               stageId,
               documentElements,
             )
@@ -987,7 +987,7 @@ export async function loadFirstSlideThumbnail(
           ? videoBinding?.task
           : resolveMediaTaskForElement(
               taskEntries,
-              el as import('@openmaic/dsl').PPTElement,
+              el as import('@dojolearn/dsl').PPTElement,
               stageId,
             );
       const selectedRecord = selected?.record;

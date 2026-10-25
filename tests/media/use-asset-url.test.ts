@@ -1,5 +1,5 @@
 import { IDBFactory } from 'fake-indexeddb';
-import { BrowserAssetStore, HttpAssetStore, toAssetId } from '@openmaic/storage';
+import { BrowserAssetStore, HttpAssetStore, toAssetId } from '@dojolearn/storage';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { getAssetPool } from '@/lib/media/asset-pool';
 import { useInMemoryAssetPool } from '@/tests/helpers/in-memory-document-store';

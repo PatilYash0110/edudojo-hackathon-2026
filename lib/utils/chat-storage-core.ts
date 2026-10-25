@@ -5,8 +5,8 @@ import type {
   RuntimeRecord,
   RuntimeRecordInit,
   RuntimeSession,
-} from '@openmaic/dsl';
-import type { RuntimeSessionInit } from '@openmaic/storage';
+} from '@dojolearn/dsl';
+import type { RuntimeSessionInit } from '@dojolearn/storage';
 import type { UIMessage } from 'ai';
 import { isEqual } from 'lodash';
 

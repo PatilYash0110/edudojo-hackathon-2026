@@ -1,4 +1,4 @@
-import type { Slide } from '@openmaic/dsl';
+import type { Slide } from '@dojolearn/dsl';
 
 import { db } from '@/lib/device-storage/database';
 import { sha256Hex } from '@/lib/legacy-browser-import/digest';

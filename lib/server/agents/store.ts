@@ -9,13 +9,13 @@
  * (`lib/persistence/owner-merges.ts`), and a claim moves the rows to the
  * account (`rekeyOwnerAgents`, a participant of `lib/persistence/owner-claims.ts`).
  */
-import type { Queryable } from '@openmaic/storage/document/pg';
-import { encodeJson } from '@openmaic/storage/pg-json';
-import { applySchemaMigrations, type SchemaMigrationSet } from '@openmaic/storage/pg-migrations';
+import type { Queryable } from '@dojolearn/storage/document/pg';
+import { encodeJson } from '@dojolearn/storage/pg-json';
+import { applySchemaMigrations, type SchemaMigrationSet } from '@dojolearn/storage/pg-migrations';
 import {
   nodePostgresTransaction,
   type ConnectableQueryable,
-} from '@openmaic/storage/server/reference';
+} from '@dojolearn/storage/server/reference';
 
 import { ensureOwnerMergeSchema, fenceOwnerWrite } from '@/lib/persistence/owner-merges';
 import {
